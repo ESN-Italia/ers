@@ -43,7 +43,6 @@ jobs:
         run: npm run deploy -- --context stage=dev --all --require-approval never
   build-front-end:
     runs-on: ubuntu-latest
-    needs: [build-back-end]
     defaults:
       run:
         working-directory: front-end
