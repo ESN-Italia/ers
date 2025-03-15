@@ -1,9 +1,12 @@
 name: Building and Deploying to Development
 on:
-  push:
+  pull_request:
     branches:
-      - '**'
-      - '!esn-assembly-italy-2'
+      - esn-assembly-italy-2
+    types: [opened, synchronize, reopened]
+concurrency:
+  group: deploy
+  cancel-in-progress: true
 env:
   AWS_REGION: 'eu-south-1' #Change to reflect your Region
 
