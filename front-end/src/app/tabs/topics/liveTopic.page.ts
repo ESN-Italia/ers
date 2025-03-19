@@ -358,20 +358,21 @@ export class LiveTopicPage implements OnInit, OnDestroy {
       handler: (): Promise<void> => this.seeMessageUpvoters(message)
     });
 
+    if (!this.topic.isClosed() || this.app.user.isAdministrator) {
+      buttons.push({
+        text: this.t._('MESSAGES.DELETE'),
+        icon: 'trash',
+        role: 'destructive',
+        handler: (): Promise<void> => this.deleteMessage(message)
+      });
+    }
+
     if (message.creator) {
       if (this.app.user.isAdministrator) {
         buttons.push({
           text: this.t._('MESSAGES.OPEN_PROFILE'),
           icon: 'person',
           handler: (): void => this.openUserProfile(message.creator)
-        });
-      }
-      if (!this.topic.isClosed() || this.app.user.isAdministrator) {
-        buttons.push({
-          text: this.t._('MESSAGES.DELETE'),
-          icon: 'trash',
-          role: 'destructive',
-          handler: (): Promise<void> => this.deleteMessage(message)
         });
       }
       if (this.app.user.isAdministrator) {
