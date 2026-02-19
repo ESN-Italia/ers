@@ -1,0 +1,12 @@
+.viewMode {
+  --background: var(--ion-background-color);
+}
+
+.fieldHasError {
+  --highlight-color-invalid: var(--ion-color-danger);
+}
+
+.obligatoryDot::after {
+  content: ' *';
+  color: var(--ion-color-danger);
+}

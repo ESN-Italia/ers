@@ -12,6 +12,9 @@
     <ion-tab-button tab="opportunities" *ngIf="!app.configurations.hideOpportunities">
       <ion-label>{{ 'TABS.OPPORTUNITIES' | translate }}</ion-label>
     </ion-tab-button>
+    <ion-tab-button tab="ers-events">
+      <ion-label>{{ 'TABS.ERS_EVENTS' | translate }}</ion-label>
+    </ion-tab-button>
     <ion-tab-button tab="voting" *ngIf="!app.configurations.hideVoting">
       <ion-label>{{ 'TABS.VOTING' | translate }}</ion-label>
     </ion-tab-button>
@@ -34,6 +37,9 @@
     </ion-tab-button>
     <ion-tab-button tab="opportunities" *ngIf="!app.configurations.hideOpportunities">
       <ion-icon icon="balloon"></ion-icon>
+    </ion-tab-button>
+    <ion-tab-button tab="ers-events">
+      <ion-icon icon="calendar"></ion-icon>
     </ion-tab-button>
     <ion-tab-button tab="voting" *ngIf="!app.configurations.hideVoting">
       <ion-icon icon="ticket"></ion-icon>

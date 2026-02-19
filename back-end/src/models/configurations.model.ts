@@ -25,6 +25,10 @@ export class Configurations extends Resource {
    */
   opportunitiesManagersIds: string[];
   /**
+   * The IDs of the users that can manage the ERS events.
+   */
+  ersManagersIds: string[];
+  /**
    * The IDs of the users banned; these users won't be able to add new contents (questions, messages, etc.).
    * Note: it's not a data model by itself becase we hope this list will always stay empty/short.
    */
@@ -80,6 +84,7 @@ export class Configurations extends Resource {
     this.administratorsIds = this.cleanArray(x.administratorsIds, String).map(x => x.toLowerCase());
     this.opportunitiesManagersIds = this.cleanArray(x.opportunitiesManagersIds, String).map(x => x.toLowerCase());
     this.dashboardManagersIds = this.cleanArray(x.dashboardManagersIds, String).map(x => x.toLowerCase());
+    this.ersManagersIds = this.cleanArray(x.ersManagersIds, String).map(x => x.toLowerCase());
     this.bannedUsersIds = this.cleanArray(x.bannedUsersIds, String).map(x => x.toLowerCase());
 
     this.appTitle = this.clean(x.appTitle, String, 'Assembly app');
@@ -117,7 +122,11 @@ export enum EmailTemplates {
   APPLICATION_APPROVED = 'APPLICATION_APPROVED',
   APPLICATION_REJECTED = 'APPLICATION_REJECTED',
   VOTING_INSTRUCTIONS = 'VOTING_INSTRUCTIONS',
-  VOTING_CONFIRMATION = 'VOTING_CONFIRMATION'
+  VOTING_CONFIRMATION = 'VOTING_CONFIRMATION',
+  ERS_REGISTRATION_RECEIVED = 'ERS_REGISTRATION_RECEIVED',
+  ERS_REGISTRATION_APPROVED = 'ERS_REGISTRATION_APPROVED',
+  ERS_REGISTRATION_REJECTED = 'ERS_REGISTRATION_REJECTED',
+  ERS_PAYMENT_CONFIRMED = 'ERS_PAYMENT_CONFIRMED'
 }
 
 /**

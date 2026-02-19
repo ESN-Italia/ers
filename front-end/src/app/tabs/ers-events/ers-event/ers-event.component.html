@@ -1,0 +1,72 @@
+<ng-container *ngIf="!row">
+  <ion-card *ngIf="event" button (click)="select.emit()">
+    <ion-card-header>
+      <ion-card-subtitle>{{ event.startAt | date: 'mediumDate' }}</ion-card-subtitle>
+      <ion-card-title>{{ event.name }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p *ngIf="event.isRegistrationOpen()" class="success-color">
+        {{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}
+      </p>
+      <p *ngIf="event.isEnded()" class="medium-color">
+        {{ 'ERS_EVENTS.ENDED' | translate }}
+      </p>
+
+      <div *ngIf="event.canUserManage(app.user)" class="ion-text-right">
+        <ion-button fill="clear" size="small" (click)="viewRegs.emit($event)">
+          <ion-icon name="list-outline" slot="start"></ion-icon>
+          {{ 'ERS_EVENTS.VIEW_REGISTRATIONS' | translate }}
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- skeleton -->
+  <ion-card *ngIf="!event">
+    <ion-card-header>
+      <ion-card-subtitle><ion-skeleton-text animated style="width: 30%"></ion-skeleton-text></ion-card-subtitle>
+      <ion-card-title><ion-skeleton-text animated style="width: 70%"></ion-skeleton-text></ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-skeleton-text animated style="width: 50%"></ion-skeleton-text>
+    </ion-card-content>
+  </ion-card>
+</ng-container>
+
+<!-- row -->
+<ng-container *ngIf="row">
+  <ion-row class="ion-align-items-center headerRow" *ngIf="header">
+    <ion-col [sizeLg]="5" [sizeXl]="5">{{ 'ERS_EVENTS.EVENT' | translate }}</ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.START_AT' | translate }}</ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.END_AT' | translate }}</ion-col>
+    <ion-col [sizeLg]="3" [sizeXl]="3">{{ 'ERS_EVENTS.STATUS' | translate }}</ion-col>
+  </ion-row>
+
+  <ion-row class="ion-align-items-center row tappable" *ngIf="!header && event" (click)="select.emit()">
+    <ion-col [sizeLg]="5" [sizeXl]="5">
+      <b>{{ event.name }}</b>
+    </ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2">
+      {{ event.startAt | date: 'mediumDate' }}
+    </ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2">
+      {{ event.endAt | date: 'mediumDate' }}
+    </ion-col>
+    <ion-col [sizeLg]="3" [sizeXl]="3">
+      <ion-badge *ngIf="event.isRegistrationOpen()" color="success">
+        {{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}
+      </ion-badge>
+      <ion-badge *ngIf="event.isEnded()" color="medium">
+        {{ 'ERS_EVENTS.ENDED' | translate }}
+      </ion-badge>
+    </ion-col>
+  </ion-row>
+
+  <!-- skeleton -->
+  <ion-row class="ion-align-items-center row" *ngIf="!header && !event">
+    <ion-col [sizeLg]="5" [sizeXl]="5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col [sizeLg]="3" [sizeXl]="3"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  </ion-row>
+</ng-container>

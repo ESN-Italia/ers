@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # project-specific parameters
-AWS_PROFILE='esn-italian-qt'
-PROJECT='esn-italian-qt'
+AWS_PROFILE='ers-esn-italia'
+PROJECT='ers-esn-italia'
 
 # other parameters
 ACTION=$1

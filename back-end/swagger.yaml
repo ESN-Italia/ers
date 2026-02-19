@@ -49,6 +49,10 @@ tags:
     description: The user applications to the opportunities
   - name: Voting
     description: The voting sessions
+  - name: ERSEvents
+    description: Event Registration System (ERS) events
+  - name: ERSRegistrations
+    description: Registrations to ERS events
 
 paths:
   /login:
@@ -363,6 +367,221 @@ paths:
           required: true
           schema:
             type: string
+      responses:
+        200:
+          $ref: '#/components/responses/OperationCompleted'
+        400:
+          $ref: '#/components/responses/BadParameters'
+  /ers-events:
+    get:
+      summary: Get the ERS events
+      tags: [ERSEvents]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: all
+          in: query
+          description: Whether to include archived events
+          schema:
+            type: boolean
+      responses:
+        200:
+          $ref: '#/components/responses/ERSEvents'
+    post:
+      summary: Insert a new ERS event
+      description: Requires to be Administrator or have ERS management permissions
+      tags: [ERSEvents]
+      security:
+        - AuthFunction: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ERSEvent'
+      responses:
+        200:
+          $ref: '#/components/responses/ERSEvent'
+        400:
+          $ref: '#/components/responses/BadParameters'
+  /ers-events/{eventId}:
+    get:
+      summary: Get an ERS event
+      tags: [ERSEvents]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/ERSEvent'
+    put:
+      summary: Edit an ERS event
+      description: Requires permissions to manage the event
+      tags: [ERSEvents]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ERSEvent'
+      responses:
+        200:
+          $ref: '#/components/responses/ERSEvent'
+        400:
+          $ref: '#/components/responses/BadParameters'
+    patch:
+      summary: Actions on an ERS event
+      tags: [ERSEvents]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [ARCHIVE, UNARCHIVE]
+      responses:
+        200:
+          $ref: '#/components/responses/OperationCompleted'
+        400:
+          $ref: '#/components/responses/BadParameters'
+    delete:
+      summary: Delete an ERS event
+      description: Requires permissions to manage the event; it works only if there are no registrations.
+      tags: [ERSEvents]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/OperationCompleted'
+        400:
+          $ref: '#/components/responses/BadParameters'
+  /ers-events/{eventId}/registrations:
+    get:
+      summary: Get the registrations of an ERS topic
+      tags: [ERSRegistrations]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/ERSRegistrations'
+    post:
+      summary: Registration of the user to an ERS event
+      description: Each user can register only once
+      tags: [ERSRegistrations]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ERSRegistration'
+      responses:
+        200:
+          $ref: '#/components/responses/ERSRegistration'
+        400:
+          $ref: '#/components/responses/BadParameters'
+  /ers-events/{eventId}/registrations/{registrationId}:
+    get:
+      summary: Get a registration on an ERS event
+      tags: [ERSRegistrations]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+        - name: registrationId
+          in: path
+          description: Registration ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/ERSRegistration'
+    patch:
+      summary: Actions on a registration
+      tags: [ERSRegistrations]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+        - name: registrationId
+          in: path
+          description: Registration ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [APPROVE, REJECT, CONFIRM_PAYMENT, receipt-upload-url, SUBMIT_RECEIPT]
+                receiptKey:
+                  type: string
+                  description: (SUBMIT_RECEIPT)
       responses:
         200:
           $ref: '#/components/responses/OperationCompleted'
@@ -2498,6 +2717,12 @@ components:
     Event:
       type: object
       additionalProperties: {}
+    ERSEvent:
+      type: object
+      additionalProperties: {}
+    ERSRegistration:
+      type: object
+      additionalProperties: {}
     Topic:
       type: object
       additionalProperties: {}
@@ -2585,6 +2810,36 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/Event'
+    ERSEvent:
+      description: An ERS event
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: '#/components/schemas/ERSEvent'
+    ERSEvents:
+      description: The ERS events
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ERSEvent'
+    ERSRegistration:
+      description: An ERS registration
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: '#/components/schemas/ERSRegistration'
+    ERSRegistrations:
+      description: The ERS registrations
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ERSRegistration'
     Topic:
       description: A topic
       content:

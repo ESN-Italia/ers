@@ -106,6 +106,14 @@ class ConfigurationsRC extends ResourceController {
         return 'notify-voting-instructions';
       case EmailTemplates.VOTING_CONFIRMATION:
         return 'notify-voting-confirmation';
+      case EmailTemplates.ERS_REGISTRATION_RECEIVED:
+        return 'ers-registration-received';
+      case EmailTemplates.ERS_REGISTRATION_APPROVED:
+        return 'ers-registration-approved';
+      case EmailTemplates.ERS_REGISTRATION_REJECTED:
+        return 'ers-registration-rejected';
+      case EmailTemplates.ERS_PAYMENT_CONFIRMED:
+        return 'ers-payment-confirmed';
       default:
         throw new HandledError("Template doesn't exist");
     }

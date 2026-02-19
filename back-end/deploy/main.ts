@@ -71,7 +71,21 @@ const apiResources: ResourceController[] = [
     ]
   },
   { name: 'votingSessions', paths: ['/voting-sessions', '/voting-sessions/{sessionId}'] },
-  { name: 'vote', paths: ['/voting-sessions/{sessionId}/vote'] }
+  { name: 'vote', paths: ['/voting-sessions/{sessionId}/vote'] },
+  {
+    name: 'ersEvents',
+    paths: [
+      '/ers-events',
+      '/ers-events/{eventId}'
+    ]
+  },
+  {
+    name: 'ersRegistrations',
+    paths: [
+      '/ers-events/{eventId}/registrations',
+      '/ers-events/{eventId}/registrations/{registrationId}'
+    ]
+  }
 ];
 
 const tables: { [tableName: string]: DDBTable } = {
@@ -83,6 +97,20 @@ const tables: { [tableName: string]: DDBTable } = {
   },
   events: {
     PK: { name: 'eventId', type: DDB.AttributeType.STRING }
+  },
+  ersEvents: {
+    PK: { name: 'eventId', type: DDB.AttributeType.STRING }
+  },
+  ersRegistrations: {
+    PK: { name: 'eventId', type: DDB.AttributeType.STRING },
+    SK: { name: 'registrationId', type: DDB.AttributeType.STRING },
+    indexes: [
+      {
+        indexName: 'userId-index',
+        partitionKey: { name: 'userId', type: DDB.AttributeType.STRING },
+        projectionType: DDB.ProjectionType.ALL
+      }
+    ]
   },
   topics: {
     PK: { name: 'topicId', type: DDB.AttributeType.STRING },

@@ -1,0 +1,100 @@
+<ion-header>
+  <ion-toolbar color="ideaToolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/t/events"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'ERS_EVENTS.REGISTRATIONS' | translate }}</ion-title>
+    <ion-buttons slot="end" *ngIf="filteredRegistrations?.length">
+      <ion-button (click)="toggleAll()">
+        <ion-icon [name]="selectedIds.size === filteredRegistrations.length ? 'checkbox' : 'square-outline'"
+          slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar color="ideaToolbar" *ngIf="selectedIds.size > 0">
+    <ion-buttons slot="start">
+      <ion-button color="success" (click)="approveSelected()">
+        <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+        {{ 'ERS_EVENTS.APPROVE_SELECTED' | translate }} ({{ selectedIds.size }})
+      </ion-button>
+      <ion-button color="danger" (click)="rejectSelected()">
+        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+        {{ 'ERS_EVENTS.REJECT_SELECTED' | translate }} ({{ selectedIds.size }})
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar class="filtersBar" color="ideaToolbar">
+    <ion-searchbar [(ngModel)]="searchTerm" [placeholder]="'ERS_EVENTS.SEARCH_REGISTRATIONS' | translate"
+      (ionInput)="filter()"></ion-searchbar>
+    <ion-buttons slot="end">
+      <ion-item lines="none" color="ideaToolbar">
+        <ion-select interface="popover" [(ngModel)]="filterBySpotId" (ionChange)="filter()"
+          [placeholder]="'ERS_EVENTS.ALL_SPOTS' | translate">
+          <ion-select-option [value]="null">{{ 'ERS_EVENTS.ALL_SPOTS' | translate }}</ion-select-option>
+          <ion-select-option *ngFor="let spot of event?.spots" [value]="spot.id">{{ spot.name }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item lines="none" color="ideaToolbar">
+        <ion-select interface="popover" [(ngModel)]="filterStatus" (ionChange)="filter()"
+          [placeholder]="'ERS_EVENTS.ALL_STATUSES' | translate">
+          <ion-select-option value="ALL">{{ 'ERS_EVENTS.ALL_STATUSES' | translate }}</ion-select-option>
+          <ion-select-option [value]="RegistrationStatus.PENDING">{{ 'ERS_EVENTS.STATUS_PENDING' | translate }}
+          </ion-select-option>
+          <ion-select-option [value]="RegistrationStatus.APPROVED">{{ 'ERS_EVENTS.STATUS_APPROVED' | translate }}
+          </ion-select-option>
+          <ion-select-option [value]="RegistrationStatus.PAID">{{ 'ERS_EVENTS.STATUS_PAID' | translate }}
+          </ion-select-option>
+          <ion-select-option [value]="RegistrationStatus.CONFIRMED">{{ 'ERS_EVENTS.STATUS_CONFIRMED' | translate }}
+          </ion-select-option>
+          <ion-select-option [value]="RegistrationStatus.REJECTED">{{ 'ERS_EVENTS.STATUS_REJECTED' | translate }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngIf="!filteredRegistrations?.length">
+      <ion-label>{{ 'COMMON.NO_ELEMENT_FOUND' | translate }}</ion-label>
+    </ion-item>
+
+    <ion-item-sliding *ngFor="let reg of filteredRegistrations">
+      <ion-item button (click)="viewDetail(reg)">
+        <ion-checkbox slot="start" [checked]="isSelected(reg)" (ionChange)="toggleSelection(reg, $event)"
+          (click)="$event.stopPropagation()"></ion-checkbox>
+        <ion-label>
+          <h2>{{ getUserName(reg) }}</h2>
+          <h3>{{ getSpotName(reg.spotId) }}</h3>
+          <p>{{ (reg.status === RegistrationStatus.PENDING ? 'ERS_EVENTS.STATUS_PENDING' :
+            reg.status === RegistrationStatus.APPROVED ? 'ERS_EVENTS.STATUS_APPROVED' :
+            reg.status === RegistrationStatus.PAID ? 'ERS_EVENTS.STATUS_PAID' :
+            reg.status === RegistrationStatus.CONFIRMED ? 'ERS_EVENTS.STATUS_CONFIRMED' :
+            'ERS_EVENTS.STATUS_REJECTED') | translate }}</p>
+          <p *ngIf="reg.receipt">
+            <a [href]="reg.receipt.url" target="_blank">{{ 'ERS_EVENTS.VIEW_RECEIPT' | translate }}</a>
+          </p>
+        </ion-label>
+        <ion-button slot="end" fill="clear" (click)="viewDetail(reg)">
+          {{ 'ERS_EVENTS.VIEW_REGISTRATION' | translate }}
+          <ion-icon name="chevron-forward" slot="end"></ion-icon>
+        </ion-button>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option color="success" *ngIf="reg.status === RegistrationStatus.PENDING" (click)="approve(reg)">
+          Approve
+        </ion-item-option>
+        <ion-item-option color="danger" *ngIf="reg.status === RegistrationStatus.PENDING" (click)="reject(reg)">
+          Reject
+        </ion-item-option>
+        <ion-item-option color="success" *ngIf="reg.status === RegistrationStatus.PAID" (click)="confirmPayment(reg)">
+          Confirm
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

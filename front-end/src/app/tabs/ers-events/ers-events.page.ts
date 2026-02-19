@@ -1,0 +1,69 @@
+import { Component, OnInit } from '@angular/core';
+
+import { AppService } from '@app/app.service';
+import { ERSEvent } from '@models/ersEvent.model';
+import { ERSEventsService } from './ers-events.service';
+
+@Component({
+  selector: 'app-ers-events',
+  templateUrl: './ers-events.page.html',
+  styleUrls: ['./ers-events.page.scss']
+})
+export class ERSEventsPage implements OnInit {
+  events: ERSEvent[];
+  filteredEvents: ERSEvent[];
+
+  search = '';
+  filterByStatus: boolean | 'ALL' = 'ALL';
+
+  constructor(public app: AppService, private service: ERSEventsService) { }
+
+  async ngOnInit(): Promise<void> {
+    await this.loadList();
+  }
+
+  async loadList(event?: any): Promise<void> {
+    try {
+      this.events = await this.service.getList(true);
+      this.filter();
+    } catch (error) {
+      this.events = [];
+      this.filteredEvents = [];
+    }
+    if (event) event.target.complete();
+  }
+
+  filter(search?: string): void {
+    if (search !== undefined) this.search = search;
+
+    let filtered = this.events || [];
+
+    if (this.search) {
+      const s = this.search.toLowerCase();
+      filtered = filtered.filter(e => e.name.toLowerCase().includes(s));
+    }
+
+    if (this.filterByStatus !== 'ALL') {
+      filtered = filtered.filter(e => e.isRegistrationOpen() === this.filterByStatus);
+    }
+
+    this.filteredEvents = filtered;
+  }
+
+  async openEvent(event: ERSEvent): Promise<void> {
+    this.app.goToInTabs(['ers-events', event.eventId]);
+  }
+
+  async viewRegistrations(event: ERSEvent, e: any): Promise<void> {
+    if (e) e.stopPropagation();
+    this.app.goToInTabs(['ers-events', event.eventId, 'registrations']);
+  }
+
+  async createEvent(): Promise<void> {
+    // Navigate to create page or open modal
+    // For now, let's assume a route 'create' or just 'new'
+    // But since I haven't defined 'create' route yet, maybe wait?
+    // I'll define 'manage' route for creation/editing.
+    this.app.goToInTabs(['ers-events', 'new', 'manage']);
+  }
+}

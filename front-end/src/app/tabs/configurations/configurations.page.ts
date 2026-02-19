@@ -44,7 +44,7 @@ export class ConfigurationsPage implements OnInit {
     private _media: MediaService,
     public _badges: BadgesService,
     public app: AppService
-  ) {}
+  ) { }
   async ngOnInit(): Promise<void> {
     this.configurations = await this._configurations.get();
     this.filterBadges(null, null, true);
@@ -61,6 +61,9 @@ export class ConfigurationsPage implements OnInit {
   }
   addBannedUser(): void {
     this.addUserToList('bannedUsersIds', 'ADD_BANNED_USER');
+  }
+  addERSManager(): void {
+    this.addUserToList('ersManagersIds', 'ADD_ERS_MANAGER');
   }
   private async addUserToList(listKey: string, translationKey: string): Promise<void> {
     const doAdd = async ({ userId }): Promise<void> => {
@@ -93,6 +96,9 @@ export class ConfigurationsPage implements OnInit {
   }
   removeBannedUserById(userId: string): void {
     this.removeUserFromListById(userId, 'bannedUsersIds');
+  }
+  removeERSManagerById(userId: string): void {
+    this.removeUserFromListById(userId, 'ersManagersIds');
   }
   private async removeUserFromListById(userId: string, listKey: string): Promise<void> {
     const doRemove = async (): Promise<void> => {

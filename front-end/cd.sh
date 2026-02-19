@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # project specific parameters
-DOMAIN_PROD='esn-qt.org'
-DOMAIN_DEV='dev.esn-qt.org'
+DOMAIN_PROD='ers-esnitalia.click'
+DOMAIN_DEV='dev.ers-esnitalia.click'
 
 # other parameters
 ACTION=$1

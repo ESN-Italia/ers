@@ -1,0 +1,80 @@
+<ion-header>
+  <ion-toolbar color="ideaToolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/t/events"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'ERS_EVENTS.REGISTER' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="event" class="ion-padding">
+    <h2>{{ event.name }}</h2>
+
+    <ion-list>
+      <ion-radio-group [(ngModel)]="registration.spotId" *ngIf="event.spots?.length > 1">
+        <ion-list-header>
+          <ion-label>{{ 'ERS_EVENTS.SELECT_SPOT' | translate }}</ion-label>
+        </ion-list-header>
+        <ion-item *ngFor="let spot of event.spots">
+          <ion-label>
+            <h3>{{ spot.name }}</h3>
+            <p>{{ 'ERS_EVENTS.SPOT_PRICE' | translate }}: {{ spot.price }} | {{ 'ERS_EVENTS.SPOT_LIMIT' | translate }}:
+              {{
+              spot.limit }}</p>
+          </ion-label>
+          <ion-radio slot="start" [value]="spot.id"></ion-radio>
+        </ion-item>
+      </ion-radio-group>
+      <div *ngIf="event.spots?.length === 1">
+        <ion-item>
+          <ion-label>
+            <h3>{{ event.spots[0].name }}</h3>
+            <p>{{ 'ERS_EVENTS.SPOT_PRICE' | translate }}: {{ event.spots[0].price }}</p>
+          </ion-label>
+        </ion-item>
+      </div>
+
+      <ion-list-header *ngIf="event.questions?.length">
+        <ion-label>{{ 'ERS_EVENTS.QUESTIONS' | translate }}</ion-label>
+      </ion-list-header>
+
+      <ng-container *ngFor="let question of event.questions">
+        <!-- Text -->
+        <ion-item *ngIf="question.type === QuestionType.TEXT">
+          <ion-label position="stacked">{{ question.text }} <span *ngIf="question.required"
+              class="obligatoryDot">*</span></ion-label>
+          <ion-textarea [(ngModel)]="registration.answers[question.id]"></ion-textarea>
+        </ion-item>
+
+        <!-- Radiobox -->
+        <ion-radio-group *ngIf="question.type === QuestionType.RADIOBOX"
+          [(ngModel)]="registration.answers[question.id]">
+          <ion-list-header>
+            <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
+          </ion-list-header>
+          <ion-item *ngFor="let option of question.options">
+            <ion-label>{{ option }}</ion-label>
+            <ion-radio slot="start" [value]="option"></ion-radio>
+          </ion-item>
+        </ion-radio-group>
+
+        <!-- Checkbox -->
+        <ng-container *ngIf="question.type === QuestionType.CHECKBOX">
+          <ion-list-header>
+            <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
+          </ion-list-header>
+          <ion-item *ngFor="let option of question.options">
+            <ion-label>{{ option }}</ion-label>
+            <ion-checkbox slot="start" [checked]="isCheckboxChecked(question.id, option)"
+              (ionChange)="toggleCheckbox(question.id, option)"></ion-checkbox>
+          </ion-item>
+        </ng-container>
+      </ng-container>
+    </ion-list>
+
+    <div class="ion-padding">
+      <ion-button expand="block" (click)="submit()">{{ 'COMMON.SUBMIT' | translate }}</ion-button>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,65 @@
+<ion-header>
+  <ion-toolbar color="ideaToolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/t/events"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ event?.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="event?.canUserManage(app.user)" (click)="manage()">
+        <ion-icon name="create" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="event" class="ion-padding">
+    <h1>{{ event.name }}</h1>
+    <p class="medium-color">
+      {{ event.startAt | date: 'medium' }} - {{ event.endAt | date: 'medium' }}
+    </p>
+
+    <div *ngIf="event.description" [innerHTML]="event.description"></div>
+
+    <ion-card *ngIf="event.isRegistrationOpen() || myRegistration || event.canUserManage(app.user)">
+      <ion-card-header>
+        <ion-card-title>{{ 'ERS_EVENTS.REGISTRATION' | translate }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="myRegistration">
+          <p>{{ 'ERS_EVENTS.ALREADY_REGISTERED' | translate }}</p>
+          <ion-button expand="block" (click)="viewRegistration()">{{ 'ERS_EVENTS.VIEW_MY_REGISTRATION' | translate
+            }}</ion-button>
+        </div>
+        <div *ngIf="!myRegistration && event.isRegistrationOpen()">
+          <ion-button expand="block" (click)="register()">{{ 'ERS_EVENTS.REGISTER_NOW' | translate }}</ion-button>
+        </div>
+        <div *ngIf="!myRegistration && !event.isRegistrationOpen()">
+          <p>{{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}</p>
+        </div>
+
+        <div *ngIf="event.canUserManage(app.user)" class="ion-margin-top">
+          <ion-button expand="block" fill="outline" (click)="viewRegistrations()">
+            <ion-icon name="list-outline" slot="start"></ion-icon>
+            {{ 'ERS_EVENTS.VIEW_REGISTRATIONS' | translate }}
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-list-header>
+      <ion-label>
+        <h2>{{ 'ERS_EVENTS.SPOTS' | translate }}</h2>
+      </ion-label>
+    </ion-list-header>
+    <ion-list>
+      <ion-item *ngFor="let spot of event.spots">
+        <ion-label>
+          <h3>{{ spot.name }}</h3>
+          <p>{{ 'ERS_EVENTS.SPOT_PRICE' | translate }}: {{ spot.price }} | {{ 'ERS_EVENTS.SPOT_LIMIT' | translate }}: {{
+            spot.limit }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

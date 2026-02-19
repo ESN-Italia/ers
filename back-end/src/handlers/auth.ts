@@ -79,12 +79,13 @@ const verifyTokenAndGetESNAccountsUser = async (token: string): Promise<User> =>
   }
 };
 const verifyUserPermissions = async (user: User): Promise<void> => {
-  const { administratorsIds, opportunitiesManagersIds, dashboardManagersIds } = new Configurations(
+  const { administratorsIds, opportunitiesManagersIds, dashboardManagersIds, ersManagersIds } = new Configurations(
     await ddb.get({ TableName: DDB_TABLES.configurations, Key: { PK: Configurations.PK } })
   );
   user.isAdministrator = administratorsIds.includes(user.userId);
   user.canManageOpportunities = user.isAdministrator || opportunitiesManagersIds.includes(user.userId);
   user.canManageDashboard = user.isAdministrator || dashboardManagersIds.includes(user.userId);
+  user.canManageERSEvents = user.isAdministrator || ersManagersIds.includes(user.userId);
 };
 
 const getPolicyDocumentToAllowWebSocketRequest = (methodArn: string, allow: boolean): any => {

@@ -23,6 +23,11 @@ const routes: Routes = [
           import('./opportunities/opportunities.module').then(m => m.OpportunitiesModule)
       },
       {
+        path: 'ers-events',
+        loadChildren: (): Promise<any> =>
+          import('./ers-events/ers-events.module').then(m => m.ERSEventsPageModule)
+      },
+      {
         path: 'voting',
         loadChildren: (): Promise<any> => import('./voting/voting.module').then(m => m.VotingModule)
       },
@@ -42,4 +47,4 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forChild(routes)]
 })
-export class TabsComponentRoutingModule {}
+export class TabsComponentRoutingModule { }

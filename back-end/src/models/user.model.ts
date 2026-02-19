@@ -85,10 +85,15 @@ export class User extends Resource {
    */
   isAdministrator: boolean;
   /**
-   * Whether the user can manage opportunities, based on the platform's configurations.
+   * Whether the user can manage the "Opportunities" section (create opportunities, review applications).
    * A change in this permission will require a new sign-in to take full place.
    */
   canManageOpportunities: boolean;
+  /**
+   * Whether the user can manage the "National Platform Events" section (create events, manage registrations).
+   * A change in this permission will require a new sign-in to take full place.
+   */
+  canManageERSEvents: boolean;
   /**
    * Whether the user can manage the dashboard, based on the platform's configurations.
    * A change in this permission will require a new sign-in to take full place.
@@ -126,6 +131,7 @@ export class User extends Resource {
     this.avatarURL = this.clean(x.avatarURL, String);
     this.isAdministrator = this.clean(x.isAdministrator, Boolean);
     this.canManageOpportunities = this.clean(x.canManageOpportunities, Boolean);
+    this.canManageERSEvents = this.clean(x.canManageERSEvents, Boolean);
     this.canManageDashboard = this.clean(x.canManageDashboard, Boolean);
   }
 

@@ -1,11 +1,11 @@
 /**
  * The codename of the project.
  */
-export const PROJECT = 'esn-italian-qt';
+export const PROJECT = 'ers-esn-italia';
 /**
  * The purchased domain to use.
  */
-export const DOMAIN = 'esn-qt.org';
+export const DOMAIN = 'ers-esnitalia.click';
 /**
  * An additional custom domain to use.
  */

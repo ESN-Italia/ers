@@ -1,0 +1,138 @@
+import { epochISOString, Resource } from 'idea-toolbox';
+
+import { User } from './user.model';
+
+export class ERSEvent extends Resource {
+  eventId: string;
+  name: string;
+  description: string;
+  startAt: epochISOString;
+  endAt: epochISOString;
+  registrationOpenAt: epochISOString;
+  registrationCloseAt: epochISOString;
+  timezone: string;
+  spots: EventSpot[];
+  questions: EventQuestion[];
+  managers: string[];
+  paymentInfo: string;
+  createdAt: epochISOString;
+  updatedAt?: epochISOString;
+  archivedAt?: epochISOString;
+  receiptsDeleted?: boolean;
+
+  load(x: any): void {
+    super.load(x);
+    this.eventId = this.clean(x.eventId, String);
+    this.name = this.clean(x.name, String);
+    this.description = this.clean(x.description, String);
+    this.startAt = this.clean(x.startAt, d => new Date(d).toISOString());
+    this.endAt = this.clean(x.endAt, d => new Date(d).toISOString());
+    this.registrationOpenAt = this.clean(x.registrationOpenAt, d => new Date(d).toISOString());
+    this.registrationCloseAt = this.clean(x.registrationCloseAt, d => new Date(d).toISOString());
+    this.timezone = this.clean(x.timezone, String);
+    this.spots = this.cleanArray(x.spots, s => new EventSpot(s));
+    this.questions = this.cleanArray(x.questions, q => new EventQuestion(q));
+    this.managers = this.cleanArray(x.managers, String).map(x => x.toLowerCase());
+    this.paymentInfo = this.clean(x.paymentInfo, String);
+    this.createdAt = this.clean(x.createdAt, d => new Date(d).toISOString(), new Date().toISOString());
+    if (x.updatedAt) this.updatedAt = this.clean(x.updatedAt, d => new Date(d).toISOString());
+    if (x.archivedAt) this.archivedAt = this.clean(x.archivedAt, d => new Date(d).toISOString());
+    if (x.receiptsDeleted) this.receiptsDeleted = this.clean(x.receiptsDeleted, Boolean);
+  }
+
+  safeLoad(newData: any, safeData: any): void {
+    super.safeLoad(newData, safeData);
+    this.eventId = safeData.eventId;
+    this.createdAt = safeData.createdAt;
+    if (safeData.updatedAt) this.updatedAt = safeData.updatedAt;
+    if (safeData.archivedAt) this.archivedAt = safeData.archivedAt;
+    if (safeData.receiptsDeleted) this.receiptsDeleted = safeData.receiptsDeleted;
+  }
+
+  validate(): string[] {
+    const e = super.validate();
+    if (this.iE(this.name)) e.push('name');
+
+    if (this.startAt && this.endAt && this.startAt > this.endAt) e.push('startAt > endAt');
+    if (this.registrationOpenAt && this.registrationCloseAt && this.registrationOpenAt > this.registrationCloseAt) e.push('registrationOpenAt > registrationCloseAt');
+
+    this.spots?.forEach((s, i) => {
+      const errors = s.validate();
+      if (errors.length) e.push(`spots[${i}]`);
+    });
+    this.questions?.forEach((q, i) => {
+      const errors = q.validate();
+      if (errors.length) e.push(`questions[${i}]`);
+    });
+
+    return e;
+  }
+
+  canUserManage(user: User): boolean {
+    return user.isAdministrator || user.canManageERSEvents || (this.managers && this.managers.includes(user.userId));
+  }
+
+  isRegistrationOpen(): boolean {
+    const now = new Date().toISOString();
+    return this.registrationOpenAt && this.registrationCloseAt && now >= this.registrationOpenAt && now <= this.registrationCloseAt;
+  }
+
+  isEnded(): boolean {
+    return this.endAt && new Date().toISOString() > this.endAt;
+  }
+}
+
+export class EventSpot extends Resource {
+  id: string;
+  name: string;
+  price: number;
+  limit: number;
+
+  load(x: any): void {
+    super.load(x);
+    this.id = this.clean(x.id, String);
+    this.name = this.clean(x.name, String);
+    this.price = this.clean(x.price, Number);
+    this.limit = this.clean(x.limit, Number);
+  }
+
+  validate(): string[] {
+    const e = [];
+    if (this.iE(this.id)) e.push('id');
+    if (this.iE(this.name)) e.push('name');
+    if (this.price < 0) e.push('price');
+    if (this.limit < 0) e.push('limit');
+    return e;
+  }
+}
+
+export enum QuestionType {
+  TEXT = 'text',
+  RADIOBOX = 'radiobox',
+  CHECKBOX = 'checkbox'
+}
+
+export class EventQuestion extends Resource {
+  id: string;
+  text: string;
+  type: QuestionType;
+  options: string[]; // For radiobox and checkbox
+  required: boolean;
+
+  load(x: any): void {
+    super.load(x);
+    this.id = this.clean(x.id, String);
+    this.text = this.clean(x.text, String);
+    this.type = this.clean(x.type, String, QuestionType.TEXT) as QuestionType;
+    this.options = this.cleanArray(x.options, String);
+    this.required = this.clean(x.required, Boolean, false);
+  }
+
+  validate(): string[] {
+    const e = [];
+    if (this.iE(this.id)) e.push('id');
+    if (this.iE(this.text)) e.push('text');
+    if (this.type !== QuestionType.TEXT && (!this.options || this.options.length === 0)) e.push('options');
+    return e;
+  }
+}
