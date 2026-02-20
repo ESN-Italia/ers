@@ -35,6 +35,79 @@
         </ion-item>
       </div>
 
+      <ion-list-header>
+        <ion-label>{{ 'ERS_EVENTS.PERSONAL_INFORMATION' | translate }}</ion-label>
+      </ion-list-header>
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.EMAIL' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-input type="email" [(ngModel)]="registration.email"
+          [placeholder]="'ERS_EVENTS.EMAIL_PLACEHOLDER' | translate"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.PHONE' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-input type="tel" [(ngModel)]="registration.phone"
+          [placeholder]="'ERS_EVENTS.PHONE_PLACEHOLDER' | translate"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.HOME_ADDRESS' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-textarea [(ngModel)]="registration.homeAddress"
+          [placeholder]="'ERS_EVENTS.HOME_ADDRESS_PLACEHOLDER' | translate"></ion-textarea>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.ESNCARD_NUMBER' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-input type="text" [(ngModel)]="registration.esnCardNumber"
+          [placeholder]="'ERS_EVENTS.ESNCARD_NUMBER_PLACEHOLDER' | translate"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.FOOD_ALLERGIES' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-textarea [(ngModel)]="registration.foodAllergies"
+          [placeholder]="'ERS_EVENTS.FOOD_ALLERGIES_PLACEHOLDER' | translate"></ion-textarea>
+      </ion-item>
+
+      <ion-list-header>
+        <ion-label>{{ 'ERS_EVENTS.IDENTITY_CARD' | translate }}</ion-label>
+      </ion-list-header>
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.ID_NUMBER' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-input type="text" [(ngModel)]="registration.identityCard.number"
+          [placeholder]="'ERS_EVENTS.ID_NUMBER_PLACEHOLDER' | translate"></ion-input>
+      </ion-item>
+      <app-datetime-timezone [label]="'ERS_EVENTS.ID_ISSUED_DATE' | translate" [obligatory]="true" presentation="date"
+        [timezone]="event.timezone" [(date)]="registration.identityCard.issuedDate" />
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.ID_ISSUED_BY' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-input type="text" [(ngModel)]="registration.identityCard.issuedBy"></ion-input>
+      </ion-item>
+      <app-datetime-timezone [label]="'ERS_EVENTS.ID_VALID_UNTIL' | translate" [obligatory]="true" presentation="date"
+        [timezone]="event.timezone" [(date)]="registration.identityCard.validUntil" />
+
+      <ion-list-header>
+        <ion-label>{{ 'ERS_EVENTS.EMERGENCY_CONTACT' | translate }}</ion-label>
+      </ion-list-header>
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.CONTACT_NAME' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-input type="text" [(ngModel)]="registration.emergencyContact.name"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.CONTACT_PHONE' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-input type="tel" [(ngModel)]="registration.emergencyContact.phone"
+          [placeholder]="'ERS_EVENTS.CONTACT_PHONE_PLACEHOLDER' | translate"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.SPOKEN_LANGUAGES' | translate }} <span
+            class="obligatoryDot">*</span></ion-label>
+        <ion-input type="text" [(ngModel)]="registration.emergencyContact.spokenLanguages"></ion-input>
+      </ion-item>
+
       <ion-list-header *ngIf="event.questions?.length">
         <ion-label>{{ 'ERS_EVENTS.QUESTIONS' | translate }}</ion-label>
       </ion-list-header>
@@ -70,6 +143,10 @@
               (ionChange)="toggleCheckbox(question.id, option)"></ion-checkbox>
           </ion-item>
         </ng-container>
+        <!-- Date -->
+        <app-datetime-timezone *ngIf="question.type === QuestionType.DATE" [label]="question.text"
+          [obligatory]="question.required" [timezone]="event.timezone" presentation="date"
+          [(date)]="registration.answers[question.id]" />
       </ng-container>
     </ion-list>
 

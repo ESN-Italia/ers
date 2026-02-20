@@ -6,6 +6,7 @@ import { IDEATranslationsModule } from '@idea-ionic/common';
 
 import { RegistrationsListPageRoutingModule } from './registrations-list-routing.module';
 import { RegistrationsListPage } from './registrations-list.page';
+import { ERSRegistrationComponent } from './ers-registration/ers-registration.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,6 @@ import { RegistrationsListPage } from './registrations-list.page';
     RegistrationsListPageRoutingModule,
     IDEATranslationsModule
   ],
-  declarations: [RegistrationsListPage]
+  declarations: [RegistrationsListPage, ERSRegistrationComponent]
 })
 export class RegistrationsListPageModule { }

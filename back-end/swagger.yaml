@@ -551,6 +551,30 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/ERSRegistration'
+    delete:
+      summary: Delete an ERS registration
+      description: Requires permissions to manage the event.
+      tags: [ERSRegistrations]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+        - name: registrationId
+          in: path
+          description: Registration ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/OperationCompleted'
+        400:
+          $ref: '#/components/responses/BadParameters'
     patch:
       summary: Actions on a registration
       tags: [ERSRegistrations]

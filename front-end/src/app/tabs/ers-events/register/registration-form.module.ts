@@ -6,6 +6,7 @@ import { IDEATranslationsModule } from '@idea-ionic/common';
 
 import { RegistrationFormPageRoutingModule } from './registration-form-routing.module';
 import { RegistrationFormPage } from './registration-form.page';
+import { DatetimeWithTimezoneStandaloneComponent } from '@app/common/datetimeWithTimezone';
 
 @NgModule({
   imports: [
@@ -13,7 +14,8 @@ import { RegistrationFormPage } from './registration-form.page';
     FormsModule,
     IonicModule,
     RegistrationFormPageRoutingModule,
-    IDEATranslationsModule
+    IDEATranslationsModule,
+    DatetimeWithTimezoneStandaloneComponent
   ],
   declarations: [RegistrationFormPage]
 })

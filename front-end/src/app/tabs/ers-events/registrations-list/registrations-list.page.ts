@@ -22,8 +22,11 @@ export class RegistrationsListPage implements OnInit {
 
   filterStatus: RegistrationStatus | 'ALL' = 'ALL';
   filterBySpotId: string = null;
+  filterBySectionCode: string = null;
   searchTerm = '';
   selectedIds = new Set<string>();
+
+  availableSections: { code: string, name: string }[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -43,19 +46,31 @@ export class RegistrationsListPage implements OnInit {
     await this.loadData();
   }
 
-  async loadData(showLoading = true): Promise<void> {
+  async loadData(ev?: any, showLoading = true): Promise<void> {
+    const isRefresher = ev && ev.target && ev.target.complete;
     try {
-      if (showLoading) await this.loading.show();
+      if (!isRefresher && showLoading) await this.loading.show();
       this.event = await this.service.getById(this.eventId);
       if (!this.event.canUserManage(this.app.user)) return this.app.closePage('COMMON.UNAUTHORIZED');
 
       this.registrations = await this.service.getRegistrations(this.eventId);
+
+      // Extract available sections
+      const sectionsMap = new Map<string, string>();
+      this.registrations.forEach(r => {
+        if (r.sectionCode) sectionsMap.set(r.sectionCode, r.section);
+      });
+      this.availableSections = Array.from(sectionsMap.entries())
+        .map(([code, name]) => ({ code, name }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
       this.filter();
       this.selectedIds.clear();
     } catch (err) {
       this.message.error('COMMON.NOT_FOUND');
     } finally {
-      if (showLoading) this.loading.hide();
+      if (isRefresher) ev.target.complete();
+      else if (showLoading) this.loading.hide();
     }
   }
 
@@ -65,14 +80,16 @@ export class RegistrationsListPage implements OnInit {
     this.filteredRegistrations = this.registrations.filter(r => {
       const matchesStatus = this.filterStatus === 'ALL' || r.status === this.filterStatus;
       const matchesSpot = !this.filterBySpotId || r.spotId === this.filterBySpotId;
+      const matchesSection = !this.filterBySectionCode || r.sectionCode === this.filterBySectionCode;
 
       const search = (this.searchTerm || '').toLowerCase();
       const matchesSearch = !search ||
         (r.firstName || '').toLowerCase().includes(search) ||
         (r.lastName || '').toLowerCase().includes(search) ||
-        (r.email || '').toLowerCase().includes(search);
+        (r.email || '').toLowerCase().includes(search) ||
+        (r.phone || '').toLowerCase().includes(search);
 
-      return matchesStatus && matchesSpot && matchesSearch;
+      return matchesStatus && matchesSpot && matchesSection && matchesSearch;
     });
 
     this.filteredRegistrations.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
@@ -210,5 +227,98 @@ export class RegistrationsListPage implements OnInit {
     } finally {
       this.loading.hide();
     }
+  }
+
+  downloadCSV(): void {
+    if (!this.registrations?.length) return;
+
+    const headers = [
+      'Registration Date',
+      'First Name',
+      'Last Name',
+      'Email',
+      'Phone',
+      'ESN Country',
+      'ESN Section',
+      'Section Code',
+      'Spot',
+      'Status',
+      'ESNcard number',
+      'ID Number',
+      'ID Issued By',
+      'ID Issued Date',
+      'ID Valid Until',
+      'Home address',
+      'Food allergies',
+      'Emergency Name',
+      'Emergency Phone',
+      'Emergency Languages'
+    ];
+
+    // Add dynamic questions to headers
+    const dynamicQuestions = this.event?.questions || [];
+    dynamicQuestions.forEach(q => headers.push(q.text));
+
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+
+    for (const reg of this.registrations) {
+      const row = [
+        reg.createdAt,
+        this.escapeCSV(reg.firstName),
+        this.escapeCSV(reg.lastName),
+        this.escapeCSV(reg.email),
+        this.escapeCSV(reg.phone),
+        this.escapeCSV(reg.country),
+        this.escapeCSV(reg.section),
+        this.escapeCSV(reg.sectionCode),
+        this.escapeCSV(this.getSpotName(reg.spotId)),
+        reg.status,
+        this.escapeCSV(reg.esnCardNumber),
+        this.escapeCSV(reg.identityCard?.number),
+        this.escapeCSV(reg.identityCard?.issuedBy),
+        reg.identityCard?.issuedDate,
+        reg.identityCard?.validUntil,
+        this.escapeCSV(reg.homeAddress),
+        this.escapeCSV(reg.foodAllergies),
+        this.escapeCSV(reg.emergencyContact?.name),
+        this.escapeCSV(reg.emergencyContact?.phone),
+        this.escapeCSV(reg.emergencyContact?.spokenLanguages)
+      ];
+
+      // Add dynamic answers
+      dynamicQuestions.forEach(q => {
+        row.push(this.escapeCSV(this.formatAnswer(reg, q.id)));
+      });
+
+      csvRows.push(row.join(','));
+    }
+
+    const csvData = csvRows.join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `${this.event.name}_registrations.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  private escapeCSV(val: any): string {
+    if (val === undefined || val === null) return '';
+    let str = String(val);
+    str = str.replace(/"/g, '""');
+    if (str.search(/("|,|\n)/g) >= 0) {
+      str = `"${str}"`;
+    }
+    return str;
+  }
+
+  private formatAnswer(reg: ERSRegistration, questionId: string): string {
+    const answer = reg.answers?.[questionId];
+    if (Array.isArray(answer)) return answer.join('; ');
+    return String(answer || '');
   }
 }

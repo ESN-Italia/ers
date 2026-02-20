@@ -26,7 +26,7 @@ import { AppService } from '@app/app.service';
       <ion-label position="stacked">{{ label }} <ion-text class="obligatoryDot" *ngIf="obligatory" /></ion-label>
       <input
         #dateTime
-        type="datetime-local"
+        [type]="presentation"
         [disabled]="disabled"
         [value]="initialValue"
         (change)="dateChange.emit(zonedTimeStringToUTC($event.target.value))"
@@ -65,27 +65,31 @@ export class DatetimeWithTimezoneStandaloneComponent implements OnInit, OnChange
    * Whether the date is obligatory.
    */
   @Input() obligatory = false;
+  /**
+   * The presentation of the field.
+   */
+  @Input() presentation: 'date' | 'datetime-local' = 'datetime-local';
 
   initialValue: epochISOString;
 
   @ViewChild('dateTime') dateTime: ElementRef;
 
-  constructor(public app: AppService) {}
+  constructor(public app: AppService) { }
   async ngOnInit(): Promise<void> {
     this.timezone = this.timezone ?? this.app.configurations.timezone;
     this.initialValue = this.utcToZonedTimeString(this.date);
   }
   ngOnChanges(changes: SimpleChanges): void {
     // fix the date if the linked timezone changes
-    if (changes.timezone?.currentValue && this.dateTime) {
-      setTimeout((): void => {
-        this.dateChange.emit(this.zonedTimeStringToUTC(this.dateTime.nativeElement.value));
-      }, 100);
+    if ((changes.timezone?.currentValue || changes.date?.currentValue) && this.dateTime) {
+      this.initialValue = this.utcToZonedTimeString(this.date);
     }
   }
 
   utcToZonedTimeString(isoString: epochISOString): string {
-    return formatInTimeZone(isoString, this.timezone, "yyyy-MM-dd'T'HH:mm");
+    if (!isoString) return '';
+    const format = this.presentation === 'date' ? 'yyyy-MM-dd' : "yyyy-MM-dd'T'HH:mm";
+    return formatInTimeZone(isoString, this.timezone, format);
   }
   zonedTimeStringToUTC(dateLocale: string): epochISOString {
     return zonedTimeToUtc(new Date(dateLocale), this.timezone).toISOString();

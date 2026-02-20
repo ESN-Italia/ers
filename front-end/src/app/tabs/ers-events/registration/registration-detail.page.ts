@@ -71,7 +71,8 @@ export class RegistrationDetailPage implements OnInit {
     try {
       await this.loading.show();
       // Get presigned URL
-      const signedUrl: any = await this.service.getReceiptUploadUrl(this.eventId, this.registration.registrationId);
+      const extension = file.name.split('.').pop();
+      const signedUrl: any = await this.service.getReceiptUploadUrl(this.eventId, this.registration.registrationId, extension);
 
       // Upload
       const response = await fetch(signedUrl.url, {
@@ -117,6 +118,18 @@ export class RegistrationDetailPage implements OnInit {
       ]
     });
     await alert.present();
+  }
+
+  async viewReceipt(): Promise<void> {
+    try {
+      await this.loading.show();
+      const signedUrl = await this.service.getReceiptDownloadUrl(this.eventId, this.registration.registrationId);
+      window.open(signedUrl.url, '_blank');
+    } catch (err) {
+      this.message.error('COMMON.OPERATION_FAILED');
+    } finally {
+      this.loading.hide();
+    }
   }
 
   getSpotName(): string {
@@ -180,6 +193,32 @@ export class RegistrationDetailPage implements OnInit {
     } finally {
       this.loading.hide();
     }
+  }
+
+  async withdraw(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'ERS_EVENTS.WITHDRAW_REGISTRATION',
+      message: 'ERS_EVENTS.WITHDRAW_REGISTRATION_CONFIRM',
+      buttons: [
+        { text: 'COMMON.CANCEL', role: 'cancel' },
+        {
+          text: 'COMMON.CONFIRM',
+          handler: async () => {
+            try {
+              await this.loading.show();
+              await this.service.deleteRegistration(this.eventId, this.registration.registrationId);
+              this.message.success('COMMON.OPERATION_COMPLETED');
+              this.app.closePage();
+            } catch (err) {
+              this.message.error('COMMON.OPERATION_FAILED');
+            } finally {
+              this.loading.hide();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   formatAnswer(questionId: string): string {

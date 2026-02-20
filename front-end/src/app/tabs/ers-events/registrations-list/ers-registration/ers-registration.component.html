@@ -1,0 +1,122 @@
+<ng-container *ngIf="!row">
+  <ion-item-sliding *ngIf="registration">
+    <ion-item button (click)="select.emit()">
+      <ion-checkbox slot="start" [checked]="selected" (ionChange)="toggleSelection.emit($event)"
+        (click)="$event.stopPropagation()"></ion-checkbox>
+      <ion-label>
+        <h2>{{ getUserName() }}</h2>
+        <h3>{{ getSpotName() }} - {{ registration.section }}</h3>
+        <p>{{ registration.email }} <span *ngIf="registration.phone">- {{ registration.phone }}</span></p>
+        <ion-badge [color]="
+             registration.status === RegistrationStatus.PENDING ? 'warning' :
+             registration.status === RegistrationStatus.APPROVED ? 'primary' :
+             registration.status === RegistrationStatus.PAID ? 'success' :
+             registration.status === RegistrationStatus.CONFIRMED ? 'success' :
+             'danger'">
+          {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
+        </ion-badge>
+      </ion-label>
+      <ion-button slot="end" fill="clear" (click)="select.emit()">
+        <ion-icon name="chevron-forward" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-item>
+
+    <ion-item-options side="end">
+      <ion-item-option color="success" *ngIf="registration.status === RegistrationStatus.PENDING"
+        (click)="approve.emit()">
+        {{ 'ERS_EVENTS.APPROVE' | translate }}
+      </ion-item-option>
+      <ion-item-option color="danger" *ngIf="registration.status === RegistrationStatus.PENDING"
+        (click)="reject.emit()">
+        {{ 'ERS_EVENTS.REJECT' | translate }}
+      </ion-item-option>
+      <ion-item-option color="success" *ngIf="registration.status === RegistrationStatus.PAID"
+        (click)="confirmPayment.emit()">
+        {{ 'ERS_EVENTS.CONFIRM' | translate }}
+      </ion-item-option>
+    </ion-item-options>
+  </ion-item-sliding>
+
+  <!-- skeleton -->
+  <ion-item *ngIf="!registration">
+    <ion-label>
+      <h2><ion-skeleton-text animated style="width: 50%"></ion-skeleton-text></h2>
+      <h3><ion-skeleton-text animated style="width: 30%"></ion-skeleton-text></h3>
+      <p><ion-skeleton-text animated style="width: 20%"></ion-skeleton-text></p>
+    </ion-label>
+  </ion-item>
+</ng-container>
+
+<!-- row -->
+<ng-container *ngIf="row">
+  <ion-row class="ion-align-items-center headerRow" *ngIf="header">
+    <ion-col size="0.5"></ion-col>
+    <ion-col size="2">{{ 'ERS_EVENTS.USER' | translate }}</ion-col>
+    <ion-col size="2.5">{{ 'ERS_EVENTS.EMAIL' | translate }}</ion-col>
+    <ion-col size="1.5">{{ 'ERS_EVENTS.PHONE' | translate }}</ion-col>
+    <ion-col size="1.5">{{ 'ERS_EVENTS.SECTION' | translate }}</ion-col>
+    <ion-col size="1.5">{{ 'ERS_EVENTS.SPOT' | translate }}</ion-col>
+    <ion-col size="1.5">{{ 'ERS_EVENTS.STATUS' | translate }}</ion-col>
+    <ion-col size="1"></ion-col>
+  </ion-row>
+
+  <ion-row class="ion-align-items-center row tappable" *ngIf="!header && registration" (click)="select.emit()">
+    <ion-col size="0.5" (click)="$event.stopPropagation()">
+      <ion-checkbox [checked]="selected" (ionChange)="toggleSelection.emit($event)"></ion-checkbox>
+    </ion-col>
+    <ion-col size="2">
+      <b>{{ getUserName() }}</b>
+    </ion-col>
+    <ion-col size="2.5">
+      {{ registration.email }}
+    </ion-col>
+    <ion-col size="1.5">
+      {{ registration.phone }}
+    </ion-col>
+    <ion-col size="1.5">
+      {{ registration.section }}
+    </ion-col>
+    <ion-col size="1.5">
+      {{ getSpotName() }}
+    </ion-col>
+    <ion-col size="1.5">
+      <ion-badge [color]="
+        registration.status === RegistrationStatus.PENDING ? 'warning' :
+        registration.status === RegistrationStatus.APPROVED ? 'primary' :
+        registration.status === RegistrationStatus.PAID ? 'success' :
+        registration.status === RegistrationStatus.CONFIRMED ? 'success' :
+        'danger'">
+        {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
+      </ion-badge>
+    </ion-col>
+    <ion-col size="1" class="ion-text-right" (click)="$event.stopPropagation()">
+      <ion-button fill="clear" size="small" color="success" *ngIf="registration.status === RegistrationStatus.PENDING"
+        (click)="approve.emit()">
+        <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" size="small" color="danger" *ngIf="registration.status === RegistrationStatus.PENDING"
+        (click)="reject.emit()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" size="small" color="success" *ngIf="registration.status === RegistrationStatus.PAID"
+        (click)="confirmPayment.emit()">
+        <ion-icon name="wallet-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" size="small" (click)="select.emit()">
+        <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-col>
+  </ion-row>
+
+  <!-- skeleton -->
+  <ion-row class="ion-align-items-center row" *ngIf="!header && !registration">
+    <ion-col size="0.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col size="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col size="2.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col size="1"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  </ion-row>
+</ng-container>

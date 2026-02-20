@@ -130,8 +130,10 @@ export class ERSEventsService {
   /**
    * Get receipt upload URL.
    */
-  async getReceiptUploadUrl(eventId: string, registrationId: string): Promise<SignedURL> {
-    return await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], { body: { action: 'receipt-upload-url' } });
+  async getReceiptUploadUrl(eventId: string, registrationId: string, extension?: string): Promise<SignedURL> {
+    return await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
+      body: { action: 'receipt-upload-url', extension }
+    });
   }
 
   /**
@@ -144,11 +146,27 @@ export class ERSEventsService {
   }
 
   /**
+   * Get receipt download URL.
+   */
+  async getReceiptDownloadUrl(eventId: string, registrationId: string): Promise<SignedURL> {
+    return await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
+      body: { action: 'GET_RECEIPT_DOWNLOAD_URL' }
+    });
+  }
+
+  /**
    * Delete receipt.
    */
   async deleteReceipt(eventId: string, registrationId: string): Promise<void> {
     await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
       body: { action: 'DELETE_RECEIPT' }
     });
+  }
+
+  /**
+   * Delete a registration.
+   */
+  async deleteRegistration(eventId: string, registrationId: string): Promise<void> {
+    await this.api.deleteResource(['ers-events', eventId, 'registrations', registrationId]);
   }
 }

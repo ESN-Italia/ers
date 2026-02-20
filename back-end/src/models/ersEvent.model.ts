@@ -109,7 +109,8 @@ export class EventSpot extends Resource {
 export enum QuestionType {
   TEXT = 'text',
   RADIOBOX = 'radiobox',
-  CHECKBOX = 'checkbox'
+  CHECKBOX = 'checkbox',
+  DATE = 'date'
 }
 
 export class EventQuestion extends Resource {

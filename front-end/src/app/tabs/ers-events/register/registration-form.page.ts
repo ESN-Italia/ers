@@ -48,6 +48,9 @@ export class RegistrationFormPage implements OnInit {
         this.registration = new ERSRegistration({
           eventId: this.eventId,
           userId: this.app.user.userId,
+          email: this.app.user.email,
+          identityCard: { number: '', issuedDate: '', issuedBy: '', validUntil: '' },
+          emergencyContact: { name: '', phone: '', spokenLanguages: '' },
           answers: {}
         });
         if (this.event.spots?.length === 1) {

@@ -8,6 +8,9 @@
       <p *ngIf="event.isRegistrationOpen()" class="success-color">
         {{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}
       </p>
+      <p *ngIf="!event.isRegistrationOpen() && !event.isEnded()" class="warning-color">
+        {{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}
+      </p>
       <p *ngIf="event.isEnded()" class="medium-color">
         {{ 'ERS_EVENTS.ENDED' | translate }}
       </p>
@@ -55,6 +58,9 @@
     <ion-col [sizeLg]="3" [sizeXl]="3">
       <ion-badge *ngIf="event.isRegistrationOpen()" color="success">
         {{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}
+      </ion-badge>
+      <ion-badge *ngIf="!event.isRegistrationOpen() && !event.isEnded()" color="warning">
+        {{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}
       </ion-badge>
       <ion-badge *ngIf="event.isEnded()" color="medium">
         {{ 'ERS_EVENTS.ENDED' | translate }}

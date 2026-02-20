@@ -34,6 +34,41 @@
     <p><strong>{{ 'ERS_EVENTS.REGISTRATION_DATE' | translate }}:</strong> {{ registration.createdAt | date: 'medium' }}
     </p>
 
+    <div class="ion-margin-top">
+      <ion-grid fixed class="ion-no-padding">
+        <ion-row>
+          <ion-col size="12" size-md="6">
+            <h3>{{ 'ERS_EVENTS.PERSONAL_INFORMATION' | translate }}</h3>
+            <p><strong>{{ 'ERS_EVENTS.ESNCARD_NUMBER' | translate }}:</strong> {{ registration.esnCardNumber || '-' }}
+            </p>
+            <p><strong>{{ 'ERS_EVENTS.HOME_ADDRESS' | translate }}:</strong> {{ registration.homeAddress || '-' }}</p>
+            <p><strong>{{ 'ERS_EVENTS.FOOD_ALLERGIES' | translate }}:</strong> {{ registration.foodAllergies || '-' }}
+            </p>
+          </ion-col>
+          <ion-col size="12" size-md="6">
+            <h3>{{ 'ERS_EVENTS.IDENTITY_CARD' | translate }}</h3>
+            <p><strong>{{ 'ERS_EVENTS.ID_NUMBER' | translate }}:</strong> {{ registration.identityCard?.number || '-' }}
+            </p>
+            <p><strong>{{ 'ERS_EVENTS.ID_ISSUED_BY' | translate }}:</strong> {{ registration.identityCard?.issuedBy ||
+              '-' }}</p>
+            <p><strong>{{ 'ERS_EVENTS.ID_ISSUED_DATE' | translate }}:</strong> {{ registration.identityCard?.issuedDate
+              | date: 'mediumDate' }}</p>
+            <p><strong>{{ 'ERS_EVENTS.ID_VALID_UNTIL' | translate }}:</strong> {{ registration.identityCard?.validUntil
+              | date: 'mediumDate' }}</p>
+          </ion-col>
+          <ion-col size="12" size-md="6" class="ion-margin-top">
+            <h3>{{ 'ERS_EVENTS.EMERGENCY_CONTACT' | translate }}</h3>
+            <p><strong>{{ 'ERS_EVENTS.CONTACT_NAME' | translate }}:</strong> {{ registration.emergencyContact?.name ||
+              '-' }}</p>
+            <p><strong>{{ 'ERS_EVENTS.CONTACT_PHONE' | translate }}:</strong> {{ registration.emergencyContact?.phone ||
+              '-' }}</p>
+            <p><strong>{{ 'ERS_EVENTS.SPOKEN_LANGUAGES' | translate }}:</strong> {{
+              registration.emergencyContact?.spokenLanguages || '-' }}</p>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
     <div *ngIf="registration.status === RegistrationStatus.APPROVED">
       <h2>{{ 'ERS_EVENTS.PAYMENT_INSTRUCTIONS' | translate }}</h2>
       <p>{{ event.paymentInfo }}</p>
@@ -52,7 +87,10 @@
       <p>{{ 'ERS_EVENTS.RECEIPT_UPLOADED_WAITING' | translate }}</p>
       <div *ngIf="registration.receipt" class="ion-margin-bottom">
         <p>
-          <a [href]="registration.receipt.url" target="_blank">{{ 'ERS_EVENTS.VIEW_RECEIPT' | translate }}</a>
+          <a (click)="viewReceipt()" class="ion-activatable"
+            style="cursor: pointer; text-decoration: underline; color: var(--ion-color-primary);">
+            {{ 'ERS_EVENTS.VIEW_RECEIPT' | translate }}
+          </a>
         </p>
         <ion-button *ngIf="isMyRegistration() || event.canUserManage(app.user)" fill="clear" color="danger" size="small"
           (click)="deleteReceipt()">
@@ -96,10 +134,15 @@
       </ion-list>
     </div>
 
-    <div *ngIf="isMyRegistration() && event.isRegistrationOpen()" class="ion-margin-top">
-      <ion-button expand="block" fill="outline" (click)="modify()">
+    <div *ngIf="(isMyRegistration() || event.canUserManage(app.user)) && event.isRegistrationOpen()"
+      class="ion-margin-top">
+      <ion-button *ngIf="isMyRegistration()" expand="block" fill="outline" (click)="modify()">
         <ion-icon name="create-outline" slot="start"></ion-icon>
         {{ 'COMMON.EDIT' | translate }}
+      </ion-button>
+      <ion-button expand="block" fill="clear" color="danger" class="ion-margin-top" (click)="withdraw()">
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+        {{ 'ERS_EVENTS.WITHDRAW_REGISTRATION' | translate }}
       </ion-button>
     </div>
   </div>

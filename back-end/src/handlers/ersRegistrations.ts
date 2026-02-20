@@ -144,6 +144,7 @@ class ERSRegistrationsRC extends ResourceController {
 
   protected async patchResource(): Promise<ERSRegistration> {
     if (this.body.action === 'receipt-upload-url') return await this.getReceiptUploadUrl();
+    if (this.body.action === 'GET_RECEIPT_DOWNLOAD_URL') return await this.getReceiptDownloadUrl();
     if (this.body.action === 'SUBMIT_RECEIPT') return await this.submitReceipt();
 
     if (!this.managedEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
@@ -155,6 +156,34 @@ class ERSRegistrationsRC extends ResourceController {
       case 'DELETE_RECEIPT': return await this.deleteReceipt();
       default: throw new HandledError('Unsupported action');
     }
+  }
+
+  protected async deleteResource(): Promise<void> {
+    if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
+      throw new HandledError('Unauthorized');
+    }
+
+    // Optional: Delete receipt from S3 if it exists
+    if (this.registration.receipt?.key) {
+      try {
+        await s3.deleteObject({
+          bucket: S3_BUCKET_MEDIA,
+          key: this.registration.receipt.key
+        });
+      } catch (err) {
+        console.error('Failed to delete S3 resource on registration delete', err);
+      }
+    }
+
+    await ddb.delete({
+      TableName: DDB_TABLES.registrations,
+      Key: {
+        eventId: this.managedEvent.eventId,
+        registrationId: this.registration.registrationId
+      }
+    });
+
+    // We don't return anything for delete
   }
 
   private async updateStatus(status: RegistrationStatus, emailType: string): Promise<ERSRegistration> {
@@ -171,9 +200,23 @@ class ERSRegistrationsRC extends ResourceController {
     if (this.registration.userId !== this.galaxyUser.userId) throw new HandledError('Unauthorized');
     if (this.registration.status !== RegistrationStatus.APPROVED) throw new HandledError('Cannot upload receipt in this status');
 
-    const key = `${S3_ATTACHMENTS_FOLDER}/events/${this.managedEvent.eventId}/receipts/${this.registration.registrationId}/${Date.now()}_receipt`;
+    const extension = this.body.extension ? `.${this.body.extension}` : '';
+    const key = `${S3_ATTACHMENTS_FOLDER}/events/${this.managedEvent.eventId}/receipts/${this.registration.registrationId}/${Date.now()}_receipt${extension}`;
     const url = await s3.signedURLPut(S3_BUCKET_MEDIA, key);
     return { url: url.url, key };
+  }
+
+  private async getReceiptDownloadUrl(): Promise<any> {
+    if (!this.registration.receipt?.key) throw new HandledError('No receipt found');
+
+    if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
+      throw new HandledError('Unauthorized');
+    }
+
+    const extensionMatch = this.registration.receipt.key.match(/\.[0-9a-z]+$/i);
+    const extension = extensionMatch ? extensionMatch[0] : '';
+    const filename = `${this.registration.firstName}_${this.registration.lastName}_receipt${extension}`;
+    return await s3.signedURLGet(S3_BUCKET_MEDIA, this.registration.receipt.key, { filename });
   }
 
   private async submitReceipt(): Promise<ERSRegistration> {
@@ -191,7 +234,6 @@ class ERSRegistrationsRC extends ResourceController {
     this.registration.updatedAt = new Date().toISOString();
     this.registration.receipt = new Receipt({
       key: this.body.receiptKey,
-      url: `https://${S3_BUCKET_MEDIA}.s3.${process.env.AWS_REGION}.amazonaws.com/${this.body.receiptKey}`,
       uploadedAt: new Date().toISOString()
     });
 

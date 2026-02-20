@@ -6,7 +6,7 @@ import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from 
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
-import { ERSEvent, EventSpot, EventQuestion } from '@models/ersEvent.model';
+import { ERSEvent, EventSpot, EventQuestion, QuestionType } from '@models/ersEvent.model';
 
 @Component({
   selector: 'app-manage-event',
@@ -151,8 +151,7 @@ export class ManageEventPage implements OnInit {
   }
 
   async addQuestion(): Promise<void> {
-    const doAdd = async ({ text, type, options, required }): Promise<void> => {
-      if (!text) return;
+    const doAdd = async (text: string, type: QuestionType, options: string, required: boolean): Promise<void> => {
       const question = new EventQuestion({
         id: Date.now().toString(),
         text,
@@ -164,27 +163,98 @@ export class ManageEventPage implements OnInit {
     };
 
     const header = this.t._('ERS_EVENTS.ADD_QUESTION');
-    const inputs: any = [
-      { name: 'text', type: 'text', placeholder: this.t._('ERS_EVENTS.QUESTION_TEXT') },
-      {
-        name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.TEXT'), value: 'text', checked: true
-      },
-      {
-        name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.RADIOBOX'), value: 'radiobox'
-      },
-      {
-        name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.CHECKBOX'), value: 'checkbox'
-      },
-      { name: 'options', type: 'text', placeholder: this.t._('ERS_EVENTS.OPTIONS_COMMA_SEP') },
-      { name: 'required', type: 'checkbox', label: this.t._('ERS_EVENTS.REQUIRED'), checked: false }
-    ];
-    const buttons = [
-      { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-      { text: this.t._('COMMON.ADD'), handler: doAdd }
-    ];
 
-    const alert = await this.alertCtrl.create({ header, inputs, buttons });
-    await alert.present();
+    // Step 1: Choose Type
+    const typeAlert = await this.alertCtrl.create({
+      header,
+      subHeader: this.t._('ERS_EVENTS.CHOOSE_TYPE'),
+      inputs: [
+        { name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.TEXT'), value: 'text', checked: true },
+        { name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.RADIOBOX'), value: 'radiobox' },
+        { name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.CHECKBOX'), value: 'checkbox' },
+        { name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.DATE'), value: 'date' }
+      ],
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.t._('COMMON.NEXT'),
+          handler: (type) => {
+            this.askQuestionDetails(type, doAdd);
+          }
+        }
+      ]
+    });
+    await typeAlert.present();
+  }
+
+  private async askQuestionDetails(type: QuestionType, doAdd: (text: string, type: QuestionType, options: string, required: boolean) => Promise<void>): Promise<void> {
+    const header = this.t._('ERS_EVENTS.ADD_QUESTION');
+    const detailsAlert = await this.alertCtrl.create({
+      header,
+      subHeader: this.t._('ERS_EVENTS.QUESTION_TEXT'),
+      inputs: [
+        { name: 'text', type: 'text', placeholder: this.t._('ERS_EVENTS.QUESTION_TEXT') }
+      ],
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.t._('COMMON.NEXT'),
+          handler: ({ text }) => {
+            if (!text) return false;
+            this.askQuestionRequired(text, type, doAdd);
+          }
+        }
+      ]
+    });
+    await detailsAlert.present();
+  }
+
+  private async askQuestionRequired(text: string, type: QuestionType, doAdd: (text: string, type: QuestionType, options: string, required: boolean) => Promise<void>): Promise<void> {
+    const header = this.t._('ERS_EVENTS.ADD_QUESTION');
+    const requiredAlert = await this.alertCtrl.create({
+      header,
+      subHeader: this.t._('ERS_EVENTS.REQUIRED'),
+      inputs: [
+        { name: 'required', type: 'radio', label: this.t._('COMMON.YES'), value: 'true', checked: true },
+        { name: 'required', type: 'radio', label: this.t._('COMMON.NO'), value: 'false' }
+      ],
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: (type === 'radiobox' || type === 'checkbox') ? this.t._('COMMON.NEXT') : this.t._('COMMON.ADD'),
+          handler: (required) => {
+            const isRequired = required === 'true';
+            if (type === 'radiobox' || type === 'checkbox') {
+              this.askQuestionOptions(text, type, isRequired, doAdd);
+            } else {
+              doAdd(text, type, '', isRequired);
+            }
+          }
+        }
+      ]
+    });
+    await requiredAlert.present();
+  }
+
+  private async askQuestionOptions(text: string, type: QuestionType, required: boolean, doAdd: (text: string, type: QuestionType, options: string, required: boolean) => Promise<void>): Promise<void> {
+    const header = this.t._('ERS_EVENTS.ADD_QUESTION');
+    const optionsAlert = await this.alertCtrl.create({
+      header,
+      inputs: [
+        { name: 'options', type: 'text', placeholder: this.t._('ERS_EVENTS.OPTIONS_COMMA_SEP') }
+      ],
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.t._('COMMON.ADD'),
+          handler: ({ options }) => {
+            if (!options) return false;
+            doAdd(text, type, options, required);
+          }
+        }
+      ]
+    });
+    await optionsAlert.present();
   }
 
   async removeQuestion(question: EventQuestion): Promise<void> {
