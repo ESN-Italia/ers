@@ -256,7 +256,6 @@ export class ApiStack extends cdk.Stack {
       lambdaFn.addEnvironment('STAGE', params.stage);
       lambdaFn.addEnvironment('RESOURCE', resource.name);
       lambdaFn.addEnvironment('APP_DOMAIN', params.appDomain);
-      lambdaFn.addEnvironment('AWS_REGION', region);
 
       lambdaFunctions[resource.name] = lambdaFn;
     });
