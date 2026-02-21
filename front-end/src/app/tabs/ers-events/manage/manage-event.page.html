@@ -7,23 +7,31 @@
   <ion-list class="aList maxWidthContainer" *ngIf="event">
 
     <!-- General Info -->
-    <ion-list-header><ion-label>
-        <h2>{{ 'ERS_EVENTS.GENERAL_INFO' | translate }}</h2>
-      </ion-label></ion-list-header>
+    <ion-list-header>
+      <ion-label>
+        <h2>{{ 'ERS_EVENTS.EVENT_NAME' | translate }}</h2>
+      </ion-label>
+    </ion-list-header>
 
     <ion-item [class.fieldHasError]="hasFieldAnError('name')">
-      <ion-label position="stacked">{{ 'ERS_EVENTS.NAME' | translate }} <ion-text
-          class="obligatoryDot"></ion-text></ion-label>
       <ion-input [(ngModel)]="event.name" [disabled]="editMode === UXMode.VIEW"></ion-input>
     </ion-item>
 
-    <app-html-editor *ngIf="event.description || editMode !== UXMode.VIEW" [(content)]="event.description"
-      [editMode]="editMode !== UXMode.VIEW" [label]="'ERS_EVENTS.DESCRIPTION' | translate"></app-html-editor>
+    <ion-list-header>
+      <ion-label>
+        <h2>{{ 'ERS_EVENTS.EVENT_DESCRIPTION' | translate }}</h2>
+      </ion-label>
+    </ion-list-header>
+    <app-html-editor *ngIf="event.description || editMode !== UXMode.VIEW" [class.fieldHasError]="hasFieldAnError('description')"
+    [(content)]="event.description"
+      [editMode]="editMode !== UXMode.VIEW" />
 
     <!-- Dates -->
-    <ion-list-header><ion-label>
-        <h2>{{ 'ERS_EVENTS.DATES' | translate }}</h2>
-      </ion-label></ion-list-header>
+    <ion-list-header>
+      <ion-label>
+        <h2>{{ 'ERS_EVENTS.EVENT_DATES' | translate }}</h2>
+      </ion-label>
+    </ion-list-header>
 
     <app-datetime-timezone [label]="'ERS_EVENTS.START_AT' | translate" [disabled]="editMode === UXMode.VIEW"
       [(date)]="event.startAt"></app-datetime-timezone>
@@ -42,13 +50,14 @@
       [disabled]="editMode === UXMode.VIEW" [(date)]="event.registrationCloseAt" />
 
     <!-- Payment Info -->
-    <ion-list-header><ion-label>
+    <ion-list-header>
+      <ion-label>
         <h2>{{ 'ERS_EVENTS.PAYMENT_INFO' | translate }}</h2>
-      </ion-label></ion-list-header>
-    <ion-item>
-      <ion-label position="stacked">{{ 'ERS_EVENTS.PAYMENT_INFO' | translate }}</ion-label>
-      <ion-textarea [(ngModel)]="event.paymentInfo" [disabled]="editMode === UXMode.VIEW"></ion-textarea>
-    </ion-item>
+      </ion-label>
+    </ion-list-header>
+    <app-html-editor *ngIf="event.paymentInfo || editMode !== UXMode.VIEW" [class.fieldHasError]="hasFieldAnError('paymentInfo')"
+    [(content)]="event.paymentInfo"
+      [editMode]="editMode !== UXMode.VIEW" />
 
     <!-- Spots -->
     <ion-list-header>
@@ -102,8 +111,9 @@
     <!-- Managers -->
     <ion-list-header>
       <ion-label>
-        <h2>{{ 'CONFIGURATIONS.ERS_MANAGERS' | translate }}</h2>
-        <p>{{ 'CONFIGURATIONS.ERS_MANAGERS_I' | translate }}</p>
+        <h2>{{ 'ERS_EVENTS.ADDITIONAL_MANAGERS' | translate }}</h2>
+        <p>{{ 'ERS_EVENTS.ADDITIONAL_MANAGERS_I' | translate }}</p>
+        <p>{{ 'ERS_EVENTS.ADDITIONAL_MANAGERS_II' | translate }}</p>
       </ion-label>
       <ion-button *ngIf="editMode !== UXMode.VIEW" (click)="addManager()">{{ 'COMMON.ADD' | translate }}</ion-button>
     </ion-list-header>

@@ -27,8 +27,8 @@ export class ERSRegistrationComponent {
   constructor(public app: AppService) { }
 
   getUserName(): string {
-    if (!this.registration) return '';
-    return this.registration.firstName ? `${this.registration.firstName} ${this.registration.lastName}` : this.registration.userId;
+    if (!this.registration?.subject) return '';
+    return this.registration.subject.name || this.registration.userId;
   }
 
   getSpotName(): string {

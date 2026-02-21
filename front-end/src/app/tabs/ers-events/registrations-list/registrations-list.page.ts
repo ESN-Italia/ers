@@ -58,7 +58,7 @@ export class RegistrationsListPage implements OnInit {
       // Extract available sections
       const sectionsMap = new Map<string, string>();
       this.registrations.forEach(r => {
-        if (r.sectionCode) sectionsMap.set(r.sectionCode, r.section);
+        if (r.subject?.section) sectionsMap.set(r.subject.section, r.subject.section);
       });
       this.availableSections = Array.from(sectionsMap.entries())
         .map(([code, name]) => ({ code, name }))
@@ -80,13 +80,12 @@ export class RegistrationsListPage implements OnInit {
     this.filteredRegistrations = this.registrations.filter(r => {
       const matchesStatus = this.filterStatus === 'ALL' || r.status === this.filterStatus;
       const matchesSpot = !this.filterBySpotId || r.spotId === this.filterBySpotId;
-      const matchesSection = !this.filterBySectionCode || r.sectionCode === this.filterBySectionCode;
+      const matchesSection = !this.filterBySectionCode || r.subject?.section === this.filterBySectionCode;
 
       const search = (this.searchTerm || '').toLowerCase();
       const matchesSearch = !search ||
-        (r.firstName || '').toLowerCase().includes(search) ||
-        (r.lastName || '').toLowerCase().includes(search) ||
-        (r.email || '').toLowerCase().includes(search) ||
+        (r.subject?.name || '').toLowerCase().includes(search) ||
+        (r.subject?.email || '').toLowerCase().includes(search) ||
         (r.phone || '').toLowerCase().includes(search);
 
       return matchesStatus && matchesSpot && matchesSection && matchesSearch;
@@ -100,7 +99,8 @@ export class RegistrationsListPage implements OnInit {
   }
 
   getUserName(reg: ERSRegistration): string {
-    return reg.firstName ? `${reg.firstName} ${reg.lastName}` : reg.userId;
+    if (!reg.subject) return reg.userId;
+    return reg.subject.name || reg.userId;
   }
 
   viewDetail(reg: ERSRegistration): void {
@@ -240,7 +240,6 @@ export class RegistrationsListPage implements OnInit {
       'Phone',
       'ESN Country',
       'ESN Section',
-      'Section Code',
       'Spot',
       'Status',
       'ESNcard number',
@@ -265,13 +264,12 @@ export class RegistrationsListPage implements OnInit {
     for (const reg of this.registrations) {
       const row = [
         reg.createdAt,
-        this.escapeCSV(reg.firstName),
-        this.escapeCSV(reg.lastName),
-        this.escapeCSV(reg.email),
+        this.escapeCSV(reg.subject?.name), // Use full name for CSV
+        this.escapeCSV(''), // Placeholder for Last Name if headers are fixed
+        this.escapeCSV(reg.subject?.email),
         this.escapeCSV(reg.phone),
-        this.escapeCSV(reg.country),
-        this.escapeCSV(reg.section),
-        this.escapeCSV(reg.sectionCode),
+        this.escapeCSV(reg.subject?.country),
+        this.escapeCSV(reg.subject?.section),
         this.escapeCSV(this.getSpotName(reg.spotId)),
         reg.status,
         this.escapeCSV(reg.esnCardNumber),

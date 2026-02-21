@@ -5,8 +5,8 @@
         (click)="$event.stopPropagation()"></ion-checkbox>
       <ion-label>
         <h2>{{ getUserName() }}</h2>
-        <h3>{{ getSpotName() }} - {{ registration.section }}</h3>
-        <p>{{ registration.email }} <span *ngIf="registration.phone">- {{ registration.phone }}</span></p>
+        <h3>{{ getSpotName() }} - {{ registration.subject.section }}</h3>
+        <p>{{ registration.subject.email }} <span *ngIf="registration.phone">- {{ registration.phone }}</span></p>
         <ion-badge [color]="
              registration.status === RegistrationStatus.PENDING ? 'warning' :
              registration.status === RegistrationStatus.APPROVED ? 'primary' :
@@ -51,7 +51,7 @@
 <ng-container *ngIf="row">
   <ion-row class="ion-align-items-center headerRow" *ngIf="header">
     <ion-col size="0.5"></ion-col>
-    <ion-col size="2">{{ 'ERS_EVENTS.USER' | translate }}</ion-col>
+    <ion-col size="2">{{ 'ERS_EVENTS.USER_NAME' | translate }}</ion-col>
     <ion-col size="2.5">{{ 'ERS_EVENTS.EMAIL' | translate }}</ion-col>
     <ion-col size="1.5">{{ 'ERS_EVENTS.PHONE' | translate }}</ion-col>
     <ion-col size="1.5">{{ 'ERS_EVENTS.SECTION' | translate }}</ion-col>
@@ -68,13 +68,13 @@
       <b>{{ getUserName() }}</b>
     </ion-col>
     <ion-col size="2.5">
-      {{ registration.email }}
+      {{ registration.subject.email }}
     </ion-col>
     <ion-col size="1.5">
       {{ registration.phone }}
     </ion-col>
     <ion-col size="1.5">
-      {{ registration.section }}
+      {{ registration.subject.section }}
     </ion-col>
     <ion-col size="1.5">
       {{ getSpotName() }}

@@ -8,142 +8,189 @@
 </ion-header>
 
 <ion-content>
-  <div *ngIf="registration && event" class="ion-padding">
-    <h1>{{ event.name }}</h1>
-    <h3 class="ion-no-margin">{{ (registration.firstName && registration.lastName) ? registration.firstName + ' ' +
-      registration.lastName : registration.userId }}</h3>
-    <ion-chip [color]="registration.status === RegistrationStatus.APPROVED ? 'success' :
-                         registration.status === RegistrationStatus.CONFIRMED ? 'success' :
-                         registration.status === RegistrationStatus.REJECTED ? 'danger' : 'warning'">
-      <ion-icon name="information-circle"></ion-icon>
-      <ion-label>
-        {{ (registration.status === RegistrationStatus.PENDING ? 'ERS_EVENTS.STATUS_PENDING' :
-        registration.status === RegistrationStatus.APPROVED ? 'ERS_EVENTS.STATUS_APPROVED' :
-        registration.status === RegistrationStatus.PAID ? 'ERS_EVENTS.STATUS_PAID' :
-        registration.status === RegistrationStatus.CONFIRMED ? 'ERS_EVENTS.STATUS_CONFIRMED' :
-        'ERS_EVENTS.STATUS_REJECTED') | translate }}
-      </ion-label>
-    </ion-chip>
+  <div *ngIf="registration && event">
+    <ion-grid class="ion-no-padding">
+      <ion-row>
+        <!-- Left Column: Event & Management -->
+        <ion-col [size]="12" [sizeLg]="6" class="ion-padding">
+          <ion-card class="ion-no-margin">
+            <ion-card-header>
+              <ion-card-subtitle>{{ event.name }}</ion-card-subtitle>
+            </ion-card-header>
+            <ion-card-content class="ion-no-padding">
+              <div class="ion-padding-horizontal">
+                <app-subject [subject]="registration.subject" />
+                <ion-chip [color]="registration.status === RegistrationStatus.APPROVED ? 'success' :
+                                     registration.status === RegistrationStatus.CONFIRMED ? 'success' :
+                                     registration.status === RegistrationStatus.REJECTED ? 'danger' : 'warning'">
+                  <ion-icon name="information-circle"></ion-icon>
+                  <ion-label>
+                    {{ (registration.status === RegistrationStatus.PENDING ? 'ERS_EVENTS.STATUS_PENDING' :
+                    registration.status === RegistrationStatus.APPROVED ? 'ERS_EVENTS.STATUS_APPROVED' :
+                    registration.status === RegistrationStatus.PAID ? 'ERS_EVENTS.STATUS_PAID' :
+                    registration.status === RegistrationStatus.CONFIRMED ? 'ERS_EVENTS.STATUS_CONFIRMED' :
+                    'ERS_EVENTS.STATUS_REJECTED') | translate }}
+                  </ion-label>
+                </ion-chip>
 
-    <p><strong>{{ 'ERS_EVENTS.SPOT' | translate }}:</strong> {{ getSpotName() }}</p>
-    <p><strong>{{ 'ERS_EVENTS.EMAIL' | translate }}:</strong> {{ registration.email }}</p>
-    <p *ngIf="registration.section"><strong>{{ 'ERS_EVENTS.SECTION' | translate }}:</strong> {{ registration.section }}
-      ({{ registration.sectionCode }})</p>
-    <p *ngIf="registration.country"><strong>{{ 'ERS_EVENTS.COUNTRY' | translate }}:</strong> {{ registration.country }}
-    </p>
-    <p><strong>{{ 'ERS_EVENTS.REGISTRATION_DATE' | translate }}:</strong> {{ registration.createdAt | date: 'medium' }}
-    </p>
+                <p><strong>{{ 'ERS_EVENTS.SPOT' | translate }}:</strong> {{ getSpotName() }}</p>
 
-    <div class="ion-margin-top">
-      <ion-grid fixed class="ion-no-padding">
-        <ion-row>
-          <ion-col size="12" size-md="6">
-            <h3>{{ 'ERS_EVENTS.PERSONAL_INFORMATION' | translate }}</h3>
-            <p><strong>{{ 'ERS_EVENTS.ESNCARD_NUMBER' | translate }}:</strong> {{ registration.esnCardNumber || '-' }}
-            </p>
-            <p><strong>{{ 'ERS_EVENTS.HOME_ADDRESS' | translate }}:</strong> {{ registration.homeAddress || '-' }}</p>
-            <p><strong>{{ 'ERS_EVENTS.FOOD_ALLERGIES' | translate }}:</strong> {{ registration.foodAllergies || '-' }}
-            </p>
-          </ion-col>
-          <ion-col size="12" size-md="6">
-            <h3>{{ 'ERS_EVENTS.IDENTITY_CARD' | translate }}</h3>
-            <p><strong>{{ 'ERS_EVENTS.ID_NUMBER' | translate }}:</strong> {{ registration.identityCard?.number || '-' }}
-            </p>
-            <p><strong>{{ 'ERS_EVENTS.ID_ISSUED_BY' | translate }}:</strong> {{ registration.identityCard?.issuedBy ||
-              '-' }}</p>
-            <p><strong>{{ 'ERS_EVENTS.ID_ISSUED_DATE' | translate }}:</strong> {{ registration.identityCard?.issuedDate
-              | date: 'mediumDate' }}</p>
-            <p><strong>{{ 'ERS_EVENTS.ID_VALID_UNTIL' | translate }}:</strong> {{ registration.identityCard?.validUntil
-              | date: 'mediumDate' }}</p>
-          </ion-col>
-          <ion-col size="12" size-md="6" class="ion-margin-top">
-            <h3>{{ 'ERS_EVENTS.EMERGENCY_CONTACT' | translate }}</h3>
-            <p><strong>{{ 'ERS_EVENTS.CONTACT_NAME' | translate }}:</strong> {{ registration.emergencyContact?.name ||
-              '-' }}</p>
-            <p><strong>{{ 'ERS_EVENTS.CONTACT_PHONE' | translate }}:</strong> {{ registration.emergencyContact?.phone ||
-              '-' }}</p>
-            <p><strong>{{ 'ERS_EVENTS.SPOKEN_LANGUAGES' | translate }}:</strong> {{
-              registration.emergencyContact?.spokenLanguages || '-' }}</p>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
+                <div *ngIf="event.canUserManage(app.user)" class="ion-margin-top">
+                  <ion-button *ngIf="registration.status === RegistrationStatus.PENDING" expand="block" color="success"
+                    (click)="approve()">
+                    <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+                    {{ 'ERS_EVENTS.APPROVE' | translate }}
+                  </ion-button>
+                  <ion-button *ngIf="registration.status === RegistrationStatus.PENDING" expand="block" color="danger"
+                    class="ion-margin-top" (click)="reject()">
+                    <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+                    {{ 'ERS_EVENTS.REJECT' | translate }}
+                  </ion-button>
+                  <ion-button *ngIf="registration.status === RegistrationStatus.PAID" expand="block" color="success"
+                    (click)="confirmPayment()">
+                    <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+                    {{ 'ERS_EVENTS.CONFIRM_PAYMENT' | translate }}
+                  </ion-button>
+                </div>
 
-    <div *ngIf="registration.status === RegistrationStatus.APPROVED">
-      <h2>{{ 'ERS_EVENTS.PAYMENT_INSTRUCTIONS' | translate }}</h2>
-      <p>{{ event.paymentInfo }}</p>
+                <div *ngIf="registration.status === RegistrationStatus.APPROVED" class="ion-margin-top">
+                  <h2>{{ 'ERS_EVENTS.PAYMENT_INSTRUCTIONS' | translate }}</h2>
+                  <p>{{ event.paymentInfo }}</p>
+                  <ion-button expand="block" (click)="fileInput.click()">
+                    <ion-icon name="cloud-upload" slot="start"></ion-icon>
+                    {{ 'ERS_EVENTS.UPLOAD_RECEIPT' | translate }}
+                  </ion-button>
+                  <input #fileInput type="file" (change)="uploadReceipt($event)" style="display: none"
+                    accept="application/pdf,image/*">
+                </div>
 
-      <div class="ion-margin-top">
-        <ion-button expand="block" (click)="fileInput.click()">
-          <ion-icon name="cloud-upload" slot="start"></ion-icon>
-          {{ 'ERS_EVENTS.UPLOAD_RECEIPT' | translate }}
-        </ion-button>
-        <input #fileInput type="file" (change)="uploadReceipt($event)" style="display: none"
-          accept="application/pdf,image/*">
-      </div>
-    </div>
+                <div *ngIf="registration.status === RegistrationStatus.PAID" class="ion-margin-top">
+                  <p>{{ 'ERS_EVENTS.RECEIPT_UPLOADED_WAITING' | translate }}</p>
+                  <div *ngIf="registration.receipt">
+                    <p>
+                      <a (click)="viewReceipt()" class="ion-activatable"
+                        style="cursor: pointer; text-decoration: underline; color: var(--ion-color-primary);">
+                        {{ 'ERS_EVENTS.VIEW_RECEIPT' | translate }}
+                      </a>
+                    </p>
+                    <ion-button *ngIf="isMyRegistration() || event.canUserManage(app.user)" fill="clear" color="danger"
+                      size="small" (click)="deleteReceipt()">
+                      <ion-icon name="trash-outline" slot="start"></ion-icon>
+                      {{ 'ERS_EVENTS.DELETE_RECEIPT' | translate }}
+                    </ion-button>
+                  </div>
+                </div>
 
-    <div *ngIf="registration.status === RegistrationStatus.PAID">
-      <p>{{ 'ERS_EVENTS.RECEIPT_UPLOADED_WAITING' | translate }}</p>
-      <div *ngIf="registration.receipt" class="ion-margin-bottom">
-        <p>
-          <a (click)="viewReceipt()" class="ion-activatable"
-            style="cursor: pointer; text-decoration: underline; color: var(--ion-color-primary);">
-            {{ 'ERS_EVENTS.VIEW_RECEIPT' | translate }}
-          </a>
-        </p>
-        <ion-button *ngIf="isMyRegistration() || event.canUserManage(app.user)" fill="clear" color="danger" size="small"
-          (click)="deleteReceipt()">
-          <ion-icon name="trash-outline" slot="start"></ion-icon>
-          {{ 'ERS_EVENTS.DELETE_RECEIPT' | translate }}
-        </ion-button>
-      </div>
-    </div>
+                <div *ngIf="registration.status === RegistrationStatus.CONFIRMED" class="ion-margin-top">
+                  <p class="success-color">{{ 'ERS_EVENTS.SEE_YOU_THERE' | translate }}</p>
+                </div>
 
-    <div *ngIf="registration.status === RegistrationStatus.CONFIRMED">
-      <p class="success-color">{{ 'ERS_EVENTS.SEE_YOU_THERE' | translate }}</p>
-    </div>
+                <div *ngIf="(isMyRegistration() || event.canUserManage(app.user)) && event.isRegistrationOpen()"
+                  class="ion-margin-vertical">
+                  <ion-button *ngIf="isMyRegistration()" expand="block" fill="outline" (click)="modify()">
+                    <ion-icon name="create-outline" slot="start"></ion-icon>
+                    {{ 'COMMON.EDIT' | translate }}
+                  </ion-button>
+                  <ion-button expand="block" fill="clear" color="danger" class="ion-margin-top" (click)="withdraw()">
+                    <ion-icon name="trash-outline" slot="start"></ion-icon>
+                    {{ 'ERS_EVENTS.WITHDRAW_REGISTRATION' | translate }}
+                  </ion-button>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
 
-    <div *ngIf="event.canUserManage(app.user)" class="ion-margin-top">
-      <ion-button *ngIf="registration.status === RegistrationStatus.PENDING" expand="block" color="success"
-        (click)="approve()">
-        <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-        {{ 'ERS_EVENTS.APPROVE' | translate }}
-      </ion-button>
-      <ion-button *ngIf="registration.status === RegistrationStatus.PENDING" expand="block" color="danger"
-        class="ion-margin-top" (click)="reject()">
-        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
-        {{ 'ERS_EVENTS.REJECT' | translate }}
-      </ion-button>
-      <ion-button *ngIf="registration.status === RegistrationStatus.PAID" expand="block" color="success"
-        (click)="confirmPayment()">
-        <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-        {{ 'ERS_EVENTS.CONFIRM_PAYMENT' | translate }}
-      </ion-button>
-    </div>
+        <!-- Right Column: Registration Details -->
+        <ion-col [size]="12" [sizeLg]="6" class="ion-padding">
+          <ion-list lines="none">
+            <ion-list-header>
+              <ion-label>
+                <h2>{{ 'ERS_EVENTS.PERSONAL_INFORMATION' | translate }}</h2>
+              </ion-label>
+            </ion-list-header>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.EMAIL' | translate }}:</strong> {{ registration.subject.email }}</p>
+              </ion-label></ion-item>
+            <ion-item *ngIf="registration.subject.section"><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.SECTION' | translate }}:</strong> {{ registration.subject.section }}</p>
+              </ion-label></ion-item>
+            <ion-item *ngIf="registration.subject.country"><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.COUNTRY' | translate }}:</strong> {{ registration.subject.country }}</p>
+              </ion-label></ion-item>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.REGISTRATION_DATE' | translate }}:</strong> {{ registration.createdAt | date:
+                  'medium' }}</p>
+              </ion-label></ion-item>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.ESNCARD_NUMBER' | translate }}:</strong> {{ registration.esnCardNumber || '-'
+                  }}</p>
+              </ion-label></ion-item>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.HOME_ADDRESS' | translate }}:</strong> {{ registration.homeAddress || '-' }}
+                </p>
+              </ion-label></ion-item>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.FOOD_ALLERGIES' | translate }}:</strong> {{ registration.foodAllergies || '-'
+                  }}</p>
+              </ion-label></ion-item>
 
-    <div *ngIf="event.questions?.length" class="ion-margin-top">
-      <h2>{{ 'ERS_EVENTS.QUESTIONS' | translate }}</h2>
-      <ion-list lines="inset">
-        <ion-item *ngFor="let question of event.questions">
-          <ion-label>
-            <h3>{{ question.text }}</h3>
-            <p>{{ formatAnswer(question.id) }}</p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
-    </div>
+            <ion-list-header class="ion-margin-top">
+              <ion-label>
+                <h2>{{ 'ERS_EVENTS.IDENTITY_CARD' | translate }}</h2>
+              </ion-label>
+            </ion-list-header>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.ID_NUMBER' | translate }}:</strong> {{ registration.identityCard?.number ||
+                  '-' }}</p>
+              </ion-label></ion-item>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.ID_ISSUED_BY' | translate }}:</strong> {{ registration.identityCard?.issuedBy
+                  || '-' }}</p>
+              </ion-label></ion-item>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.ID_ISSUED_DATE' | translate }}:</strong> {{
+                  registration.identityCard?.issuedDate | date: 'mediumDate' }}</p>
+              </ion-label></ion-item>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.ID_VALID_UNTIL' | translate }}:</strong> {{
+                  registration.identityCard?.validUntil | date: 'mediumDate' }}</p>
+              </ion-label></ion-item>
 
-    <div *ngIf="(isMyRegistration() || event.canUserManage(app.user)) && event.isRegistrationOpen()"
-      class="ion-margin-top">
-      <ion-button *ngIf="isMyRegistration()" expand="block" fill="outline" (click)="modify()">
-        <ion-icon name="create-outline" slot="start"></ion-icon>
-        {{ 'COMMON.EDIT' | translate }}
-      </ion-button>
-      <ion-button expand="block" fill="clear" color="danger" class="ion-margin-top" (click)="withdraw()">
-        <ion-icon name="trash-outline" slot="start"></ion-icon>
-        {{ 'ERS_EVENTS.WITHDRAW_REGISTRATION' | translate }}
-      </ion-button>
-    </div>
+            <ion-list-header class="ion-margin-top">
+              <ion-label>
+                <h2>{{ 'ERS_EVENTS.EMERGENCY_CONTACT' | translate }}</h2>
+              </ion-label>
+            </ion-list-header>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.CONTACT_NAME' | translate }}:</strong> {{ registration.emergencyContact?.name
+                  || '-' }}</p>
+              </ion-label></ion-item>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.CONTACT_PHONE' | translate }}:</strong> {{
+                  registration.emergencyContact?.phone || '-' }}</p>
+              </ion-label></ion-item>
+            <ion-item><ion-label>
+                <p><strong>{{ 'ERS_EVENTS.SPOKEN_LANGUAGES' | translate }}:</strong> {{
+                  registration.emergencyContact?.spokenLanguages || '-' }}</p>
+              </ion-label></ion-item>
+
+            <ng-container *ngIf="event.questions?.length">
+              <ion-list-header class="ion-margin-top">
+                <ion-label>
+                  <h2>{{ 'ERS_EVENTS.QUESTIONS' | translate }}</h2>
+                </ion-label>
+              </ion-list-header>
+              <ion-item *ngFor="let question of event.questions">
+                <ion-label class="ion-text-wrap">
+                  <h3>{{ question.text }}</h3>
+                  <p>{{ formatAnswer(question.id) }}</p>
+                </ion-label>
+              </ion-item>
+            </ng-container>
+          </ion-list>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </div>
 </ion-content>

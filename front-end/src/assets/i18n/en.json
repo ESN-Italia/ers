@@ -847,7 +847,9 @@
     "CANT_CHANGE_PUBLISHED_VOTING": "You won't be able to change the voting after the results are published."
   },
   "ERS_EVENTS": {
-    "NAME": "Event name",
+    "EVENT_NAME": "Event name",
+    "EVENT_DESCRIPTION": "Event description",
+    "USER_NAME": "User name",
     "REGISTRATION": "Registration",
     "ALREADY_REGISTERED": "You are already registered",
     "VIEW_MY_REGISTRATION": "View my registration",
@@ -906,6 +908,7 @@
     "RADIOBOX": "Single choice (Radio)",
     "CHECKBOX": "Multiple choice (Checkbox)",
     "DATE": "Date",
+    "EVENT_DATES": "Event dates",
     "OPTIONS": "Options",
     "OPTIONS_COMMA_SEP": "Options (comma separated)",
     "MANAGE_EVENT": "Manage event",
@@ -941,6 +944,9 @@
     "CONTACT_PHONE_PLACEHOLDER": "e.g. +39 123 456 7890",
     "HOME_ADDRESS_PLACEHOLDER": "e.g. Via Roma 1, 00100 Roma, Italy",
     "FOOD_ALLERGIES_PLACEHOLDER": "e.g. None, Gluten-free, Vegan",
-    "VIEW_FULL_DETAIL": "View full detail"
+    "VIEW_FULL_DETAIL": "View full detail",
+    "ADDITIONAL_MANAGERS": "Additional ERS managers",
+    "ADDITIONAL_MANAGERS_I": "Users in this lists can manage this specific event.",
+    "ADDITIONAL_MANAGERS_II": "The users set in the Configurations can also manage the event."
   }
 }

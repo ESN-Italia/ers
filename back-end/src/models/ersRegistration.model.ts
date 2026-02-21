@@ -2,6 +2,7 @@ import { epochISOString, Resource } from 'idea-toolbox';
 
 import { ERSEvent } from './ersEvent.model';
 import { User } from './user.model';
+import { Subject } from './subject.model';
 
 export enum RegistrationStatus {
   PENDING = "PENDING",
@@ -26,12 +27,7 @@ export class ERSRegistration extends Resource {
   eventId: string;
   registrationId: string;
   userId: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  sectionCode: string;
-  section: string;
-  country: string;
+  subject: Subject;
   phone: string;
   identityCard: {
     number: string;
@@ -59,12 +55,8 @@ export class ERSRegistration extends Resource {
     this.eventId = this.clean(x.eventId, String);
     this.registrationId = this.clean(x.registrationId, String);
     this.userId = this.clean(x.userId, String);
-    this.email = this.clean(x.email, String);
-    this.firstName = this.clean(x.firstName, String);
-    this.lastName = this.clean(x.lastName, String);
-    this.sectionCode = this.clean(x.sectionCode, String);
-    this.section = this.clean(x.section, String);
-    this.country = this.clean(x.country, String);
+    this.subject = this.clean(x.subject, s => new Subject(s));
+
     this.phone = this.clean(x.phone, String);
     this.identityCard = this.clean(x.identityCard, Object, {
       number: '',
@@ -97,7 +89,7 @@ export class ERSRegistration extends Resource {
     this.createdAt = safeData.createdAt;
     this.status = safeData.status;
 
-    this.email = newData.email || safeData.email;
+    this.subject = newData.subject || safeData.subject; // Renamed from 'user' to 'subject'
     this.phone = newData.phone || safeData.phone;
     this.identityCard = newData.identityCard || safeData.identityCard;
     this.esnCardNumber = newData.esnCardNumber || safeData.esnCardNumber;
@@ -113,7 +105,9 @@ export class ERSRegistration extends Resource {
     const e = super.validate();
     if (this.iE(this.eventId)) e.push('eventId');
     if (this.iE(this.userId)) e.push('userId');
-    if (this.iE(this.email)) e.push('email');
+    if (!this.subject) e.push('subject');
+    else e.push(...this.subject.validate());
+
     if (this.iE(this.phone)) e.push('phone');
     if (this.iE(this.identityCard?.number)) e.push('identityCard.number');
     if (this.iE(this.identityCard?.issuedDate)) e.push('identityCard.issuedDate');

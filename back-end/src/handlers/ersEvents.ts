@@ -64,18 +64,12 @@ class ERSEventsRC extends ResourceController {
   }
 
   protected async postResources(): Promise<ERSEvent> {
-    if (!this.galaxyUser.isAdministrator && !this.galaxyUser.canManageERSEvents) throw new HandledError('Unauthorized');
+    if (!this.npEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
 
     this.npEvent = new ERSEvent(this.body);
     this.npEvent.eventId = await ddb.IUNID(PROJECT);
     this.npEvent.createdAt = new Date().toISOString();
     delete this.npEvent.updatedAt;
-
-    // Check if user is added to managers, if not add them
-    if (!this.npEvent.managers) this.npEvent.managers = [];
-    if (!this.npEvent.managers.includes(this.galaxyUser.userId)) {
-      this.npEvent.managers.push(this.galaxyUser.userId);
-    }
 
     return await this.putSafeResource({ noOverwrite: true });
   }

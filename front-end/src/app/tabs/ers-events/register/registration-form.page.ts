@@ -6,6 +6,7 @@ import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration } from '@models/ersRegistration.model';
+import { Subject } from '@models/subject.model';
 
 @Component({
   selector: 'app-registration-form',
@@ -48,7 +49,7 @@ export class RegistrationFormPage implements OnInit {
         this.registration = new ERSRegistration({
           eventId: this.eventId,
           userId: this.app.user.userId,
-          email: this.app.user.email,
+          subject: Subject.fromUser(this.app.user), // Assign the whole subject object
           identityCard: { number: '', issuedDate: '', issuedBy: '', validUntil: '' },
           emergencyContact: { name: '', phone: '', spokenLanguages: '' },
           answers: {}

@@ -6,6 +6,7 @@ import { DynamoDB, HandledError, ResourceController, S3, SES } from 'idea-aws';
 
 import { ERSEvent } from '../models/ersEvent.model';
 import { ERSRegistration, Receipt, RegistrationStatus } from '../models/ersRegistration.model';
+import { Subject } from '../models/subject.model';
 import { User } from '../models/user.model';
 
 ///
@@ -23,6 +24,14 @@ const S3_ATTACHMENTS_FOLDER = process.env.S3_ATTACHMENTS_FOLDER;
 const ddb = new DynamoDB();
 const s3 = new S3();
 const ses = new SES();
+
+// New constant for SES sender details
+const SES_SENDER = {
+  source: process.env.SES_SOURCE_ADDRESS,
+  sourceArn: process.env.SES_IDENTITY_ARN,
+  region: process.env.SES_REGION,
+  replyToAddresses: [process.env.SES_SOURCE_ADDRESS] // Default reply-to
+};
 
 export const handler = (ev: any, _: any, cb: any): Promise<void> => new ERSRegistrationsRC(ev, cb).handleRequest();
 
@@ -102,12 +111,7 @@ class ERSRegistrationsRC extends ResourceController {
     this.registration = new ERSRegistration(this.body);
     this.registration.eventId = this.managedEvent.eventId;
     this.registration.userId = this.galaxyUser.userId;
-    this.registration.email = this.galaxyUser.email;
-    this.registration.firstName = this.galaxyUser.firstName;
-    this.registration.lastName = this.galaxyUser.lastName;
-    this.registration.sectionCode = this.galaxyUser.sectionCode;
-    this.registration.section = this.galaxyUser.section;
-    this.registration.country = this.galaxyUser.country;
+    this.registration.subject = Subject.fromUser(this.galaxyUser);
     this.registration.registrationId = await ddb.IUNID(PROJECT);
     this.registration.status = RegistrationStatus.PENDING;
     this.registration.createdAt = new Date().toISOString();
@@ -215,7 +219,7 @@ class ERSRegistrationsRC extends ResourceController {
 
     const extensionMatch = this.registration.receipt.key.match(/\.[0-9a-z]+$/i);
     const extension = extensionMatch ? extensionMatch[0] : '';
-    const filename = `${this.registration.firstName}_${this.registration.lastName}_receipt${extension}`;
+    const filename = `${this.registration.subject.name.replace(/\s+/g, '_')}_receipt${extension}`;
     return await s3.signedURLGet(S3_BUCKET_MEDIA, this.registration.receipt.key, { filename });
   }
 
@@ -275,18 +279,18 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   private async sendEmail(type: string): Promise<void> {
-    if (!this.registration.email) return;
+    if (!this.registration.subject?.email) return;
 
     const templateName = await this.getSESTemplateName(type);
     const templateData = {
-      user: this.registration.firstName + ' ' + this.registration.lastName,
+      user: this.registration.subject.name,
       eventName: this.managedEvent.name,
-      paymentInfo: this.managedEvent.paymentInfo || 'No payment info available'
+      paymentInfo: this.managedEvent.name + ' ' + (this.managedEvent.paymentInfo || 'No payment info available')
     };
 
     try {
       await ses.sendTemplatedEmail({
-        toAddresses: [this.registration.email],
+        toAddresses: [this.registration.subject.email],
         template: `${templateName}-${process.env.STAGE}`,
         templateData
       }, {

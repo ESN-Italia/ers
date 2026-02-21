@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { IDEATranslationsModule } from '@idea-ionic/common';
 
+import { SubjectModule } from '@app/common/subject.module';
+
 import { RegistrationDetailPageRoutingModule } from './registration-detail-routing.module';
 import { RegistrationDetailPage } from './registration-detail.page';
 
@@ -13,7 +15,8 @@ import { RegistrationDetailPage } from './registration-detail.page';
     FormsModule,
     IonicModule,
     RegistrationDetailPageRoutingModule,
-    IDEATranslationsModule
+    IDEATranslationsModule,
+    SubjectModule
   ],
   declarations: [RegistrationDetailPage]
 })
