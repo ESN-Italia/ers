@@ -192,6 +192,10 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   private async updateStatus(status: RegistrationStatus, emailType: string): Promise<ERSRegistration> {
+    if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
+      throw new HandledError('Unauthorized');
+    }
+
     this.registration.status = status;
     this.registration.updatedAt = new Date().toISOString();
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
@@ -220,11 +224,11 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   private async getReceiptDownloadUrl(): Promise<any> {
-    if (!this.registration.receipt?.key) throw new HandledError('No receipt found');
-
     if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
       throw new HandledError('Unauthorized');
     }
+
+    if (!this.registration.receipt?.key) throw new HandledError('No receipt found');
 
     const extensionMatch = this.registration.receipt.key.match(/\.[0-9a-z]+$/i);
     const extension = extensionMatch ? extensionMatch[0] : '';
@@ -255,6 +259,10 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   private async deleteReceipt(): Promise<ERSRegistration> {
+    if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
+      throw new HandledError('Unauthorized');
+    }
+
     if (!this.registration.receipt?.key) throw new HandledError('No receipt to delete');
 
     // Delete from S3
