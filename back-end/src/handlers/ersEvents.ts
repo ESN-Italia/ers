@@ -41,6 +41,8 @@ class ERSEventsRC extends ResourceController {
     } catch (err) {
       throw new HandledError('Event not found');
     }
+
+    if (!this.npEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
   }
 
   protected async getResources(): Promise<ERSEvent[]> {
@@ -64,7 +66,7 @@ class ERSEventsRC extends ResourceController {
   }
 
   protected async postResources(): Promise<ERSEvent> {
-    if (!this.npEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
+    if (!this.galaxyUser.isAdministrator && !this.galaxyUser.canManageERSEvents) throw new HandledError('Unauthorized');
 
     this.npEvent = new ERSEvent(this.body);
     this.npEvent.eventId = await ddb.IUNID(PROJECT);
@@ -79,7 +81,6 @@ class ERSEventsRC extends ResourceController {
   }
 
   protected async putResource(): Promise<ERSEvent> {
-    if (!this.npEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
 
     const oldEvent = new ERSEvent(this.npEvent);
     this.npEvent.safeLoad(this.body, oldEvent);
@@ -99,7 +100,6 @@ class ERSEventsRC extends ResourceController {
   }
 
   private async manageArchive(archive: boolean): Promise<ERSEvent> {
-    if (!this.npEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
 
     if (archive) this.npEvent.archivedAt = new Date().toISOString();
     else delete this.npEvent.archivedAt;
@@ -109,7 +109,6 @@ class ERSEventsRC extends ResourceController {
   }
 
   protected async deleteResource(): Promise<void> {
-    if (!this.npEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
 
     // Check if there are registrations
     const regs = await ddb.query({

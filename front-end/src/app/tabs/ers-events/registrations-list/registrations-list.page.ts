@@ -319,4 +319,8 @@ export class RegistrationsListPage implements OnInit {
     if (Array.isArray(answer)) return answer.join('; ');
     return String(answer || '');
   }
+
+  goBack(): void {
+    this.app.goToInTabs(['ers-events', this.eventId]);
+  }
 }

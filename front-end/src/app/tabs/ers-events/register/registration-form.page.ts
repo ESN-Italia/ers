@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 import { IDEALoadingService, IDEAMessageService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
+import { PrivacyPolicyComponent } from './privacy-policy.component';
 import { ERSEvent, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration } from '@models/ersRegistration.model';
 import { Subject } from '@models/subject.model';
@@ -19,8 +21,11 @@ export class RegistrationFormPage implements OnInit {
   registration: ERSRegistration;
   QuestionType = QuestionType;
 
+  privacyPolicyAccepted = false;
+
   constructor(
     private route: ActivatedRoute,
+    private modalCtrl: ModalController,
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
     private service: ERSEventsService,
@@ -74,6 +79,8 @@ export class RegistrationFormPage implements OnInit {
   }
 
   async submit(): Promise<void> {
+    if (!this.privacyPolicyAccepted) return this.message.error('ERS_EVENTS.PRIVACY_POLICY_REQUIRED');
+
     // Validate
     const errors = this.registration.validate(this.event);
     if (errors.length) return this.message.error('COMMON.FORM_HAS_ERROR_TO_CHECK');
@@ -107,5 +114,16 @@ export class RegistrationFormPage implements OnInit {
     const index = answers.indexOf(option);
     if (index === -1) answers.push(option);
     else answers.splice(index, 1);
+  }
+
+  async openPrivacyPolicy(): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: PrivacyPolicyComponent
+    });
+    await modal.present();
+  }
+
+  goBack(): void {
+    this.app.goToInTabs(['ers-events', this.eventId]);
   }
 }

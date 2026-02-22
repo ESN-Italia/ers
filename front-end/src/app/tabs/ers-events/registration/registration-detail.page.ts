@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
+import { EditStatusComponent } from './edit-status.component';
 import { ERSEvent } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 
@@ -25,6 +26,7 @@ export class RegistrationDetailPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
+    private modalCtrl: ModalController,
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
     private t: IDEATranslationsService,
@@ -219,6 +221,25 @@ export class RegistrationDetailPage implements OnInit {
       ]
     });
     await alert.present();
+  }
+
+  async editStatus(): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: EditStatusComponent,
+      componentProps: { registration: this.registration }
+    });
+    modal.onDidDismiss().then(async ({ data }) => {
+      if (data?.status) await this.loadData(false);
+    });
+    await modal.present();
+  }
+
+  goBack(): void {
+    if (this.registrationId) {
+      this.app.goToInTabs(['ers-events', this.eventId, 'registrations']);
+    } else {
+      this.app.goToInTabs(['ers-events', this.eventId]);
+    }
   }
 
   formatAnswer(questionId: string): string {

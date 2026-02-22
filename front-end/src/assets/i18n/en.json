@@ -873,6 +873,8 @@
     "CONFIRM_PAYMENT": "Confirm payment",
     "WITHDRAW_REGISTRATION": "Withdraw registration",
     "WITHDRAW_REGISTRATION_CONFIRM": "Are you sure you want to withdraw your registration? This action is irreversible.",
+    "EDIT_STATUS": "Edit status",
+    "EDIT_STATUS_I": "Select the new status for this registration. No email notification will be sent.",
     "DELETE_RECEIPT": "Delete receipt",
     "REQUIRED": "Required",
     "OPTIONAL": "Optional",
@@ -947,6 +949,24 @@
     "VIEW_FULL_DETAIL": "View full detail",
     "ADDITIONAL_MANAGERS": "Additional ERS managers",
     "ADDITIONAL_MANAGERS_I": "Users in this lists can manage this specific event.",
-    "ADDITIONAL_MANAGERS_II": "The users set in the Configurations can also manage the event."
+    "ADDITIONAL_MANAGERS_II": "The users set in the Configurations can also manage the event.",
+    "PRIVACY_POLICY_ACCEPT": "I have read and I accept the",
+    "PRIVACY_POLICY_LINK": "Privacy Policy",
+    "PRIVACY_POLICY_REQUIRED": "You must accept the privacy policy to proceed"
+  },
+  "PRIVACY_POLICY": {
+    "COMMUNICATION": "Data communication",
+    "COMMUNICATION_TEXT": "Personal data may be shared with the institutional and commercial partners of {{shortName}} and Erasmus Student Network Italy, with the Erasmus Student Network AISBL and their respective institutional and commercial partners, in order to improve the experience of exchange projects for associates of {{shortName}} and other Erasmus Student Network associations. <br /> Without the need for express consent (Article 6 letter b) and c) GDPR), {{shortName}} will be able to communicate your data for the purposes referred to in art. 2.A) to Supervisory Bodies, Judicial Authorities, to insurance companies for the provision of insurance services, as well as to those subjects to whom the communication is mandatory by law for the accomplishment of said purposes. These subjects will process the data in their capacity as independent data controllers. <br /> {{shortName}} communicates that personal data may be shared with physical or juridical persons based in the European Union. The transfer, if any, outside the European Union will only take place with companies based in countries with privacy regulations deemed appropriate by decision of the European Commission. Personal data may be shared with companies located in the United States having a certificate of compliance to the EU-US Privacy Shield.",
+    "DATA_REQUEST": "How to exercise rights",
+    "DATA_REQUEST_TEXT": "At any time you can ask by post or email to the Data Controller, {{president}}, of the data to change or cancel your data. <br /> Your request will be satisfied within 30 days. <br /> Any reason for dissatisfaction or protest can be reported by you to the Guarantor for the protection of personal data.",
+    "MODES": "Treatment Modalities",
+    "MODES_TEXT": "The processing of your personal data is carried out with reference to the operations indicated in art. 4 n. 2 of the GDPR, namely: collection, registration, organization, storage, consultation, processing, modification, selection, extraction, comparison, use, interconnection, blocking, communication, deletion and destruction of data. The processing of data will be done by electronic and non-electronic means for the pursuit of the aforementioned purposes, in compliance with the provisions of the law and the principles of fairness, applying standard security measures to minimize the risks of disclosure. <br /> The data will be kept until you will be associated or use the services of our Association and follow for a time in accordance with the requirements of the law.",
+    "PRIVACY_POLICY": "Privacy policy",
+    "RIGHTS": "Users rights",
+    "RIGHTS_TEXT": "In his capacity as an interested party he has the rights referred to in art. 15-22 GDPR and precisely the rights of: <ol> <li> obtain confirmation of the existence or not of personal data concerning you, even if not yet registered, and their communication in intelligible form; </ li> <li > obtaining the indication: a) of the origin of personal data; b) of the purposes and methods of the processing; c) of the logic applied in case of treatment carried out with the aid of electronic instruments; d) the identifying details of the data controller and data persons e) of the subjects or categories of subjects to whom the personal data may be communicated or who may become aware of them; </ li> <li> obtain: a) the update , rectification or, when interested, integration of data; b) the cancellation, transformation into anonymous form or blocking of data processed unlawfully, including data whose retention is unnecessary for the purposes for which the data were collected or subsequently processed; c) the attestation that the operations referred to in letters a) and b) have been brought to the attention, also as regards their content, of those to whom the data have been communicated or disseminated, except in the case where such fulfillment is it proves impossible or involves a use of means manifestly disproportionate to the protected right; </ li> </ ol> Where applicable, it also has the rights set forth in articles. 16-21 GDPR (Right of rectification, right to be forgotten, right of limitation of treatment, right to data portability, right of opposition), as well as the right of complaint to the Guarantor Authority.",
+    "SUBJECT": "Object and purpose of the processing",
+    "SUBJECT_TEXT": "The data object of the treatment are those supplied by you (personal, residence and contact) in any way. They are collected in order to become a member of {{shortName}} and to be able to send information about the activities of both {{shortName}} and ESN Italy, to those of other associated companies (listed here) and to those Erasmus Student Network AISBL. It will then be able to receive further communications from the commercial and institutional partners at local and national level.",
+    "TITLE": "INFORMATION FOR THE PROCESSING OF PERSONAL DATA",
+    "TITLE_TEXT": "Erasmus Student Network Italia, based in Rome, Via Anastasio II, 80, as data controllers, inform you pursuant to art. 13 EU Regulation n. 2016/679 (hereinafter, \"GDPR\") that your data will be processed in the manner and for the purposes indicated in this statement."
   }
 }

@@ -51,7 +51,7 @@ export class ManageEventPage implements OnInit {
         this.event = new ERSEvent({});
         this.event.spots = [];
         this.event.questions = [];
-        this.event.managers = [this.app.user.userId];
+        this.event.managers = [];
         this.event.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         this.editMode = UXMode.INSERT;

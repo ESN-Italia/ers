@@ -155,6 +155,15 @@ export class ERSEventsService {
   }
 
   /**
+   * Set status directly (Manager override, no email).
+   */
+  async setStatus(eventId: string, registrationId: string, status: string): Promise<void> {
+    await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
+      body: { action: 'SET_STATUS', status }
+    });
+  }
+
+  /**
    * Delete receipt.
    */
   async deleteReceipt(eventId: string, registrationId: string): Promise<void> {

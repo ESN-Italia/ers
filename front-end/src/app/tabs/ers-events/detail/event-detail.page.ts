@@ -65,4 +65,8 @@ export class EventDetailPage implements OnInit {
   async manage(): Promise<void> {
     this.app.goToInTabs(['ers-events', this.eventId, 'manage']);
   }
+
+  goBack(): void {
+    this.app.goToInTabs(['ers-events']);
+  }
 }

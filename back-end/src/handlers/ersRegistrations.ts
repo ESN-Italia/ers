@@ -158,6 +158,7 @@ class ERSRegistrationsRC extends ResourceController {
       case 'REJECT': return await this.updateStatus(RegistrationStatus.REJECTED, 'REGISTRATION_REJECTED');
       case 'CONFIRM_PAYMENT': return await this.updateStatus(RegistrationStatus.CONFIRMED, 'PAYMENT_CONFIRMED');
       case 'DELETE_RECEIPT': return await this.deleteReceipt();
+      case 'SET_STATUS': return await this.setStatus(this.body.status);
       default: throw new HandledError('Unsupported action');
     }
   }
@@ -197,6 +198,14 @@ class ERSRegistrationsRC extends ResourceController {
 
     await this.sendEmail(emailType);
 
+    return this.registration;
+  }
+
+  private async setStatus(status: RegistrationStatus): Promise<ERSRegistration> {
+    if (!Object.values(RegistrationStatus).includes(status)) throw new HandledError('Invalid status');
+    this.registration.status = status;
+    this.registration.updatedAt = new Date().toISOString();
+    await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
     return this.registration;
   }
 
