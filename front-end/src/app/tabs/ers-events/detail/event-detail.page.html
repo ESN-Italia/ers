@@ -30,14 +30,38 @@
       <ion-card-content>
         <div *ngIf="myRegistration">
           <p>{{ 'ERS_EVENTS.ALREADY_REGISTERED' | translate }}</p>
+          <p *ngIf="event.isRegistrationOpen()" class="medium-color ion-no-margin ion-margin-bottom">
+            {{ 'ERS_EVENTS.REGISTRATION_CLOSES' | translate }} {{ event.registrationCloseAt | date: 'medium' }}
+          </p>
+          <p *ngIf="event.registrationCloseAt && event.registrationCloseAt < now"
+            class="medium-color ion-no-margin ion-margin-bottom">
+            {{ 'ERS_EVENTS.REGISTRATION_ENDED' | translate }}
+          </p>
           <ion-button expand="block" (click)="viewRegistration()">{{ 'ERS_EVENTS.VIEW_MY_REGISTRATION' | translate
             }}</ion-button>
         </div>
         <div *ngIf="!myRegistration && event.isRegistrationOpen()">
+          <p class="medium-color ion-margin-bottom">
+            {{ 'ERS_EVENTS.REGISTRATION_CLOSES' | translate }} {{ event.registrationCloseAt | date: 'medium' }}
+          </p>
           <ion-button expand="block" (click)="register()">{{ 'ERS_EVENTS.REGISTER_NOW' | translate }}</ion-button>
         </div>
         <div *ngIf="!myRegistration && !event.isRegistrationOpen()">
-          <p>{{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}</p>
+          <!-- Yet to open -->
+          <p *ngIf="event.registrationOpenAt && event.registrationOpenAt > now" class="medium-color ion-margin-bottom">
+            {{ 'ERS_EVENTS.REGISTRATION_NOT_OPEN_YET' | translate }}<br />
+            {{ 'ERS_EVENTS.REGISTRATION_OPENS' | translate }} {{ event.registrationOpenAt | date: 'medium' }}
+          </p>
+          <!-- Already ended -->
+          <p *ngIf="event.registrationCloseAt && event.registrationCloseAt < now"
+            class="medium-color ion-margin-bottom">
+            {{ 'ERS_EVENTS.REGISTRATION_ENDED' | translate }} ({{ event.registrationCloseAt | date: 'medium' }})
+          </p>
+          <!-- Fallback/Other cases -->
+          <p *ngIf="(!event.registrationOpenAt || event.registrationOpenAt <= now) && (!event.registrationCloseAt || event.registrationCloseAt >= now)"
+            class="medium-color">
+            {{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}
+          </p>
         </div>
 
         <div *ngIf="event.canUserManage(app.user)" class="ion-margin-top">

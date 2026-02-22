@@ -14,6 +14,7 @@ export class ERSEventComponent {
   @Input() header = false;
   @Output() select = new EventEmitter<void>();
   @Output() viewRegs = new EventEmitter<Event>();
+  now = new Date().toISOString();
 
   constructor(public app: AppService) { }
 }

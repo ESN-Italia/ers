@@ -17,6 +17,7 @@ export class EventDetailPage implements OnInit {
   eventId: string;
   event: ERSEvent;
   myRegistration: ERSRegistration;
+  now = new Date().toISOString();
 
   constructor(
     private route: ActivatedRoute,

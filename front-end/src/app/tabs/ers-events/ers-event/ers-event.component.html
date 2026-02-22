@@ -5,14 +5,21 @@
       <ion-card-title>{{ event.name }}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
+      <!-- Mobile Status -->
       <p *ngIf="event.isRegistrationOpen()" class="success-color">
         {{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}
       </p>
-      <p *ngIf="!event.isRegistrationOpen() && !event.isEnded()" class="warning-color">
-        {{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}
+      <p *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt > now"
+        class="warning-color">
+        {{ 'ERS_EVENTS.REGISTRATION_NOT_OPEN_YET' | translate }}
       </p>
-      <p *ngIf="event.isEnded()" class="medium-color">
-        {{ 'ERS_EVENTS.ENDED' | translate }}
+      <p *ngIf="!event.isRegistrationOpen() && event.registrationCloseAt && event.registrationCloseAt < now"
+        class="medium-color">
+        {{ 'ERS_EVENTS.REGISTRATION_ENDED' | translate }}
+      </p>
+      <p *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt <= now && (!event.registrationCloseAt || event.registrationCloseAt >= now)"
+        class="warning-color">
+        {{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}
       </p>
 
       <div *ngIf="event.canUserManage(app.user)" class="ion-text-right">
@@ -56,14 +63,17 @@
       {{ event.endAt | date: 'mediumDate' }}
     </ion-col>
     <ion-col [sizeLg]="3" [sizeXl]="3">
+      <!-- Desktop Status -->
       <ion-badge *ngIf="event.isRegistrationOpen()" color="success">
         {{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}
       </ion-badge>
-      <ion-badge *ngIf="!event.isRegistrationOpen() && !event.isEnded()" color="warning">
-        {{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}
+      <ion-badge *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt > now"
+        color="warning">
+        {{ 'ERS_EVENTS.REGISTRATION_NOT_OPEN_YET' | translate }}
       </ion-badge>
-      <ion-badge *ngIf="event.isEnded()" color="medium">
-        {{ 'ERS_EVENTS.ENDED' | translate }}
+      <ion-badge *ngIf="!event.isRegistrationOpen() && event.registrationCloseAt && event.registrationCloseAt < now"
+        color="medium">
+        {{ 'ERS_EVENTS.REGISTRATION_ENDED' | translate }}
       </ion-badge>
     </ion-col>
   </ion-row>
