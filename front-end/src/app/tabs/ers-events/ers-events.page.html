@@ -19,6 +19,10 @@
           <ion-select-option [value]="false">{{ 'ERS_EVENTS.ENDED' | translate }}</ion-select-option>
         </ion-select>
       </ion-item>
+      <ion-button [color]="showArchived ? 'warning' : 'medium'" fill="clear"
+        (click)="showArchived = !showArchived; loadList()">
+        <ion-icon [name]="showArchived ? 'archive' : 'archive-outline'" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -28,12 +32,8 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="ion-padding" *ngIf="!events">
+  <div class="ion-padding" *ngIf="!filteredEvents">
     <ion-spinner></ion-spinner>
-  </div>
-
-  <div *ngIf="events?.length === 0" class="ion-text-center ion-padding">
-    <p>{{ 'COMMON.NO_ELEMENT_FOUND' | translate }}</p>
   </div>
 
   <ion-list class="aList" *ngIf="events?.length > 0">
@@ -50,6 +50,9 @@
       <app-ers-event *ngIf="events?.length" [row]="true" [header]="true" />
       <app-ers-event *ngFor="let event of filteredEvents" [event]="event" [row]="true" (select)="openEvent(event)"
         (viewRegs)="viewRegistrations(event, $event)" />
+      <div *ngIf="filteredEvents?.length === 0" class="ion-text-center ion-padding">
+        <p>{{ 'COMMON.NO_ELEMENT_FOUND' | translate }}</p>
+      </div>
     </ion-grid>
 
     <ion-infinite-scroll (ionInfinite)="filter(searchbar.value, $event.target)">

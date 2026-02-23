@@ -22,8 +22,8 @@
         <h2>{{ 'ERS_EVENTS.EVENT_DESCRIPTION' | translate }}</h2>
       </ion-label>
     </ion-list-header>
-    <app-html-editor *ngIf="event.description || editMode !== UXMode.VIEW" [class.fieldHasError]="hasFieldAnError('description')"
-    [(content)]="event.description"
+    <app-html-editor *ngIf="event.description || editMode !== UXMode.VIEW"
+      [class.fieldHasError]="hasFieldAnError('description')" [(content)]="event.description"
       [editMode]="editMode !== UXMode.VIEW" />
 
     <!-- Dates -->
@@ -55,8 +55,8 @@
         <h2>{{ 'ERS_EVENTS.PAYMENT_INFO' | translate }}</h2>
       </ion-label>
     </ion-list-header>
-    <app-html-editor *ngIf="event.paymentInfo || editMode !== UXMode.VIEW" [class.fieldHasError]="hasFieldAnError('paymentInfo')"
-    [(content)]="event.paymentInfo"
+    <app-html-editor *ngIf="event.paymentInfo || editMode !== UXMode.VIEW"
+      [class.fieldHasError]="hasFieldAnError('paymentInfo')" [(content)]="event.paymentInfo"
       [editMode]="editMode !== UXMode.VIEW" />
 
     <!-- Spots -->
@@ -130,6 +130,20 @@
         <ion-icon name="trash" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-item>
+
+    <div class="ion-padding" *ngIf="editMode === UXMode.VIEW">
+      <div style="display: flex; gap: 8px;">
+        <ion-button expand="block" [color]="event.archivedAt ? 'success' : 'warning'" style="flex: 1;"
+          (click)="event.archivedAt ? unarchive() : archive()">
+          <ion-icon [name]="event.archivedAt ? 'refresh' : 'archive'" slot="start"></ion-icon>
+          {{ (event.archivedAt ? 'COMMON.UNARCHIVE' : 'COMMON.ARCHIVE') | translate }}
+        </ion-button>
+        <ion-button expand="block" color="danger" style="flex: 1;" (click)="deleteEvent()">
+          <ion-icon name="trash" slot="start"></ion-icon>
+          {{ 'COMMON.DELETE' | translate }}
+        </ion-button>
+      </div>
+    </div>
 
   </ion-list>
 </ion-content>

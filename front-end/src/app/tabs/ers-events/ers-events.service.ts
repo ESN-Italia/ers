@@ -14,17 +14,19 @@ export class ERSEventsService {
   /**
    * Load the active events from the back-end.
    */
-  private async loadList(force = false): Promise<void> {
+  private async loadList(force = false, showArchived = false): Promise<void> {
     if (this.events && !force) return;
-    const events: ERSEvent[] = await this.api.getResource('ers-events');
+    const params: any = {};
+    if (showArchived) params.all = 'true';
+    const events: ERSEvent[] = await this.api.getResource('ers-events', { params });
     this.events = events.map(x => new ERSEvent(x));
   }
 
   /**
    * Get the list of events.
    */
-  async getList(force = false): Promise<ERSEvent[]> {
-    await this.loadList(force);
+  async getList(force = false, showArchived = false): Promise<ERSEvent[]> {
+    await this.loadList(force, showArchived);
     return this.events ? this.events.slice().sort((a, b) => b.startAt.localeCompare(a.startAt)) : [];
   }
 

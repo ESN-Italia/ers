@@ -15,6 +15,7 @@ export class ERSEventsPage implements OnInit {
 
   search = '';
   filterByStatus: boolean | 'ALL' = 'ALL';
+  showArchived = false;
 
   constructor(public app: AppService, private service: ERSEventsService) { }
 
@@ -24,7 +25,7 @@ export class ERSEventsPage implements OnInit {
 
   async loadList(event?: any): Promise<void> {
     try {
-      this.events = await this.service.getList(true);
+      this.events = await this.service.getList(true, this.showArchived);
       this.filter();
     } catch (error) {
       this.events = [];
@@ -45,6 +46,12 @@ export class ERSEventsPage implements OnInit {
 
     if (this.filterByStatus !== 'ALL') {
       filtered = filtered.filter(e => e.isRegistrationOpen() === this.filterByStatus);
+    }
+
+    if (!this.showArchived) {
+      filtered = filtered.filter(e => !e.archivedAt);
+    } else {
+      filtered = filtered.filter(e => !!e.archivedAt);
     }
 
     this.filteredEvents = filtered;

@@ -120,16 +120,6 @@ class ERSRegistrationsRC extends ResourceController {
     const errors = this.registration.validate(this.managedEvent);
     if (errors.length) throw new HandledError(`Invalid fields: ${errors.join(', ')}`);
 
-    const spot = this.managedEvent.spots.find(s => s.id === this.registration.spotId);
-    if (spot && spot.limit) {
-      const regs = await ddb.query({
-        TableName: DDB_TABLES.registrations,
-        KeyConditionExpression: 'eventId = :eventId',
-        ExpressionAttributeValues: { ':eventId': this.managedEvent.eventId }
-      });
-      const spotCount = regs.filter(r => r.spotId === this.registration.spotId && r.status !== RegistrationStatus.REJECTED).length;
-      if (spotCount >= spot.limit) throw new HandledError('Spot is full');
-    }
 
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
 
@@ -194,6 +184,24 @@ class ERSRegistrationsRC extends ResourceController {
   private async updateStatus(status: RegistrationStatus, emailType: string): Promise<ERSRegistration> {
     if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
       throw new HandledError('Unauthorized');
+    }
+
+    // Spot Limit Check
+    if (status === RegistrationStatus.APPROVED || status === RegistrationStatus.CONFIRMED) {
+      const spot = this.managedEvent.spots.find(s => s.id === this.registration.spotId);
+      if (spot && spot.limit) {
+        const regs = await ddb.query({
+          TableName: DDB_TABLES.registrations,
+          KeyConditionExpression: 'eventId = :eventId',
+          ExpressionAttributeValues: { ':eventId': this.managedEvent.eventId }
+        });
+        const spotCount = regs.filter(r =>
+          r.spotId === this.registration.spotId &&
+          r.registrationId !== this.registration.registrationId &&
+          [RegistrationStatus.APPROVED, RegistrationStatus.PAID, RegistrationStatus.CONFIRMED].includes(r.status)
+        ).length;
+        if (spotCount >= spot.limit) throw new HandledError('Spot is full');
+      }
     }
 
     this.registration.status = status;

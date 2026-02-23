@@ -296,6 +296,57 @@ export class ManageEventPage implements OnInit {
     const index = this.event.managers.indexOf(userId);
     if (index !== -1) this.event.managers.splice(index, 1);
   }
+
+  async deleteEvent(): Promise<void> {
+    const doDelete = async (): Promise<void> => {
+      try {
+        await this.loading.show();
+        await this.service.delete(this.event);
+        this.message.success('COMMON.OPERATION_COMPLETED');
+        this.app.goToInTabs(['ers-events'], { back: true });
+      } catch (err) {
+        this.message.error(err.message, true);
+      } finally {
+        this.loading.hide();
+      }
+    };
+
+    const header = this.t._('COMMON.ARE_YOU_SURE');
+    const message = this.t._('ERS_EVENTS.DELETE_EVENT_CONFIRMATION');
+    const buttons = [
+      { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+      { text: this.t._('COMMON.DELETE'), role: 'destructive', handler: doDelete }
+    ];
+
+    const alert = await this.alertCtrl.create({ header, message, buttons });
+    await alert.present();
+  }
+
+  async archive(): Promise<void> {
+    try {
+      await this.loading.show();
+      await this.service.archive(this.event);
+      this.event = await this.service.getById(this.eventId);
+      this.message.success('COMMON.OPERATION_COMPLETED');
+    } catch (err) {
+      this.message.error(err.message, true);
+    } finally {
+      this.loading.hide();
+    }
+  }
+
+  async unarchive(): Promise<void> {
+    try {
+      await this.loading.show();
+      await this.service.unarchive(this.event);
+      this.event = await this.service.getById(this.eventId);
+      this.message.success('COMMON.OPERATION_COMPLETED');
+    } catch (err) {
+      this.message.error(err.message, true);
+    } finally {
+      this.loading.hide();
+    }
+  }
 }
 
 export enum UXMode {
