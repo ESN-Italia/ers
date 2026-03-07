@@ -7,6 +7,7 @@ import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
+import { formatInTimeZone } from 'date-fns-tz';
 
 @Component({
   selector: 'app-registrations-list',
@@ -234,8 +235,7 @@ export class RegistrationsListPage implements OnInit {
 
     const headers = [
       'Registration Date',
-      'First Name',
-      'Last Name',
+      'Name',
       'Email',
       'Phone',
       'ESN Country',
@@ -263,9 +263,8 @@ export class RegistrationsListPage implements OnInit {
 
     for (const reg of this.registrations) {
       const row = [
-        reg.createdAt,
-        this.escapeCSV(reg.subject?.name), // Use full name for CSV
-        this.escapeCSV(''), // Placeholder for Last Name if headers are fixed
+        formatInTimeZone(reg.createdAt, this.app.configurations.timezone, 'yyyy-MM-dd HH:mm:ss'),
+        this.escapeCSV(reg.subject?.name),
         this.escapeCSV(reg.subject?.email),
         this.escapeCSV(reg.phone),
         this.escapeCSV(reg.subject?.country),

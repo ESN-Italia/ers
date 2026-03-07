@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { AppService } from '@app/app.service';
-import { ERSEvent } from '@models/ersEvent.model';
+import { ERSEvent, EventType } from '@models/ersEvent.model';
 import { ERSEventsService } from './ers-events.service';
 
 @Component({
@@ -14,8 +14,11 @@ export class ERSEventsPage implements OnInit {
   filteredEvents: ERSEvent[];
 
   search = '';
-  filterByStatus: boolean | 'ALL' = 'ALL';
+  filterByStatus: string = 'ALL';
+  filterByType: EventType | 'ALL' = 'ALL';
   showArchived = false;
+
+  EventType = EventType;
 
   constructor(public app: AppService, private service: ERSEventsService) { }
 
@@ -45,7 +48,20 @@ export class ERSEventsPage implements OnInit {
     }
 
     if (this.filterByStatus !== 'ALL') {
-      filtered = filtered.filter(e => e.isRegistrationOpen() === this.filterByStatus);
+      const now = new Date().toISOString();
+      if (this.filterByStatus === 'OPEN') {
+        filtered = filtered.filter(e => e.isRegistrationOpen());
+      } else if (this.filterByStatus === 'NOT_OPEN_YET') {
+        filtered = filtered.filter(e => !e.isRegistrationOpen() && e.registrationOpenAt && e.registrationOpenAt > now);
+      } else if (this.filterByStatus === 'ENDED') {
+        filtered = filtered.filter(e => !e.isRegistrationOpen() && e.registrationCloseAt && e.registrationCloseAt < now);
+      } else if (this.filterByStatus === 'CLOSED') {
+        filtered = filtered.filter(e => !e.isRegistrationOpen() && e.registrationOpenAt && e.registrationOpenAt <= now && (!e.registrationCloseAt || e.registrationCloseAt >= now));
+      }
+    }
+
+    if (this.filterByType !== 'ALL') {
+      filtered = filtered.filter(e => e.type === this.filterByType);
     }
 
     if (!this.showArchived) {
@@ -53,6 +69,8 @@ export class ERSEventsPage implements OnInit {
     } else {
       filtered = filtered.filter(e => !!e.archivedAt);
     }
+
+    filtered.sort((a, b) => (a.startAt || '').localeCompare(b.startAt || ''));
 
     this.filteredEvents = filtered;
   }

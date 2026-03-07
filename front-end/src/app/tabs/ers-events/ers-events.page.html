@@ -13,10 +13,20 @@
       (ionInput)="filter($event.target.value)"></ion-searchbar>
     <ion-buttons slot="end">
       <ion-item lines="none" color="ideaToolbar" class="ion-hide-lg-down">
+        <ion-select interface="popover" [(ngModel)]="filterByType" (ionChange)="filter(searchbar.value)">
+          <ion-select-option [value]="'ALL'">{{ 'ERS_EVENTS.ALL_TYPES' | translate }}</ion-select-option>
+          <ion-select-option [value]="EventType.NationalPlatform">{{ 'ERS_EVENTS.TYPE_NATIONALPLATFORM' | translate }}</ion-select-option>
+          <ion-select-option [value]="EventType.NationalSchool">{{ 'ERS_EVENTS.TYPE_NATIONALSCHOOL' | translate }}</ion-select-option>
+          <ion-select-option [value]="EventType.Other">{{ 'ERS_EVENTS.TYPE_OTHER' | translate }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item lines="none" color="ideaToolbar" class="ion-hide-lg-down">
         <ion-select interface="popover" [(ngModel)]="filterByStatus" (ionChange)="filter(searchbar.value)">
-          <ion-select-option [value]="'ALL'">{{ 'ERS_EVENTS.ALL_STATUSES' | translate }}</ion-select-option>
-          <ion-select-option [value]="true">{{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}</ion-select-option>
-          <ion-select-option [value]="false">{{ 'ERS_EVENTS.ENDED' | translate }}</ion-select-option>
+          <ion-select-option value="ALL">{{ 'ERS_EVENTS.ALL_STATUSES' | translate }}</ion-select-option>
+          <ion-select-option value="OPEN">{{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}</ion-select-option>
+          <ion-select-option value="NOT_OPEN_YET">{{ 'ERS_EVENTS.REGISTRATION_NOT_OPEN_YET' | translate }}</ion-select-option>
+          <ion-select-option value="CLOSED">{{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}</ion-select-option>
+          <ion-select-option value="ENDED">{{ 'ERS_EVENTS.REGISTRATION_ENDED' | translate }}</ion-select-option>
         </ion-select>
       </ion-item>
       <ion-button [color]="showArchived ? 'warning' : 'medium'" fill="clear"

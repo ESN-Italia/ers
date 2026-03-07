@@ -19,6 +19,20 @@
 
     <ion-list-header>
       <ion-label>
+        <h2>{{ 'ERS_EVENTS.TYPE' | translate }}</h2>
+      </ion-label>
+    </ion-list-header>
+
+    <ion-item [class.fieldHasError]="hasFieldAnError('type')">
+      <ion-select [(ngModel)]="event.type" [disabled]="editMode === UXMode.VIEW" interface="popover">
+        <ion-select-option [value]="EventType.NationalPlatform">{{ 'ERS_EVENTS.TYPE_NATIONALPLATFORM' | translate }}</ion-select-option>
+        <ion-select-option [value]="EventType.NationalSchool">{{ 'ERS_EVENTS.TYPE_NATIONALSCHOOL' | translate }}</ion-select-option>
+        <ion-select-option [value]="EventType.Other">{{ 'ERS_EVENTS.TYPE_OTHER' | translate }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-list-header>
+      <ion-label>
         <h2>{{ 'ERS_EVENTS.EVENT_DESCRIPTION' | translate }}</h2>
       </ion-label>
     </ion-list-header>

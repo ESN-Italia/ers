@@ -6,7 +6,7 @@ import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from 
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
-import { ERSEvent, EventSpot, EventQuestion, QuestionType } from '@models/ersEvent.model';
+import { ERSEvent, EventSpot, EventQuestion, QuestionType, EventType } from '@models/ersEvent.model';
 
 @Component({
   selector: 'app-manage-event',
@@ -22,6 +22,7 @@ export class ManageEventPage implements OnInit {
   errors = new Set<string>();
   entityBeforeChange: ERSEvent;
   timezones = (Intl as any).supportedValuesOf('timeZone');
+  EventType = EventType;
 
   constructor(
     private route: ActivatedRoute,

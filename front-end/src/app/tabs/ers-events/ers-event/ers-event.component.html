@@ -1,6 +1,9 @@
 <ng-container *ngIf="!row">
   <ion-card *ngIf="event" button (click)="select.emit()">
     <ion-card-header>
+      <div class="ion-text-end">
+        <ion-badge color="tertiary" *ngIf="event.type">{{ 'ERS_EVENTS.TYPE_' + (event.type | uppercase) | translate }}</ion-badge>
+      </div>
       <ion-card-subtitle>{{ event.startAt | date: 'mediumDate' }}</ion-card-subtitle>
       <ion-card-title>{{ event.name }}</ion-card-title>
     </ion-card-header>
@@ -46,15 +49,19 @@
 <!-- row -->
 <ng-container *ngIf="row">
   <ion-row class="ion-align-items-center headerRow" *ngIf="header">
-    <ion-col [sizeLg]="5" [sizeXl]="5">{{ 'ERS_EVENTS.EVENT' | translate }}</ion-col>
+    <ion-col [sizeLg]="4" [sizeXl]="4">{{ 'ERS_EVENTS.EVENT' | translate }}</ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.TYPE' | translate }}</ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.START_AT' | translate }}</ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.END_AT' | translate }}</ion-col>
-    <ion-col [sizeLg]="3" [sizeXl]="3">{{ 'ERS_EVENTS.STATUS' | translate }}</ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.STATUS' | translate }}</ion-col>
   </ion-row>
 
   <ion-row class="ion-align-items-center row tappable" *ngIf="!header && event" (click)="select.emit()">
-    <ion-col [sizeLg]="5" [sizeXl]="5">
+    <ion-col [sizeLg]="4" [sizeXl]="4">
       <b>{{ event.name }}</b>
+    </ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2">
+      <span *ngIf="event.type">{{ 'ERS_EVENTS.TYPE_' + (event.type | uppercase) | translate }}</span>
     </ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2">
       {{ event.startAt | date: 'mediumDate' }}
@@ -62,7 +69,7 @@
     <ion-col [sizeLg]="2" [sizeXl]="2">
       {{ event.endAt | date: 'mediumDate' }}
     </ion-col>
-    <ion-col [sizeLg]="3" [sizeXl]="3">
+    <ion-col [sizeLg]="2" [sizeXl]="2">
       <!-- Desktop Status -->
       <ion-badge *ngIf="event.isRegistrationOpen()" color="success">
         {{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}
@@ -80,9 +87,10 @@
 
   <!-- skeleton -->
   <ion-row class="ion-align-items-center row" *ngIf="!header && !event">
-    <ion-col [sizeLg]="5" [sizeXl]="5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col [sizeLg]="4" [sizeXl]="4"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
-    <ion-col [sizeLg]="3" [sizeXl]="3"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
   </ion-row>
 </ng-container>
