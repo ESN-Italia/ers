@@ -8,29 +8,29 @@ const routes: Routes = [
     path: '',
     component: TabsComponent,
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      {
-        path: 'dashboard',
-        loadChildren: (): Promise<any> => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
-      },
-      {
-        path: 'topics',
-        loadChildren: (): Promise<any> => import('./topics/topics.module').then(m => m.TopicsModule)
-      },
-      {
-        path: 'opportunities',
-        loadChildren: (): Promise<any> =>
-          import('./opportunities/opportunities.module').then(m => m.OpportunitiesModule)
-      },
+      { path: '', redirectTo: 'ers-events', pathMatch: 'full' },
+      // {
+      //   path: 'dashboard',
+      //   loadChildren: (): Promise<any> => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
+      // },
+      // {
+      //   path: 'topics',
+      //   loadChildren: (): Promise<any> => import('./topics/topics.module').then(m => m.TopicsModule)
+      // },
+      // {
+      //   path: 'opportunities',
+      //   loadChildren: (): Promise<any> =>
+      //     import('./opportunities/opportunities.module').then(m => m.OpportunitiesModule)
+      // },
       {
         path: 'ers-events',
         loadChildren: (): Promise<any> =>
           import('./ers-events/ers-events.module').then(m => m.ERSEventsPageModule)
       },
-      {
-        path: 'voting',
-        loadChildren: (): Promise<any> => import('./voting/voting.module').then(m => m.VotingModule)
-      },
+      // {
+      //   path: 'voting',
+      //   loadChildren: (): Promise<any> => import('./voting/voting.module').then(m => m.VotingModule)
+      // },
       {
         path: 'profile',
         loadChildren: (): Promise<any> => import('./profile/profile.module').then(m => m.ProfileModule)
