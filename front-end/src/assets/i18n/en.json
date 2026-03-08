@@ -292,7 +292,6 @@
       "APPLICATION_REJECTED": "Application to opportunity is rejected",
       "VOTING_INSTRUCTIONS": "Voting instructions",
       "VOTING_CONFIRMATION": "Confirmation that a vote has been received",
-      "ERS_REGISTRATION_RECEIVED": "ERS registration received",
       "ERS_REGISTRATION_APPROVED": "ERS registration approved",
       "ERS_REGISTRATION_REJECTED": "ERS registration rejected",
       "ERS_PAYMENT_CONFIRMED": "ERS payment confirmed"

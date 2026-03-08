@@ -123,8 +123,6 @@ class ERSRegistrationsRC extends ResourceController {
 
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
 
-    await this.sendEmail('REGISTRATION_RECEIVED');
-
     return this.registration;
   }
 
@@ -295,7 +293,6 @@ class ERSRegistrationsRC extends ResourceController {
 
   private async getSESTemplateName(emailType: string): Promise<string> {
     switch (emailType) {
-      case 'REGISTRATION_RECEIVED': return 'ers-registration-received';
       case 'REGISTRATION_APPROVED': return 'ers-registration-approved';
       case 'REGISTRATION_REJECTED': return 'ers-registration-rejected';
       case 'PAYMENT_CONFIRMED': return 'ers-payment-confirmed';

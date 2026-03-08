@@ -106,8 +106,6 @@ class ConfigurationsRC extends ResourceController {
         return 'notify-voting-instructions';
       case EmailTemplates.VOTING_CONFIRMATION:
         return 'notify-voting-confirmation';
-      case EmailTemplates.ERS_REGISTRATION_RECEIVED:
-        return 'ers-registration-received';
       case EmailTemplates.ERS_REGISTRATION_APPROVED:
         return 'ers-registration-approved';
       case EmailTemplates.ERS_REGISTRATION_REJECTED:
