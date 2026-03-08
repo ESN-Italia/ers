@@ -2,6 +2,12 @@ import { epochISOString, Resource } from 'idea-toolbox';
 
 import { User } from './user.model';
 
+export enum EventType {
+  NationalPlatform = 'NationalPlatform',
+  NationalSchool = 'NationalSchool',
+  Other = 'Other'
+}
+
 export class ERSEvent extends Resource {
   eventId: string;
   name: string;
@@ -13,12 +19,13 @@ export class ERSEvent extends Resource {
   timezone: string;
   spots: EventSpot[];
   questions: EventQuestion[];
-  managers: string[];
+  additionalManagersIds: string[];
   paymentInfo: string;
   createdAt: epochISOString;
   updatedAt?: epochISOString;
   archivedAt?: epochISOString;
-  receiptsDeleted?: boolean;
+  receiptsDeleted?: boolean
+  type: EventType;
 
   load(x: any): void {
     super.load(x);
@@ -32,12 +39,13 @@ export class ERSEvent extends Resource {
     this.timezone = this.clean(x.timezone, String);
     this.spots = this.cleanArray(x.spots, s => new EventSpot(s));
     this.questions = this.cleanArray(x.questions, q => new EventQuestion(q));
-    this.managers = this.cleanArray(x.managers, String).map(x => x.toLowerCase());
+    this.additionalManagersIds = this.cleanArray(x.additionalManagersIds, String).map(x => x.toLowerCase());
     this.paymentInfo = this.clean(x.paymentInfo, String);
     this.createdAt = this.clean(x.createdAt, d => new Date(d).toISOString(), new Date().toISOString());
     if (x.updatedAt) this.updatedAt = this.clean(x.updatedAt, d => new Date(d).toISOString());
     if (x.archivedAt) this.archivedAt = this.clean(x.archivedAt, d => new Date(d).toISOString());
     if (x.receiptsDeleted) this.receiptsDeleted = this.clean(x.receiptsDeleted, Boolean);
+    this.type = this.clean(x.type, String, EventType.Other) as EventType;
   }
 
   safeLoad(newData: any, safeData: any): void {
@@ -52,9 +60,19 @@ export class ERSEvent extends Resource {
   validate(): string[] {
     const e = super.validate();
     if (this.iE(this.name)) e.push('name');
+    if (this.iE(this.type)) e.push('type');
+    if (this.iE(this.description)) e.push('description');
+    if (this.iE(this.startAt)) e.push('startAt');
+    if (this.iE(this.endAt)) e.push('endAt');
+    if (this.iE(this.registrationOpenAt)) e.push('registrationOpenAt');
+    if (this.iE(this.registrationCloseAt)) e.push('registrationCloseAt');
+    if (this.iE(this.timezone)) e.push('timezone');
+    if (this.iE(this.paymentInfo)) e.push('paymentInfo');
+    if (!this.spots || this.spots.length === 0) e.push('spots');
 
-    if (this.startAt && this.endAt && this.startAt > this.endAt) e.push('startAt > endAt');
-    if (this.registrationOpenAt && this.registrationCloseAt && this.registrationOpenAt > this.registrationCloseAt) e.push('registrationOpenAt > registrationCloseAt');
+    if (this.startAt && this.endAt && this.endAt < this.startAt) e.push('endAt < startAt');
+    if (this.registrationOpenAt && this.registrationCloseAt && this.registrationCloseAt < this.registrationOpenAt) e.push('registrationCloseAt < registrationOpenAt');
+    if (this.registrationCloseAt && this.startAt && this.registrationCloseAt > this.startAt) e.push('registrationCloseAt > startAt');
 
     this.spots?.forEach((s, i) => {
       const errors = s.validate();
@@ -69,7 +87,7 @@ export class ERSEvent extends Resource {
   }
 
   canUserManage(user: User): boolean {
-    return user.isAdministrator || user.canManageERSEvents || (this.managers && this.managers.includes(user.userId));
+    return user.isAdministrator || user.canManageERSEvents || this.additionalManagersIds.includes(user.userId);
   }
 
   isRegistrationOpen(): boolean {

@@ -23,7 +23,7 @@
 
     <div *ngIf="event.description" [innerHTML]="event.description"></div>
 
-    <ion-card *ngIf="event.isRegistrationOpen() || myRegistration || event.canUserManage(app.user)">
+    <ion-card>
       <ion-card-header>
         <ion-card-title>{{ 'ERS_EVENTS.REGISTRATION' | translate }}</ion-card-title>
       </ion-card-header>

@@ -158,7 +158,20 @@
         <ion-checkbox slot="start" [(ngModel)]="privacyPolicyAccepted"></ion-checkbox>
         <ion-label class="ion-text-wrap">
           {{ 'ERS_EVENTS.PRIVACY_POLICY_ACCEPT' | translate }}
-          <a (click)="openPrivacyPolicy()">{{ 'ERS_EVENTS.PRIVACY_POLICY_LINK' | translate }}</a> <span class="obligatoryDot"> *</span>
+          <a (click)="openPrivacyPolicy()">{{ 'ERS_EVENTS.PRIVACY_POLICY_LINK' | translate }}</a> <span
+            class="obligatoryDot"> *</span>
+        </ion-label>
+      </ion-item>
+
+      <ion-list-header>
+        <ion-label>{{ 'ERS_EVENTS.CODE_OF_CONDUCT_LINK' | translate }}</ion-label>
+      </ion-list-header>
+      <ion-item>
+        <ion-checkbox slot="start" [(ngModel)]="codeOfConductAccepted"></ion-checkbox>
+        <ion-label class="ion-text-wrap">
+          {{ 'ERS_EVENTS.CODE_OF_CONDUCT_ACCEPT' | translate }}
+          <a (click)="app.openURL('https://wiki.esn.it/doku.php?id=documenti:codice-di-condotta')">{{
+            'ERS_EVENTS.CODE_OF_CONDUCT_LINK' | translate }}</a> <span class="obligatoryDot"> *</span>
         </ion-label>
       </ion-item>
     </ion-list>

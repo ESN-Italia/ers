@@ -29,6 +29,8 @@ import { AppService } from '@app/app.service';
         [type]="presentation"
         [disabled]="disabled"
         [value]="initialValue"
+        [min]="minLocalValue"
+        [max]="maxLocalValue"
         (change)="dateChange.emit(zonedTimeStringToUTC($event.target.value))"
       />
     </ion-item>
@@ -40,6 +42,14 @@ export class DatetimeWithTimezoneStandaloneComponent implements OnInit, OnChange
    */
   @Input() date: epochISOString;
   @Output() dateChange = new EventEmitter<epochISOString>();
+  /**
+   * The minimum selectable date limit.
+   */
+  @Input() min: epochISOString;
+  /**
+   * The maximum selectable date limit.
+   */
+  @Input() max: epochISOString;
   /**
    * The timezone to consider.
    * Fallback to the default value set in the configurations.
@@ -71,6 +81,8 @@ export class DatetimeWithTimezoneStandaloneComponent implements OnInit, OnChange
   @Input() presentation: 'date' | 'datetime-local' = 'datetime-local';
 
   initialValue: epochISOString;
+  minLocalValue: string;
+  maxLocalValue: string;
 
   @ViewChild('dateTime') dateTime: ElementRef;
 
@@ -78,11 +90,19 @@ export class DatetimeWithTimezoneStandaloneComponent implements OnInit, OnChange
   async ngOnInit(): Promise<void> {
     this.timezone = this.timezone ?? this.app.configurations.timezone;
     this.initialValue = this.utcToZonedTimeString(this.date);
+    this.minLocalValue = this.utcToZonedTimeString(this.min);
+    this.maxLocalValue = this.utcToZonedTimeString(this.max);
   }
   ngOnChanges(changes: SimpleChanges): void {
     // fix the date if the linked timezone changes
     if ((changes.timezone?.currentValue || changes.date?.currentValue) && this.dateTime) {
       this.initialValue = this.utcToZonedTimeString(this.date);
+    }
+    if ((changes.timezone?.currentValue || changes.min?.currentValue) && this.dateTime) {
+      this.minLocalValue = this.utcToZonedTimeString(this.min);
+    }
+    if ((changes.timezone?.currentValue || changes.max?.currentValue) && this.dateTime) {
+      this.maxLocalValue = this.utcToZonedTimeString(this.max);
     }
   }
 

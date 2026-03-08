@@ -23,6 +23,7 @@ export class ManageEventPage implements OnInit {
   entityBeforeChange: ERSEvent;
   timezones = (Intl as any).supportedValuesOf('timeZone');
   EventType = EventType;
+  now = new Date().toISOString();
 
   constructor(
     private route: ActivatedRoute,
@@ -52,7 +53,7 @@ export class ManageEventPage implements OnInit {
         this.event = new ERSEvent({});
         this.event.spots = [];
         this.event.questions = [];
-        this.event.managers = [];
+        this.event.additionalManagersIds = [];
         this.event.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         this.editMode = UXMode.INSERT;
@@ -277,8 +278,8 @@ export class ManageEventPage implements OnInit {
     const doAdd = async ({ userId }): Promise<void> => {
       if (!userId) return;
       userId = userId.toLowerCase();
-      if (this.event.managers.includes(userId)) return;
-      this.event.managers.push(userId);
+      if (this.event.additionalManagersIds.includes(userId)) return;
+      this.event.additionalManagersIds.push(userId);
     };
 
     const header = this.t._('ERS_EVENTS.ADD_MANAGER');
@@ -294,8 +295,8 @@ export class ManageEventPage implements OnInit {
   }
 
   removeManagerById(userId: string): void {
-    const index = this.event.managers.indexOf(userId);
-    if (index !== -1) this.event.managers.splice(index, 1);
+    const index = this.event.additionalManagersIds.indexOf(userId);
+    if (index !== -1) this.event.additionalManagersIds.splice(index, 1);
   }
 
   async deleteEvent(): Promise<void> {

@@ -22,6 +22,7 @@ export class RegistrationFormPage implements OnInit {
   QuestionType = QuestionType;
 
   privacyPolicyAccepted = false;
+  codeOfConductAccepted = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -80,6 +81,7 @@ export class RegistrationFormPage implements OnInit {
 
   async submit(): Promise<void> {
     if (!this.privacyPolicyAccepted) return this.message.error('ERS_EVENTS.PRIVACY_POLICY_REQUIRED');
+    if (!this.codeOfConductAccepted) return this.message.error('ERS_EVENTS.CODE_OF_CONDUCT_REQUIRED');
 
     // Validate
     const errors = this.registration.validate(this.event);
