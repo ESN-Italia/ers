@@ -151,7 +151,7 @@ export class EventQuestion extends Resource {
     const e = [];
     if (this.iE(this.id)) e.push('id');
     if (this.iE(this.text)) e.push('text');
-    if (this.type !== QuestionType.TEXT && (!this.options || this.options.length === 0)) e.push('options');
+    if (this.type !== QuestionType.TEXT && this.type !== QuestionType.DATE && (!this.options || this.options.length === 0)) e.push('options');
     return e;
   }
 }

@@ -6,7 +6,7 @@ import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
 import { EditStatusComponent } from './edit-status.component';
-import { ERSEvent } from '@models/ersEvent.model';
+import { ERSEvent, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 
 @Component({
@@ -245,6 +245,10 @@ export class RegistrationDetailPage implements OnInit {
   formatAnswer(questionId: string): string {
     const answer = this.registration?.answers?.[questionId];
     if (Array.isArray(answer)) return answer.join(', ');
+    if (answer && this.event?.questions?.find(q => q.id === questionId)?.type === QuestionType.DATE) {
+      const d = new Date(answer as string);
+      if (!isNaN(d.getTime())) return d.toISOString().substring(0, 10);
+    }
     return (answer as string) || '-';
   }
 }
