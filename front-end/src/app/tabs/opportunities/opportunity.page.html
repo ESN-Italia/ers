@@ -124,7 +124,7 @@
                 {{ 'OPPORTUNITIES.FIX_APPLICATION' | translate }} <ion-icon icon="bandage" slot="end"></ion-icon>
               </ion-button>
             </ion-col>
-            <ion-col class="ion-text-right">
+            <ion-col class="ion-text-right" *ngIf="userApplication.userId === app.user.userId && userApplication.getStatus() === ApplicationStatuses.PENDING">
               <ion-button color="danger" size="small" (click)="withdrawUserApplication()">
                 <ion-icon icon="arrow-undo-outline" slot="start"></ion-icon>
                 {{ 'OPPORTUNITIES.WITHDRAW_APPLICATION' | translate }}
