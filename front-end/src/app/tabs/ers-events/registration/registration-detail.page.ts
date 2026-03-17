@@ -99,11 +99,11 @@ export class RegistrationDetailPage implements OnInit {
 
   async deleteReceipt(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'COMMON.ARE_YOU_SURE',
+      header: this.t._('COMMON.ARE_YOU_SURE'),
       buttons: [
-        { text: 'COMMON.CANCEL', role: 'cancel' },
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'COMMON.CONFIRM',
+          text: this.t._('COMMON.CONFIRM'),
           handler: async () => {
             try {
               await this.loading.show();
@@ -161,11 +161,11 @@ export class RegistrationDetailPage implements OnInit {
 
   async reject(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'COMMON.ARE_YOU_SURE',
+      header: this.t._('COMMON.ARE_YOU_SURE'),
       buttons: [
-        { text: 'COMMON.CANCEL', role: 'cancel' },
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'COMMON.CONFIRM',
+          text: this.t._('COMMON.CONFIRM'),
           handler: async () => {
             try {
               await this.loading.show();
@@ -199,12 +199,12 @@ export class RegistrationDetailPage implements OnInit {
 
   async withdraw(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'ERS_EVENTS.WITHDRAW_REGISTRATION',
-      message: 'ERS_EVENTS.WITHDRAW_REGISTRATION_CONFIRM',
+      header: this.t._('ERS_EVENTS.WITHDRAW_REGISTRATION'),
+      message: this.t._('ERS_EVENTS.WITHDRAW_REGISTRATION_CONFIRM'),
       buttons: [
-        { text: 'COMMON.CANCEL', role: 'cancel' },
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'COMMON.CONFIRM',
+          text: this.t._('COMMON.CONFIRM'),
           handler: async () => {
             try {
               await this.loading.show();

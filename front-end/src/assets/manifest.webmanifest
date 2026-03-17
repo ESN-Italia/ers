@@ -1,9 +1,16 @@
 {
   "background_color": "#222428",
-  "description": "ESN Assembly app",
+  "description": "ESN Event Registration System app",
   "display": "fullscreen",
-  "icons": [{ "src": "icons/icon-store.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "maskable" }],
-  "name": "ESN Assembly app",
-  "short_name": "ESN GA app",
+  "icons": [
+    {
+      "src": "icons/icon-store.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ],
+  "name": "ESN Event Registration System app",
+  "short_name": "ESN ERS app",
   "start_url": "../index.html"
 }

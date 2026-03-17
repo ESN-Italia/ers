@@ -1,18 +1,17 @@
 openapi: 3.0.3
 
 info:
-  title: ESN Assembly app
-  version: 1.10.2
+  title: ESN Event Registration System app
+  version: 4.0.0 alpha
   contact:
-    name: Matteo Carbone
-    email: email@matteocarbone.com
-    url: https://matteocarbone.com
+    name: Commissione Informatica
+    email: commit_development@esn.it
 
 # servers: [url: https://api.esn-ga.link/dev]
 
 externalDocs:
   description: Models documentation
-  url: https://github.com/uatisdeproblem/esn-assembly/tree/main/back-end/src/models
+  url: https://github.com/ESN-Italia/ers/tree/devel/back-end/src/models
 
 tags:
   - name: Login

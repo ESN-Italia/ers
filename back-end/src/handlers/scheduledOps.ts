@@ -71,7 +71,7 @@ class ScheduledOps extends GenericController {
 
     // Scan events that ended more than 90 days ago and haven't had receipts deleted yet
     // Note: This scan might be expensive if many events. Ideally we'd use an index or a different approach,
-    // but for the scale of this app (ESN Assembly), full scan of events is likely acceptable.
+    // but for the scale of this app (ESN Event Registration System), full scan of events is likely acceptable.
     // Events table is not expected to be huge.
     // Also, we don't have an index on endAt.
     const events = await ddb.scan({ TableName: process.env.DDB_TABLE_events });
@@ -93,7 +93,7 @@ class ScheduledOps extends GenericController {
         for (const reg of regsWithReceipts) {
           if (reg.receipt.key) { // Assuming we stored key in receipt object
             try {
-              await s3.deleteObject({bucket: MEDIA_BUCKET, key: reg.receipt.key});
+              await s3.deleteObject({ bucket: MEDIA_BUCKET, key: reg.receipt.key });
               // Update registration to remove receipt link?
               // Optional: keeps history that receipt was there but file is gone.
               // Or just set receipt = null.

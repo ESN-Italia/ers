@@ -379,7 +379,7 @@
   "PROFILE": {
     "MANAGE_ON_ESN_ACCOUNTS": "Profile on ESN Accounts",
     "FEEDBACK_OR_HELP": "Send feedback or ask for help",
-    "FEEDBACK_EMAIL_SUBJECT": "ESN Assembly app - Feedback"
+    "FEEDBACK_EMAIL_SUBJECT": "ESN Event Registration System app - Feedback"
   },
   "BADGES": {
     "GIVE_BADGES": "Give badges",

@@ -18,11 +18,11 @@ import { IDEATranslationsModule, IDEAActionSheetModule } from '@idea-ionic/commo
     BrowserModule,
     IonicModule.forRoot({ mode: 'md' }),
     AppRoutingModule,
-    IonicStorageModule.forRoot({ name: 'esn-assembly' }),
+    IonicStorageModule.forRoot({ name: 'ers-esn-italia' }),
     IDEATranslationsModule,
     IDEAActionSheetModule
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

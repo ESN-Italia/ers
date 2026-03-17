@@ -1,8 +1,7 @@
 {
-  "name": "esn-assembly",
-  "version": "1.10.2",
-  "author": "Matteo Carbone",
-  "homepage": "https://matteocarbone.com/",
+  "name": "ers-esn-italia",
+  "version": "4.0.0-alpha",
+  "author": "Commissione Informatica",
   "scripts": {
     "ng": "ng",
     "start": "ionic serve --no-open --host 0.0.0.0",

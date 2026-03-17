@@ -1,29 +1,26 @@
 <ng-container *ngIf="!row">
   <ion-card *ngIf="event" button (click)="select.emit()">
     <ion-card-header>
-      <div class="ion-text-end">
-        <ion-badge color="tertiary" *ngIf="event.type">{{ 'ERS_EVENTS.TYPE_' + (event.type | uppercase) | translate }}</ion-badge>
-      </div>
       <ion-card-subtitle>{{ event.startAt | date: 'mediumDate' }}</ion-card-subtitle>
       <ion-card-title>{{ event.name }}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <!-- Mobile Status -->
-      <p *ngIf="event.isRegistrationOpen()" class="success-color">
+      <ion-badge *ngIf="event.isRegistrationOpen()" color="success">
         {{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}
-      </p>
-      <p *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt > now"
-        class="warning-color">
+      </ion-badge>
+      <ion-badge *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt > now"
+        color="warning">
         {{ 'ERS_EVENTS.REGISTRATION_NOT_OPEN_YET' | translate }}
-      </p>
-      <p *ngIf="!event.isRegistrationOpen() && event.registrationCloseAt && event.registrationCloseAt < now"
-        class="medium-color">
+      </ion-badge>
+      <ion-badge *ngIf="!event.isRegistrationOpen() && event.registrationCloseAt && event.registrationCloseAt < now"
+        color="medium">
         {{ 'ERS_EVENTS.REGISTRATION_ENDED' | translate }}
-      </p>
-      <p *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt <= now && (!event.registrationCloseAt || event.registrationCloseAt >= now)"
-        class="warning-color">
+      </ion-badge>
+      <ion-badge *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt <= now && (!event.registrationCloseAt || event.registrationCloseAt >= now)"
+        color="warning">
         {{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}
-      </p>
+      </ion-badge>
 
       <div *ngIf="event.canUserManage(app.user)" class="ion-text-right">
         <ion-button fill="clear" size="small" (click)="viewRegs.emit($event)">
