@@ -96,7 +96,7 @@
                     <ion-icon name="create-outline" slot="start"></ion-icon>
                     {{ 'COMMON.EDIT' | translate }}
                   </ion-button>
-                  <ion-button expand="block" fill="clear" color="danger" class="ion-margin-top" (click)="withdraw()">
+                  <ion-button *ngIf="isMyRegistration() && registration.status === RegistrationStatus.PENDING" expand="block" fill="clear" color="danger" class="ion-margin-top" (click)="withdraw()">
                     <ion-icon name="trash-outline" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.WITHDRAW_REGISTRATION' | translate }}
                   </ion-button>
