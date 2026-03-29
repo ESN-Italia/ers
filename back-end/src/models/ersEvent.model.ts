@@ -26,6 +26,7 @@ export class ERSEvent extends Resource {
   archivedAt?: epochISOString;
   receiptsDeleted?: boolean
   type: EventType;
+  imageURL?: string;
 
   load(x: any): void {
     super.load(x);
@@ -46,6 +47,7 @@ export class ERSEvent extends Resource {
     if (x.archivedAt) this.archivedAt = this.clean(x.archivedAt, d => new Date(d).toISOString());
     if (x.receiptsDeleted) this.receiptsDeleted = this.clean(x.receiptsDeleted, Boolean);
     this.type = this.clean(x.type, String, EventType.Other) as EventType;
+    this.imageURL = this.clean(x.imageURL, String);
   }
 
   safeLoad(newData: any, safeData: any): void {
@@ -55,6 +57,7 @@ export class ERSEvent extends Resource {
     if (safeData.updatedAt) this.updatedAt = safeData.updatedAt;
     if (safeData.archivedAt) this.archivedAt = safeData.archivedAt;
     if (safeData.receiptsDeleted) this.receiptsDeleted = safeData.receiptsDeleted;
+    if (safeData.imageURL) this.imageURL = safeData.imageURL;
   }
 
   validate(): string[] {

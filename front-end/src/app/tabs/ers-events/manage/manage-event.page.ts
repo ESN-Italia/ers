@@ -5,6 +5,7 @@ import { AlertController } from '@ionic/angular';
 import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
+import { MediaService } from '@app/common/media.service';
 import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent, EventSpot, EventQuestion, QuestionType, EventType } from '@models/ersEvent.model';
 
@@ -33,6 +34,7 @@ export class ManageEventPage implements OnInit {
     private message: IDEAMessageService,
     private t: IDEATranslationsService,
     private service: ERSEventsService,
+    private _media: MediaService,
     public app: AppService
   ) { }
 
@@ -94,6 +96,26 @@ export class ManageEventPage implements OnInit {
 
   hasFieldAnError(field: string): boolean {
     return this.errors.has(field);
+  }
+
+  browseImagesForElementId(elementId: string): void {
+    document.getElementById(elementId).click();
+  }
+
+  async uploadImage({ target }): Promise<void> {
+    const file = target.files[0];
+    if (!file) return;
+
+    try {
+      await this.loading.show();
+      const imageURI = await this._media.uploadImage(file);
+      this.event.imageURL = this.app.getImageURLByURI(imageURI);
+    } catch (error) {
+      this.message.error('COMMON.OPERATION_FAILED');
+    } finally {
+      if (target) target.value = '';
+      this.loading.hide();
+    }
   }
 
   enterEditMode(): void {

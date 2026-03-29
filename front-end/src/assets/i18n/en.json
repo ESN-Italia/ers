@@ -850,6 +850,7 @@
     "EVENT_DESCRIPTION": "Event description",
     "USER_NAME": "User name",
     "REGISTRATION": "Registration",
+    "UPLOAD_EVENT_IMAGE": "Upload event image",
     "CODE_OF_CONDUCT_LINK": "Code of Conduct",
     "CODE_OF_CONDUCT_ACCEPT": "I have read and accept the",
     "CODE_OF_CONDUCT_REQUIRED": "You must accept the Code of Conduct.",

@@ -20,6 +20,9 @@
     <p class="medium-color">
       {{ event.startAt | date: 'medium' }} - {{ event.endAt | date: 'medium' }}
     </p>
+    <div *ngIf="event.imageURL" class="ion-text-center ion-margin-bottom">
+      <img [src]="event.imageURL" [style.maxWidth]="!app.isInMobileMode() ? '900px' : '100%'" style="height: auto; width: auto;" />
+    </div>
 
     <div *ngIf="event.description" [innerHTML]="event.description"></div>
 
