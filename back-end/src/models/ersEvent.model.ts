@@ -171,6 +171,9 @@ export class EventQuestion extends Resource {
   type: QuestionType;
   options: string[]; // For radiobox and checkbox
   required: boolean;
+  spotIdCondition?: string; // If set, this question is shown only if this spot is selected
+  dependsOnQuestionId?: string; // If set, this question depends on another question
+  dependsOnAnswer?: string; // The specific answer required for the dependency
 
   load(x: any): void {
     super.load(x);
@@ -179,6 +182,9 @@ export class EventQuestion extends Resource {
     this.type = this.clean(x.type, String, QuestionType.TEXT) as QuestionType;
     this.options = this.cleanArray(x.options, String);
     this.required = this.clean(x.required, Boolean, false);
+    this.spotIdCondition = this.clean(x.spotIdCondition, String);
+    this.dependsOnQuestionId = this.clean(x.dependsOnQuestionId, String);
+    this.dependsOnAnswer = this.clean(x.dependsOnAnswer, String);
   }
 
   validate(): string[] {

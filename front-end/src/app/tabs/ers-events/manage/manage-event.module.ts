@@ -11,6 +11,7 @@ import { EditModeButtonsModule } from '@common/editModeButtons.module';
 import { HTMLEditorModule } from '@common/htmlEditor.module';
 import { AttachmentsModule } from '@common/attachments.module';
 import { DatetimeWithTimezoneStandaloneComponent } from '@common/datetimeWithTimezone';
+import { QuestionEditorComponent } from './question-editor/question-editor.component';
 
 @NgModule({
   imports: [
@@ -22,7 +23,8 @@ import { DatetimeWithTimezoneStandaloneComponent } from '@common/datetimeWithTim
     EditModeButtonsModule,
     HTMLEditorModule,
     AttachmentsModule,
-    DatetimeWithTimezoneStandaloneComponent
+    DatetimeWithTimezoneStandaloneComponent,
+    QuestionEditorComponent
   ],
   declarations: [ManageEventPage]
 })

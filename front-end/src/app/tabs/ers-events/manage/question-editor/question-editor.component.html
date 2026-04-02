@@ -1,0 +1,96 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="ideaToolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      {{ (isEdit ? 'COMMON.EDIT' : 'COMMON.ADD') | translate }} {{ 'ERS_EVENTS.QUESTION' | translate }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="save()" [disabled]="!isValid()">
+        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list lines="full">
+    <ion-item>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.QUESTION_TEXT' | translate }}</ion-label>
+      <ion-input [(ngModel)]="localQuestion.text" type="text"
+        placeholder="e.g. Do you have any dietary restrictions?"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.QUESTION_TYPE' | translate }}</ion-label>
+      <ion-select [(ngModel)]="localQuestion.type">
+        <ion-select-option [value]="QuestionType.TEXT">{{ 'ERS_EVENTS.TEXT' | translate }}</ion-select-option>
+        <ion-select-option [value]="QuestionType.RADIOBOX">{{ 'ERS_EVENTS.RADIOBOX' | translate }}</ion-select-option>
+        <ion-select-option [value]="QuestionType.CHECKBOX">{{ 'ERS_EVENTS.CHECKBOX' | translate }}</ion-select-option>
+        <ion-select-option [value]="QuestionType.DATE">{{ 'ERS_EVENTS.DATE' | translate }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item *ngIf="showOptions">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.OPTIONS_COMMA_SEP' | translate }}</ion-label>
+      <ion-input [ngModel]="optionsString" (ngModelChange)="updateOptions($event)" type="text"
+        placeholder="Option 1, Option 2, Option 3"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>{{ 'ERS_EVENTS.REQUIRED' | translate }}</ion-label>
+      <ion-toggle slot="end" [(ngModel)]="localQuestion.required"></ion-toggle>
+    </ion-item>
+
+    <ion-list-header class="ion-margin-top">
+      <ion-label>{{ 'ERS_EVENTS.CONDITION' | translate }}</ion-label>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.CHOOSE_CONDITION_TYPE' | translate }}</ion-label>
+      <ion-select [(ngModel)]="conditionType" (ionChange)="onConditionTypeChange()">
+        <ion-select-option value="none">{{ 'ERS_EVENTS.CONDITION_TYPE_NONE' | translate }}</ion-select-option>
+        <ion-select-option value="spot">{{ 'ERS_EVENTS.CONDITION_TYPE_SPOT' | translate }}</ion-select-option>
+        <ion-select-option value="question">{{ 'ERS_EVENTS.CONDITION_TYPE_QUESTION' | translate }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Spot Condition Settings -->
+    <ion-item *ngIf="conditionType === 'spot'">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.SELECT_SPOT' | translate }}</ion-label>
+      <ion-select [(ngModel)]="localQuestion.spotIdCondition">
+        <ion-select-option *ngFor="let spot of event.spots" [value]="spot.id">
+          {{ spot.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Question Condition Settings -->
+    <ng-container *ngIf="conditionType === 'question'">
+      <ion-item>
+        <ion-label position="stacked">{{ 'ERS_EVENTS.SELECT_QUESTION' | translate }}</ion-label>
+        <ion-select [(ngModel)]="localQuestion.dependsOnQuestionId" (ionChange)="onParentQuestionChange()">
+          <ion-select-option *ngFor="let q of availableParentQuestions" [value]="q.id">
+            {{ q.text }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item *ngIf="localQuestion.dependsOnQuestionId">
+        <ion-label position="stacked">{{ 'ERS_EVENTS.SELECT_ANSWER' | translate }}</ion-label>
+
+        <ion-select *ngIf="parentHasOptions" [(ngModel)]="localQuestion.dependsOnAnswer">
+          <ion-select-option *ngFor="let opt of parentOptions" [value]="opt">
+            {{ opt }}
+          </ion-select-option>
+        </ion-select>
+
+        <ion-input *ngIf="!parentHasOptions" [(ngModel)]="localQuestion.dependsOnAnswer" type="text"
+          [placeholder]="'ERS_EVENTS.SELECT_ANSWER' | translate"></ion-input>
+      </ion-item>
+    </ng-container>
+  </ion-list>
+</ion-content>

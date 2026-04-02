@@ -6,7 +6,7 @@ import { IDEALoadingService, IDEAMessageService } from '@idea-ionic/common';
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
 import { PrivacyPolicyComponent } from './privacy-policy.component';
-import { ERSEvent, QuestionType } from '@models/ersEvent.model';
+import { ERSEvent, EventQuestion, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration } from '@models/ersRegistration.model';
 import { Subject } from '@models/subject.model';
 
@@ -157,5 +157,13 @@ export class RegistrationFormPage implements OnInit {
 
   goBack(): void {
     this.app.goToInTabs(['ers-events', this.eventId]);
+  }
+
+  shouldShowQuestion(q: EventQuestion): boolean {
+    const show = this.registration.shouldShowQuestion(q, this.event);
+    if (!show && this.registration.answers[q.id] !== undefined) {
+      delete this.registration.answers[q.id];
+    }
+    return show;
   }
 }

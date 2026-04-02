@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
 import { MediaService } from '@app/common/media.service';
 import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent, EventSpot, EventQuestion, EventOptionalTicket, QuestionType, EventType } from '@models/ersEvent.model';
+import { QuestionEditorComponent } from './question-editor/question-editor.component';
 
 @Component({
   selector: 'app-manage-event',
@@ -28,6 +29,7 @@ export class ManageEventPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
+    private modalCtrl: ModalController,
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
     private t: IDEATranslationsService,
@@ -218,110 +220,31 @@ export class ManageEventPage implements OnInit {
   }
 
   async addQuestion(): Promise<void> {
-    const doAdd = async (text: string, type: QuestionType, options: string, required: boolean): Promise<void> => {
-      const question = new EventQuestion({
-        id: Date.now().toString(),
-        text,
-        type,
-        options: options ? options.split(',').map(o => o.trim()).filter(o => o) : [],
-        required: Boolean(required)
-      });
-      this.event.questions.push(question);
-    };
-
-    const header = this.t._('ERS_EVENTS.ADD_QUESTION');
-
-    // Step 1: Choose Type
-    const typeAlert = await this.alertCtrl.create({
-      header,
-      subHeader: this.t._('ERS_EVENTS.CHOOSE_TYPE'),
-      inputs: [
-        { name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.TEXT'), value: 'text', checked: true },
-        { name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.RADIOBOX'), value: 'radiobox' },
-        { name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.CHECKBOX'), value: 'checkbox' },
-        { name: 'type', type: 'radio', label: this.t._('ERS_EVENTS.DATE'), value: 'date' }
-      ],
-      buttons: [
-        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-        {
-          text: this.t._('COMMON.NEXT'),
-          handler: (type) => {
-            this.askQuestionDetails(type, doAdd);
-          }
-        }
-      ]
-    });
-    await typeAlert.present();
+    await this.openQuestionEditor();
   }
 
-  private async askQuestionDetails(type: QuestionType, doAdd: (text: string, type: QuestionType, options: string, required: boolean) => Promise<void>): Promise<void> {
-    const header = this.t._('ERS_EVENTS.ADD_QUESTION');
-    const detailsAlert = await this.alertCtrl.create({
-      header,
-      subHeader: this.t._('ERS_EVENTS.QUESTION_TEXT'),
-      inputs: [
-        { name: 'text', type: 'text', placeholder: this.t._('ERS_EVENTS.QUESTION_TEXT') }
-      ],
-      buttons: [
-        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-        {
-          text: this.t._('COMMON.NEXT'),
-          handler: ({ text }) => {
-            if (!text) return false;
-            this.askQuestionRequired(text, type, doAdd);
-          }
-        }
-      ]
+  async openQuestionEditor(question?: EventQuestion): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: QuestionEditorComponent,
+      componentProps: { question, event: this.event }
     });
-    await detailsAlert.present();
-  }
 
-  private async askQuestionRequired(text: string, type: QuestionType, doAdd: (text: string, type: QuestionType, options: string, required: boolean) => Promise<void>): Promise<void> {
-    const header = this.t._('ERS_EVENTS.ADD_QUESTION');
-    const requiredAlert = await this.alertCtrl.create({
-      header,
-      subHeader: this.t._('ERS_EVENTS.REQUIRED'),
-      inputs: [
-        { name: 'required', type: 'radio', label: this.t._('COMMON.YES'), value: 'true', checked: true },
-        { name: 'required', type: 'radio', label: this.t._('COMMON.NO'), value: 'false' }
-      ],
-      buttons: [
-        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-        {
-          text: (type === 'radiobox' || type === 'checkbox') ? this.t._('COMMON.NEXT') : this.t._('COMMON.ADD'),
-          handler: (required) => {
-            const isRequired = required === 'true';
-            if (type === 'radiobox' || type === 'checkbox') {
-              this.askQuestionOptions(text, type, isRequired, doAdd);
-            } else {
-              doAdd(text, type, '', isRequired);
-            }
+    modal.onDidDismiss().then(({ data }) => {
+      if (data) {
+        if (question) {
+          // Edit: Replace existing
+          const index = this.event.questions.findIndex(q => q.id === question.id);
+          if (index !== -1) {
+            this.event.questions[index] = data;
           }
+        } else {
+          // Add: push new
+          this.event.questions.push(data);
         }
-      ]
+      }
     });
-    await requiredAlert.present();
-  }
 
-  private async askQuestionOptions(text: string, type: QuestionType, required: boolean, doAdd: (text: string, type: QuestionType, options: string, required: boolean) => Promise<void>): Promise<void> {
-    const header = this.t._('ERS_EVENTS.ADD_QUESTION');
-    const optionsAlert = await this.alertCtrl.create({
-      header,
-      inputs: [
-        { name: 'options', type: 'text', placeholder: this.t._('ERS_EVENTS.OPTIONS_COMMA_SEP') }
-      ],
-      buttons: [
-        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-        {
-          text: this.t._('COMMON.ADD'),
-          handler: ({ options }) => {
-            if (!options) return false;
-            doAdd(text, type, options, required);
-          }
-        }
-      ]
-    });
-    await optionsAlert.present();
+    await modal.present();
   }
 
   async removeQuestion(question: EventQuestion): Promise<void> {

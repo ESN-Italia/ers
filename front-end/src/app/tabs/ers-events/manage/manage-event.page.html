@@ -152,7 +152,10 @@
     </ion-item>
     <ion-item *ngFor="let question of event.questions">
       <ion-label>
-        <h3>{{ question.text }}</h3>
+        <h3>
+          {{ question.text }}
+          <ion-icon *ngIf="question.spotIdCondition || question.dependsOnQuestionId" name="link-outline" color="primary"></ion-icon>
+        </h3>
         <p>
           {{ ('ERS_EVENTS.' + question.type.toUpperCase()) | translate }}
           <span *ngIf="question.required"> | {{ 'ERS_EVENTS.REQUIRED' | translate }}</span>
@@ -160,7 +163,19 @@
         <p *ngIf="question.options?.length" class="small-color">
           {{ 'ERS_EVENTS.OPTIONS' | translate }}: {{ question.options.join(', ') }}
         </p>
+        <p *ngIf="question.spotIdCondition" class="small-color">
+          <ion-icon name="map-outline"></ion-icon>
+          {{ 'ERS_EVENTS.CONDITION_DISPLAY_SPOT' | translate }}: {{ event.spots | findById:question.spotIdCondition:'name' }}
+        </p>
+        <p *ngIf="question.dependsOnQuestionId" class="small-color">
+          <ion-icon name="link-outline"></ion-icon>
+          {{ 'ERS_EVENTS.CONDITION_DISPLAY_QUESTION' | translate }}: <i>{{ event.questions | findById:question.dependsOnQuestionId:'text' }}</i> ({{ question.dependsOnAnswer }})
+        </p>
       </ion-label>
+      <ion-button fill="clear" slot="end" *ngIf="editMode !== UXMode.VIEW"
+        (click)="openQuestionEditor(question)">
+        <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+      </ion-button>
       <ion-button fill="clear" color="danger" slot="end" *ngIf="editMode !== UXMode.VIEW"
         (click)="removeQuestion(question)">
         <ion-icon name="trash" slot="icon-only"></ion-icon>

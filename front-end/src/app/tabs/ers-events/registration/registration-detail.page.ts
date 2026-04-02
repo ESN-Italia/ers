@@ -278,6 +278,11 @@ export class RegistrationDetailPage implements OnInit {
     return (answer as string) || '-';
   }
 
+  shouldShowQuestion(q: any): boolean {
+    if (!this.registration || !this.event) return false;
+    return this.registration.shouldShowQuestion(q, this.event);
+  }
+
   async downloadInvoice(): Promise<void> {
     if (!this.registration || !this.registration.receiptNumber) return;
 

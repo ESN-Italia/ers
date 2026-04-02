@@ -1,6 +1,7 @@
 {
-  "version": "1.10.2",
-  "name": "back-end",
+  "name": "ers-esn-italia-back-end",
+  "version": "4.0.0-alpha",
+  "author": "Commissione Informatica",
   "scripts": {
     "lint": "eslint --ext .ts",
     "compile": "tsc --build",

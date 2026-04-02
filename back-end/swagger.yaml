@@ -550,6 +550,36 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/ERSRegistration'
+    put:
+      summary: Edit an ERS registration
+      description: Re-submits the registration form with updated data.
+      tags: [ERSRegistrations]
+      security:
+        - AuthFunction: []
+      parameters:
+        - name: eventId
+          in: path
+          description: Event ID
+          required: true
+          schema:
+            type: string
+        - name: registrationId
+          in: path
+          description: Registration ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ERSRegistration'
+      responses:
+        200:
+          $ref: '#/components/responses/ERSRegistration'
+        400:
+          $ref: '#/components/responses/BadParameters'
     delete:
       summary: Delete an ERS registration
       description: Requires permissions to manage the event.

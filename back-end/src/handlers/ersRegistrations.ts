@@ -126,6 +126,28 @@ class ERSRegistrationsRC extends ResourceController {
     return this.registration;
   }
 
+  protected async putResource(): Promise<ERSRegistration> {
+    const canManage = this.managedEvent.canUserManage(this.galaxyUser);
+    if (this.registration.userId !== this.galaxyUser.userId && !canManage) {
+      throw new HandledError('Unauthorized');
+    }
+
+    if (this.registration.status !== RegistrationStatus.PENDING && !canManage) {
+      throw new HandledError('Cannot edit registration after it has been already processed');
+    }
+
+    const oldRegistration = new ERSRegistration(this.registration);
+    this.registration.safeLoad(this.body, oldRegistration);
+    this.registration.updatedAt = new Date().toISOString();
+
+    const errors = this.registration.validate(this.managedEvent);
+    if (errors.length) throw new HandledError(`Invalid fields: ${errors.join(', ')}`);
+
+    await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
+
+    return this.registration;
+  }
+
   protected async getResource(): Promise<ERSRegistration> {
     if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
       throw new HandledError('Unauthorized');

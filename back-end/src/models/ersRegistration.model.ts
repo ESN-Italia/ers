@@ -95,14 +95,7 @@ export class ERSRegistration extends Resource {
     this.userId = safeData.userId;
     this.createdAt = safeData.createdAt;
     this.status = safeData.status;
-
-    this.subject = newData.subject || safeData.subject; // Renamed from 'user' to 'subject'
-    this.phone = newData.phone || safeData.phone;
-    this.identityCard = newData.identityCard || safeData.identityCard;
-    this.esnCardNumber = newData.esnCardNumber || safeData.esnCardNumber;
-    this.homeAddress = newData.homeAddress || safeData.homeAddress;
-    this.foodAllergies = newData.foodAllergies || safeData.foodAllergies;
-    this.emergencyContact = newData.emergencyContact || safeData.emergencyContact;
+    this.subject = safeData.subject;
 
     if (safeData.receipt) this.receipt = safeData.receipt;
     if (safeData.receiptNumber !== undefined) this.receiptNumber = safeData.receiptNumber;
@@ -147,12 +140,25 @@ export class ERSRegistration extends Resource {
 
       // Validate Answers
       event.questions?.forEach(q => {
-        if (q.required && this.iE(this.answers[q.id])) {
+        if (this.shouldShowQuestion(q, event) && q.required && this.iE(this.answers[q.id])) {
           e.push(`answers[${q.id}] required`);
         }
       });
     }
 
     return e;
+  }
+
+  shouldShowQuestion(q: any, event: ERSEvent): boolean {
+    if (q.spotIdCondition && this.spotId !== q.spotIdCondition) return false;
+    if (q.dependsOnQuestionId) {
+      const parentAnswer = this.answers[q.dependsOnQuestionId];
+      if (Array.isArray(parentAnswer)) {
+        if (!parentAnswer.includes(q.dependsOnAnswer)) return false;
+      } else if (parentAnswer !== q.dependsOnAnswer) {
+        return false;
+      }
+    }
+    return true;
   }
 }

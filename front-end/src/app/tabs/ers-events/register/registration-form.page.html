@@ -130,40 +130,42 @@
       </ion-list-header>
 
       <ng-container *ngFor="let question of event.questions">
-        <!-- Text -->
-        <ion-item *ngIf="question.type === QuestionType.TEXT">
-          <ion-label position="stacked">{{ question.text }} <span *ngIf="question.required"
-              class="obligatoryDot">*</span></ion-label>
-          <ion-textarea [(ngModel)]="registration.answers[question.id]"></ion-textarea>
-        </ion-item>
-
-        <!-- Radiobox -->
-        <ion-radio-group *ngIf="question.type === QuestionType.RADIOBOX"
-          [(ngModel)]="registration.answers[question.id]">
-          <ion-list-header>
-            <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
-          </ion-list-header>
-          <ion-item *ngFor="let option of question.options">
-            <ion-label>{{ option }}</ion-label>
-            <ion-radio slot="start" [value]="option"></ion-radio>
+        <ng-container *ngIf="shouldShowQuestion(question)">
+          <!-- Text -->
+          <ion-item *ngIf="question.type === QuestionType.TEXT">
+            <ion-label position="stacked">{{ question.text }} <span *ngIf="question.required"
+                class="obligatoryDot">*</span></ion-label>
+            <ion-textarea [(ngModel)]="registration.answers[question.id]"></ion-textarea>
           </ion-item>
-        </ion-radio-group>
 
-        <!-- Checkbox -->
-        <ng-container *ngIf="question.type === QuestionType.CHECKBOX">
-          <ion-list-header>
-            <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
-          </ion-list-header>
-          <ion-item *ngFor="let option of question.options">
-            <ion-label>{{ option }}</ion-label>
-            <ion-checkbox slot="start" [checked]="isCheckboxChecked(question.id, option)"
-              (ionChange)="toggleCheckbox(question.id, option)"></ion-checkbox>
-          </ion-item>
+          <!-- Radiobox -->
+          <ion-radio-group *ngIf="question.type === QuestionType.RADIOBOX"
+            [(ngModel)]="registration.answers[question.id]">
+            <ion-list-header>
+              <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
+            </ion-list-header>
+            <ion-item *ngFor="let option of question.options">
+              <ion-label>{{ option }}</ion-label>
+              <ion-radio slot="start" [value]="option"></ion-radio>
+            </ion-item>
+          </ion-radio-group>
+
+          <!-- Checkbox -->
+          <ng-container *ngIf="question.type === QuestionType.CHECKBOX">
+            <ion-list-header>
+              <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
+            </ion-list-header>
+            <ion-item *ngFor="let option of question.options">
+              <ion-label>{{ option }}</ion-label>
+              <ion-checkbox slot="start" [checked]="isCheckboxChecked(question.id, option)"
+                (ionChange)="toggleCheckbox(question.id, option)"></ion-checkbox>
+            </ion-item>
+          </ng-container>
+          <!-- Date -->
+          <app-datetime-timezone *ngIf="question.type === QuestionType.DATE" [label]="question.text"
+            [obligatory]="question.required" [timezone]="event.timezone" presentation="date"
+            [(date)]="registration.answers[question.id]" />
         </ng-container>
-        <!-- Date -->
-        <app-datetime-timezone *ngIf="question.type === QuestionType.DATE" [label]="question.text"
-          [obligatory]="question.required" [timezone]="event.timezone" presentation="date"
-          [(date)]="registration.answers[question.id]" />
       </ng-container>
 
       <ion-list-header>
