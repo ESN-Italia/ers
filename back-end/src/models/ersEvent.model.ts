@@ -129,7 +129,6 @@ export class EventOptionalTicket extends Resource {
     const e = [];
     if (this.iE(this.id)) e.push('id');
     if (this.iE(this.name)) e.push('name');
-    if (this.iE(this.description)) e.push('description');
     if (this.price < 0) e.push('price');
     return e;
   }
