@@ -44,9 +44,12 @@ export class ERSRegistration extends Resource {
     spokenLanguages: string;
   };
   spotId: string;
+  selectedOptionalTickets: string[];
   answers: { [questionId: string]: string | string[] };
   status: RegistrationStatus;
   receipt?: Receipt;
+  receiptNumber?: number;
+  approvedAt?: epochISOString;
   createdAt: epochISOString;
   updatedAt?: epochISOString;
 
@@ -74,11 +77,15 @@ export class ERSRegistration extends Resource {
     });
 
     this.spotId = this.clean(x.spotId, String);
+    this.selectedOptionalTickets = this.cleanArray(x.selectedOptionalTickets, String);
     this.answers = this.clean(x.answers, Object, {});
     this.status = this.clean(x.status, String, RegistrationStatus.PENDING) as RegistrationStatus;
     this.receipt = this.clean(x.receipt, r => new Receipt(r));
+    if (x.receiptNumber !== undefined) this.receiptNumber = this.clean(x.receiptNumber, Number);
+    if (x.approvedAt) this.approvedAt = this.clean(x.approvedAt, d => new Date(d).toISOString());
     this.createdAt = this.clean(x.createdAt, d => new Date(d).toISOString(), new Date().toISOString());
     if (x.updatedAt) this.updatedAt = this.clean(x.updatedAt, d => new Date(d).toISOString());
+    if (!this.selectedOptionalTickets) this.selectedOptionalTickets = [];
   }
 
   safeLoad(newData: any, safeData: any): void {
@@ -98,6 +105,9 @@ export class ERSRegistration extends Resource {
     this.emergencyContact = newData.emergencyContact || safeData.emergencyContact;
 
     if (safeData.receipt) this.receipt = safeData.receipt;
+    if (safeData.receiptNumber !== undefined) this.receiptNumber = safeData.receiptNumber;
+    if (safeData.approvedAt) this.approvedAt = safeData.approvedAt;
+    if (safeData.selectedOptionalTickets) this.selectedOptionalTickets = safeData.selectedOptionalTickets;
     if (safeData.updatedAt) this.updatedAt = safeData.updatedAt;
   }
 
@@ -125,6 +135,15 @@ export class ERSRegistration extends Resource {
       // Validate Spot
       const spot = event.spots?.find(s => s.id === this.spotId);
       if (!spot) e.push('invalid spotId');
+
+      // Validate Optional Tickets
+      if (this.selectedOptionalTickets && this.selectedOptionalTickets.length) {
+        for (const ticketId of this.selectedOptionalTickets) {
+          if (!event.optionalTickets?.find(t => t.id === ticketId)) {
+            e.push(`invalid optional ticket: ${ticketId}`);
+          }
+        }
+      }
 
       // Validate Answers
       event.questions?.forEach(q => {

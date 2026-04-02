@@ -99,6 +99,28 @@ export class RegistrationsListPage implements OnInit {
     return this.event?.spots?.find(s => s.id === spotId)?.name || 'Unknown';
   }
 
+  getOptionalTicketsNames(reg: ERSRegistration): string {
+    if (!reg?.selectedOptionalTickets?.length) return '';
+    return reg.selectedOptionalTickets
+      .map(id => this.event?.optionalTickets?.find(t => t.id === id)?.name || 'Unknown')
+      .join(', ');
+  }
+
+  getTotalPrice(reg: ERSRegistration): number {
+    let total = 0;
+    if (reg?.spotId) {
+      const spot = this.event?.spots?.find(s => s.id === reg.spotId);
+      if (spot && spot.price) total += spot.price;
+    }
+    if (reg?.selectedOptionalTickets?.length) {
+      for (const ticketId of reg.selectedOptionalTickets) {
+        const ticket = this.event?.optionalTickets?.find(t => t.id === ticketId);
+        if (ticket && ticket.price) total += ticket.price;
+      }
+    }
+    return total;
+  }
+
   getUserName(reg: ERSRegistration): string {
     if (!reg.subject) return reg.userId;
     return reg.subject.name || reg.userId;
@@ -241,6 +263,7 @@ export class RegistrationsListPage implements OnInit {
       'ESN Country',
       'ESN Section',
       'Spot',
+      'Total Price',
       'Status',
       'ESNcard number',
       'ID Number',
@@ -253,6 +276,10 @@ export class RegistrationsListPage implements OnInit {
       'Emergency Phone',
       'Emergency Languages'
     ];
+
+    // Add dynamic optional tickets to headers
+    const dynamicOptionalTickets = this.event?.optionalTickets || [];
+    dynamicOptionalTickets.forEach(t => headers.push(t.name));
 
     // Add dynamic questions to headers
     const dynamicQuestions = this.event?.questions || [];
@@ -270,6 +297,7 @@ export class RegistrationsListPage implements OnInit {
         this.escapeCSV(reg.subject?.country),
         this.escapeCSV(reg.subject?.section),
         this.escapeCSV(this.getSpotName(reg.spotId)),
+        this.getTotalPrice(reg),
         reg.status,
         this.escapeCSV(reg.esnCardNumber),
         this.escapeCSV(reg.identityCard?.number),
@@ -282,6 +310,12 @@ export class RegistrationsListPage implements OnInit {
         this.escapeCSV(reg.emergencyContact?.phone),
         this.escapeCSV(reg.emergencyContact?.spokenLanguages)
       ];
+
+      // Add dynamic optional tickets answers
+      dynamicOptionalTickets.forEach(t => {
+        const hasTicket = reg.selectedOptionalTickets?.includes(t.id);
+        row.push(hasTicket ? this.t._('COMMON.YES') : this.t._('COMMON.NO'));
+      });
 
       // Add dynamic answers
       dynamicQuestions.forEach(q => {

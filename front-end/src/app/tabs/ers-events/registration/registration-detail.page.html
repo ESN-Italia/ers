@@ -36,6 +36,15 @@
                 </ion-chip>
 
                 <p><strong>{{ 'ERS_EVENTS.SPOT' | translate }}:</strong> {{ getSpotName() }}</p>
+                <p *ngIf="registration.selectedOptionalTickets?.length"><strong>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' |
+                    translate }}:</strong> {{ getOptionalTicketsNames() }}</p>
+                <p><strong>{{ 'ERS_EVENTS.TOTAL_PRICE' | translate }}:</strong> {{ getTotalPrice() }}</p>
+
+                <ion-button *ngIf="registration.receiptNumber" expand="block" fill="outline" color="ESNorange"
+                  class="ion-margin-top" (click)="downloadInvoice()">
+                  <ion-icon name="download-outline" slot="start"></ion-icon>
+                  {{ 'ERS_EVENTS.DOWNLOAD_INVOICE' | translate }}
+                </ion-button>
 
                 <div *ngIf="event.canUserManage(app.user)" class="ion-margin-top">
                   <ion-button *ngIf="registration.status === RegistrationStatus.PENDING" expand="block" color="success"
@@ -56,11 +65,9 @@
                 </div>
 
                 <div *ngIf="registration.status === RegistrationStatus.APPROVED" class="ion-margin-top">
-                  <h2>{{ 'ERS_EVENTS.PAYMENT_INSTRUCTIONS' | translate }}</h2>
-                  <p>{{ event.paymentInfo }}</p>
                   <ion-button expand="block" (click)="fileInput.click()">
                     <ion-icon name="cloud-upload" slot="start"></ion-icon>
-                    {{ 'ERS_EVENTS.UPLOAD_RECEIPT' | translate }}
+                    {{ 'ERS_EVENTS.UPLOAD_PAYMENT_PROOF' | translate }}
                   </ion-button>
                   <input #fileInput type="file" (change)="uploadReceipt($event)" style="display: none"
                     accept="application/pdf,image/*">
@@ -96,7 +103,8 @@
                     <ion-icon name="create-outline" slot="start"></ion-icon>
                     {{ 'COMMON.EDIT' | translate }}
                   </ion-button>
-                  <ion-button *ngIf="isMyRegistration() && registration.status === RegistrationStatus.PENDING" expand="block" fill="clear" color="danger" class="ion-margin-top" (click)="withdraw()">
+                  <ion-button *ngIf="isMyRegistration() && registration.status === RegistrationStatus.PENDING"
+                    expand="block" fill="clear" color="danger" class="ion-margin-top" (click)="withdraw()">
                     <ion-icon name="trash-outline" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.WITHDRAW_REGISTRATION' | translate }}
                   </ion-button>

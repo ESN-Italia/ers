@@ -21,7 +21,7 @@
         <ion-item *ngFor="let spot of event.spots">
           <ion-label>
             <h3>{{ spot.name }}</h3>
-            <p>{{ 'ERS_EVENTS.SPOT_PRICE' | translate }}: {{ spot.price }} | {{ 'ERS_EVENTS.SPOT_LIMIT' | translate }}:
+            <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ spot.price }} | {{ 'ERS_EVENTS.SPOT_LIMIT' | translate }}:
               {{
               spot.limit }}</p>
           </ion-label>
@@ -32,10 +32,25 @@
         <ion-item>
           <ion-label>
             <h3>{{ event.spots[0].name }}</h3>
-            <p>{{ 'ERS_EVENTS.SPOT_PRICE' | translate }}: {{ event.spots[0].price }}</p>
+            <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ event.spots[0].price }}</p>
           </ion-label>
         </ion-item>
       </div>
+
+      <ng-container *ngIf="event.optionalTickets?.length">
+        <ion-list-header>
+          <ion-label>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' | translate }}</ion-label>
+        </ion-list-header>
+        <ion-item *ngFor="let ticket of event.optionalTickets">
+          <ion-label class="ion-text-wrap">
+            <h3>{{ ticket.name }}</h3>
+            <p *ngIf="ticket.description">{{ ticket.description }}</p>
+            <p><strong>{{ 'ERS_EVENTS.PRICE' | translate }}:</strong> {{ ticket.price }}</p>
+          </ion-label>
+          <ion-checkbox slot="start" [checked]="isOptionalTicketSelected(ticket.id)"
+            (ionChange)="toggleOptionalTicket(ticket.id)"></ion-checkbox>
+        </ion-item>
+      </ng-container>
 
       <ion-list-header>
         <ion-label>{{ 'ERS_EVENTS.PERSONAL_INFORMATION' | translate }}</ion-label>
@@ -177,6 +192,11 @@
     </ion-list>
 
     <div class="ion-padding">
+      <div class="ion-text-center ion-margin-bottom ion-padding-top">
+        <ion-text color="primary">
+          <h2 style="font-weight: bold;">{{ 'ERS_EVENTS.TOTAL_PRICE' | translate }}: {{ getTotalPrice() }}</h2>
+        </ion-text>
+      </div>
       <ion-button expand="block" (click)="submit()" class="ion-margin-top">{{ 'COMMON.SUBMIT' | translate
         }}</ion-button>
     </div>

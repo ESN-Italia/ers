@@ -202,6 +202,13 @@ class ERSRegistrationsRC extends ResourceController {
       }
     }
 
+    if (status === RegistrationStatus.APPROVED && this.registration.receiptNumber === undefined) {
+      this.managedEvent.receiptsCounter = (this.managedEvent.receiptsCounter || 0) + 1;
+      this.registration.receiptNumber = this.managedEvent.receiptsCounter;
+      this.registration.approvedAt = new Date().toISOString();
+      await ddb.put({ TableName: DDB_TABLES.events, Item: this.managedEvent });
+    }
+
     this.registration.status = status;
     this.registration.updatedAt = new Date().toISOString();
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });

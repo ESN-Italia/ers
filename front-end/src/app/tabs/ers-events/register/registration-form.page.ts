@@ -51,6 +51,7 @@ export class RegistrationFormPage implements OnInit {
 
       if (existing) {
         this.registration = existing;
+        if (!this.registration.selectedOptionalTickets) this.registration.selectedOptionalTickets = [];
       } else {
         this.registration = new ERSRegistration({
           eventId: this.eventId,
@@ -58,7 +59,8 @@ export class RegistrationFormPage implements OnInit {
           subject: Subject.fromUser(this.app.user), // Assign the whole subject object
           identityCard: { number: '', issuedDate: '', issuedBy: '', validUntil: '' },
           emergencyContact: { name: '', phone: '', spokenLanguages: '' },
-          answers: {}
+          answers: {},
+          selectedOptionalTickets: []
         });
         if (this.event.spots?.length === 1) {
           this.registration.spotId = this.event.spots[0].id;
@@ -116,6 +118,34 @@ export class RegistrationFormPage implements OnInit {
     const index = answers.indexOf(option);
     if (index === -1) answers.push(option);
     else answers.splice(index, 1);
+  }
+
+  isOptionalTicketSelected(ticketId: string): boolean {
+    return this.registration.selectedOptionalTickets?.includes(ticketId) || false;
+  }
+
+  toggleOptionalTicket(ticketId: string): void {
+    if (!this.registration.selectedOptionalTickets) {
+      this.registration.selectedOptionalTickets = [];
+    }
+    const index = this.registration.selectedOptionalTickets.indexOf(ticketId);
+    if (index === -1) this.registration.selectedOptionalTickets.push(ticketId);
+    else this.registration.selectedOptionalTickets.splice(index, 1);
+  }
+
+  getTotalPrice(): number {
+    let total = 0;
+    if (this.registration.spotId) {
+      const spot = this.event.spots?.find(s => s.id === this.registration.spotId);
+      if (spot && spot.price) total += spot.price;
+    }
+    if (this.registration.selectedOptionalTickets && this.registration.selectedOptionalTickets.length) {
+      for (const ticketId of this.registration.selectedOptionalTickets) {
+        const ticket = this.event.optionalTickets?.find(t => t.id === ticketId);
+        if (ticket && ticket.price) total += ticket.price;
+      }
+    }
+    return total;
   }
 
   async openPrivacyPolicy(): Promise<void> {

@@ -75,7 +75,7 @@ class ScheduledOps extends GenericController {
     // Events table is not expected to be huge.
     // Also, we don't have an index on endAt.
     const events = await ddb.scan({ TableName: process.env.DDB_TABLE_events });
-    const eventsToClean = events.filter((e: any) => e.endAt < cutoffDate && !e.receiptsDeleted);
+    const eventsToClean = events.filter((e: any) => e.endAt < cutoffDate && !e.proofsOfPaymentDeleted);
 
     const s3 = new S3();
     const MEDIA_BUCKET = process.env.S3_BUCKET_MEDIA;
@@ -112,7 +112,7 @@ class ScheduledOps extends GenericController {
         await ddb.update({
           TableName: process.env.DDB_TABLE_events,
           Key: { eventId: event.eventId },
-          UpdateExpression: 'SET receiptsDeleted = :true',
+          UpdateExpression: 'SET proofsOfPaymentDeleted = :true',
           ExpressionAttributeValues: { ':true': true }
         });
 

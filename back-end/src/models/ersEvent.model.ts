@@ -18,13 +18,15 @@ export class ERSEvent extends Resource {
   registrationCloseAt: epochISOString;
   timezone: string;
   spots: EventSpot[];
+  optionalTickets: EventOptionalTicket[];
   questions: EventQuestion[];
   additionalManagersIds: string[];
   paymentInfo: string;
   createdAt: epochISOString;
   updatedAt?: epochISOString;
   archivedAt?: epochISOString;
-  receiptsDeleted?: boolean
+  receiptsCounter?: number;
+  proofsOfPaymentDeleted?: boolean
   type: EventType;
   imageURL?: string;
 
@@ -39,13 +41,15 @@ export class ERSEvent extends Resource {
     this.registrationCloseAt = this.clean(x.registrationCloseAt, d => new Date(d).toISOString());
     this.timezone = this.clean(x.timezone, String);
     this.spots = this.cleanArray(x.spots, s => new EventSpot(s));
+    this.optionalTickets = this.cleanArray(x.optionalTickets, t => new EventOptionalTicket(t));
     this.questions = this.cleanArray(x.questions, q => new EventQuestion(q));
     this.additionalManagersIds = this.cleanArray(x.additionalManagersIds, String).map(x => x.toLowerCase());
     this.paymentInfo = this.clean(x.paymentInfo, String);
     this.createdAt = this.clean(x.createdAt, d => new Date(d).toISOString(), new Date().toISOString());
     if (x.updatedAt) this.updatedAt = this.clean(x.updatedAt, d => new Date(d).toISOString());
     if (x.archivedAt) this.archivedAt = this.clean(x.archivedAt, d => new Date(d).toISOString());
-    if (x.receiptsDeleted) this.receiptsDeleted = this.clean(x.receiptsDeleted, Boolean);
+    if (x.receiptsCounter !== undefined) this.receiptsCounter = this.clean(x.receiptsCounter, Number);
+    if (x.proofsOfPaymentDeleted) this.proofsOfPaymentDeleted = this.clean(x.proofsOfPaymentDeleted, Boolean);
     this.type = this.clean(x.type, String, EventType.Other) as EventType;
     this.imageURL = this.clean(x.imageURL, String);
   }
@@ -56,7 +60,7 @@ export class ERSEvent extends Resource {
     this.createdAt = safeData.createdAt;
     if (safeData.updatedAt) this.updatedAt = safeData.updatedAt;
     if (safeData.archivedAt) this.archivedAt = safeData.archivedAt;
-    if (safeData.receiptsDeleted) this.receiptsDeleted = safeData.receiptsDeleted;
+    if (safeData.proofsOfPaymentDeleted) this.proofsOfPaymentDeleted = safeData.proofsOfPaymentDeleted;
     if (safeData.imageURL) this.imageURL = safeData.imageURL;
   }
 
@@ -81,6 +85,10 @@ export class ERSEvent extends Resource {
       const errors = s.validate();
       if (errors.length) e.push(`spots[${i}]`);
     });
+    this.optionalTickets?.forEach((t, i) => {
+      const errors = t.validate();
+      if (errors.length) e.push(`optionalTickets[${i}]`);
+    });
     this.questions?.forEach((q, i) => {
       const errors = q.validate();
       if (errors.length) e.push(`questions[${i}]`);
@@ -100,6 +108,30 @@ export class ERSEvent extends Resource {
 
   isEnded(): boolean {
     return this.endAt && new Date().toISOString() > this.endAt;
+  }
+}
+
+export class EventOptionalTicket extends Resource {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+
+  load(x: any): void {
+    super.load(x);
+    this.id = this.clean(x.id, String);
+    this.name = this.clean(x.name, String);
+    this.description = this.clean(x.description, String);
+    this.price = this.clean(x.price, Number);
+  }
+
+  validate(): string[] {
+    const e = [];
+    if (this.iE(this.id)) e.push('id');
+    if (this.iE(this.name)) e.push('name');
+    if (this.iE(this.description)) e.push('description');
+    if (this.price < 0) e.push('price');
+    return e;
   }
 }
 

@@ -21,7 +21,8 @@
       {{ event.startAt | date: 'medium' }} - {{ event.endAt | date: 'medium' }}
     </p>
     <div *ngIf="event.imageURL" class="ion-text-center ion-margin-bottom">
-      <img [src]="event.imageURL" [style.maxWidth]="!app.isInMobileMode() ? '900px' : '100%'" style="height: auto; width: auto;" />
+      <img [src]="event.imageURL" [style.maxWidth]="!app.isInMobileMode() ? '900px' : '100%'"
+        style="height: auto; width: auto;" />
     </div>
 
     <div *ngIf="event.description" [innerHTML]="event.description"></div>
@@ -85,7 +86,7 @@
       <ion-item *ngFor="let spot of event.spots">
         <ion-label>
           <h3>{{ spot.name }}</h3>
-          <p>{{ 'ERS_EVENTS.SPOT_PRICE' | translate }}: {{ spot.price }} | {{ 'ERS_EVENTS.SPOT_LIMIT' | translate }}: {{
+          <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ spot.price }} | {{ 'ERS_EVENTS.SPOT_LIMIT' | translate }}: {{
             spot.limit }}</p>
         </ion-label>
       </ion-item>

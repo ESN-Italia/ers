@@ -109,10 +109,33 @@
       <ion-label>
         <h3>{{ spot.name }}</h3>
         <p>{{ 'ERS_EVENTS.SPOT_LIMIT' | translate }}: {{ spot.limit }} | {{
-          'ERS_EVENTS.SPOT_PRICE' | translate }}: {{
+          'ERS_EVENTS.PRICE' | translate }}: {{
           spot.price }}</p>
       </ion-label>
       <ion-button fill="clear" color="danger" slot="end" *ngIf="editMode !== UXMode.VIEW" (click)="removeSpot(spot)">
+        <ion-icon name="trash" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-item>
+
+    <!-- Optional Tickets -->
+    <ion-list-header>
+      <ion-label>
+        <h2>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' | translate }}</h2>
+      </ion-label>
+      <ion-button *ngIf="editMode !== UXMode.VIEW" (click)="addOptionalTicket()">{{ 'COMMON.ADD' | translate
+        }}</ion-button>
+    </ion-list-header>
+    <ion-item *ngIf="!event.optionalTickets?.length">
+      <ion-label class="medium-color">{{ 'COMMON.NO_ELEMENT_FOUND' | translate }}</ion-label>
+    </ion-item>
+    <ion-item *ngFor="let ticket of event.optionalTickets">
+      <ion-label>
+        <h3>{{ ticket.name }}</h3>
+        <p *ngIf="ticket.description">{{ ticket.description }}</p>
+        <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price }}</p>
+      </ion-label>
+      <ion-button fill="clear" color="danger" slot="end" *ngIf="editMode !== UXMode.VIEW"
+        (click)="removeOptionalTicket(ticket)">
         <ion-icon name="trash" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-item>

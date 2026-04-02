@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
 import { AlertController } from '@ionic/angular';
 import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
 import { MediaService } from '@app/common/media.service';
 import { ERSEventsService } from '../ers-events.service';
-import { ERSEvent, EventSpot, EventQuestion, QuestionType, EventType } from '@models/ersEvent.model';
+import { ERSEvent, EventSpot, EventQuestion, EventOptionalTicket, QuestionType, EventType } from '@models/ersEvent.model';
 
 @Component({
   selector: 'app-manage-event',
@@ -28,7 +27,6 @@ export class ManageEventPage implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    privatelocation: Location,
     private alertCtrl: AlertController,
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
@@ -54,6 +52,7 @@ export class ManageEventPage implements OnInit {
         if (!this.app.user.isAdministrator && !this.app.user.canManageERSEvents) return this.app.closePage('COMMON.UNAUTHORIZED');
         this.event = new ERSEvent({});
         this.event.spots = [];
+        this.event.optionalTickets = [];
         this.event.questions = [];
         this.event.additionalManagersIds = [];
         this.event.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -147,7 +146,7 @@ export class ManageEventPage implements OnInit {
     const header = this.t._('ERS_EVENTS.ADD_SPOT');
     const inputs: any = [
       { name: 'name', type: 'text', placeholder: this.t._('ERS_EVENTS.SPOT_NAME') },
-      { name: 'price', type: 'number', placeholder: this.t._('ERS_EVENTS.SPOT_PRICE') },
+      { name: 'price', type: 'number', placeholder: this.t._('ERS_EVENTS.PRICE') },
       { name: 'limit', type: 'number', placeholder: this.t._('ERS_EVENTS.SPOT_LIMIT') }
     ];
     const buttons = [
@@ -163,6 +162,50 @@ export class ManageEventPage implements OnInit {
     const doRemove = (): void => {
       const index = this.event.spots.indexOf(spot);
       if (index !== -1) this.event.spots.splice(index, 1);
+    };
+
+    const header = this.t._('COMMON.ARE_YOU_SURE');
+    const buttons = [
+      { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+      { text: this.t._('COMMON.REMOVE'), role: 'destructive', handler: doRemove }
+    ];
+    const alert = await this.alertCtrl.create({ header, buttons });
+    alert.present();
+  }
+
+  async addOptionalTicket(): Promise<void> {
+    const doAdd = async ({ name, description, price }): Promise<void> => {
+      if (!name || price === undefined) return;
+      const ticket = new EventOptionalTicket({
+        id: Date.now().toString(),
+        name,
+        description: description || '',
+        price: Number(price)
+      });
+      if (!this.event.optionalTickets) this.event.optionalTickets = [];
+      this.event.optionalTickets.push(ticket);
+    };
+
+    const header = this.t._('ERS_EVENTS.ADD_OPTIONAL_TICKET');
+    const inputs: any = [
+      { name: 'name', type: 'text', placeholder: this.t._('ERS_EVENTS.NAME') },
+      { name: 'description', type: 'text', placeholder: `${this.t._('ERS_EVENTS.DESCRIPTION')}` },
+      { name: 'price', type: 'number', placeholder: this.t._('ERS_EVENTS.PRICE') }
+    ];
+    const buttons = [
+      { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+      { text: this.t._('COMMON.ADD'), handler: doAdd }
+    ];
+
+    const alert = await this.alertCtrl.create({ header, inputs, buttons });
+    await alert.present();
+  }
+
+  async removeOptionalTicket(ticket: EventOptionalTicket): Promise<void> {
+    const doRemove = (): void => {
+      if (!this.event.optionalTickets) return;
+      const index = this.event.optionalTickets.indexOf(ticket);
+      if (index !== -1) this.event.optionalTickets.splice(index, 1);
     };
 
     const header = this.t._('COMMON.ARE_YOU_SURE');

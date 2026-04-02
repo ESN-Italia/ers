@@ -52,6 +52,8 @@
               "js-cookie",
               "docs-soap",
               "qrcode",
+              "pdfmake/build/pdfmake",
+              "pdfmake/build/vfs_fonts",
               "date-fns/format/index.js",
               "date-fns/_lib/getTimezoneOffsetInMilliseconds/index.js",
               "date-fns/_lib/toInteger/index.js",

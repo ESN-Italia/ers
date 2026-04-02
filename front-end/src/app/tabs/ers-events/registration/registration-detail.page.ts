@@ -9,6 +9,10 @@ import { EditStatusComponent } from './edit-status.component';
 import { ERSEvent, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 
+import * as pdfMake from 'pdfmake/build/pdfmake';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+(pdfMake as any).vfs = pdfFonts && (pdfFonts as any).pdfMake ? (pdfFonts as any).pdfMake.vfs : (pdfFonts as any).vfs;
+
 @Component({
   selector: 'app-registration-detail',
   templateUrl: './registration-detail.page.html',
@@ -138,6 +142,28 @@ export class RegistrationDetailPage implements OnInit {
     return this.event?.spots?.find(s => s.id === this.registration?.spotId)?.name || 'Unknown Spot';
   }
 
+  getOptionalTicketsNames(): string {
+    if (!this.registration?.selectedOptionalTickets?.length) return '-';
+    return this.registration.selectedOptionalTickets
+      .map(id => this.event?.optionalTickets?.find(t => t.id === id)?.name || 'Unknown Ticket')
+      .join(', ');
+  }
+
+  getTotalPrice(): number {
+    let total = 0;
+    if (this.registration?.spotId) {
+      const spot = this.event?.spots?.find(s => s.id === this.registration.spotId);
+      if (spot && spot.price) total += spot.price;
+    }
+    if (this.registration?.selectedOptionalTickets?.length) {
+      for (const ticketId of this.registration.selectedOptionalTickets) {
+        const ticket = this.event?.optionalTickets?.find(t => t.id === ticketId);
+        if (ticket && ticket.price) total += ticket.price;
+      }
+    }
+    return total;
+  }
+
   isMyRegistration(): boolean {
     return this.registration?.userId === this.app.user.userId;
   }
@@ -250,5 +276,86 @@ export class RegistrationDetailPage implements OnInit {
       if (!isNaN(d.getTime())) return d.toISOString().substring(0, 10);
     }
     return (answer as string) || '-';
+  }
+
+  async downloadInvoice(): Promise<void> {
+    if (!this.registration || !this.registration.receiptNumber) return;
+
+    const cleanName = (this.registration.subject?.name || '').replace(/[^a-zA-Z0-9 ]/g, '');
+    const cleanEventName = (this.event?.name || '').replace(/[^a-zA-Z0-9 ]/g, '');
+    const bankTransferReason = `${cleanName} ${this.registration.receiptNumber} ${cleanEventName}`;
+
+    const docDefinition: any = {
+      content: [
+        { text: 'ERS INVOICE', style: 'header' },
+        {
+          columns: [
+            {
+              width: '*',
+              text: [
+                { text: 'Bill To:\n', style: 'subheader' },
+                { text: `${this.registration.subject?.name}\n` },
+                { text: `${this.registration.homeAddress || ''}\n` },
+                { text: `${this.registration.subject?.email || ''}` }
+              ]
+            },
+            {
+              width: 'auto',
+              text: [
+                { text: 'Details:\n', style: 'subheader' },
+                { text: `Receipt #: ${this.registration.receiptNumber}\n` },
+                { text: `Date: ${new Date(this.registration.approvedAt || new Date()).toLocaleDateString()}\n` },
+                { text: `Event: ${this.event?.name}` }
+              ]
+            }
+          ]
+        },
+        { text: '\n\n' },
+        {
+          table: {
+            headerRows: 1,
+            widths: ['*', 'auto'],
+            body: [
+              [{ text: 'Description', bold: true }, { text: 'Price', bold: true }],
+              ...this.getInvoiceTableBody()
+            ]
+          },
+          layout: 'lightHorizontalLines'
+        },
+        { text: `Total: ${this.getTotalPrice().toFixed(2)} €`, style: 'totals' },
+        { text: '\n\n' },
+        { text: 'Payment Information', style: 'subheader' },
+        { text: (this.event?.paymentInfo || '').replace(/<[^>]*>?/gm, '') },
+        { text: '\n' },
+        { text: 'Bank Transfer Reason:', style: 'subheader' },
+        { text: bankTransferReason, bold: true, fontSize: 14 }
+      ],
+      styles: {
+        header: { fontSize: 24, bold: true, margin: [0, 0, 0, 20], color: '#de282e' },
+        subheader: { fontSize: 12, bold: true, margin: [0, 10, 0, 5] },
+        totals: { fontSize: 16, bold: true, alignment: 'right', margin: [0, 20, 0, 0] }
+      }
+    };
+
+    pdfMake.createPdf(docDefinition).download(`Invoice_${this.registration.receiptNumber}_${cleanEventName.replace(/ /g, '_')}.pdf`);
+  }
+
+  private getInvoiceTableBody(): any[] {
+    const tableBody = [];
+    const spot = this.event?.spots?.find(s => s.id === this.registration.spotId);
+    if (spot) {
+      tableBody.push([`Spot: ${spot.name}`, `${spot.price.toFixed(2)} €`]);
+    }
+
+    if (this.registration.selectedOptionalTickets?.length) {
+      for (const ticketId of this.registration.selectedOptionalTickets) {
+        const ticket = this.event?.optionalTickets?.find(t => t.id === ticketId);
+        if (ticket) {
+          const desc = ticket.description ? ` (${ticket.description})` : '';
+          tableBody.push([`Ticket: ${ticket.name}${desc}`, `${ticket.price.toFixed(2)} €`]);
+        }
+      }
+    }
+    return tableBody;
   }
 }
