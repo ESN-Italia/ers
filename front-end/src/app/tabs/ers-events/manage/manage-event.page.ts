@@ -127,11 +127,15 @@ export class ManageEventPage implements OnInit {
   exitEditMode(): void {
     if (this.editMode === UXMode.INSERT) this.app.goToInTabs(['ers-events'], { back: true });
     else {
-      this.event = this.entityBeforeChange;
+      this.event.load(this.entityBeforeChange);
       this.errors = new Set<string>();
       this.editMode = UXMode.VIEW;
     }
   }
+
+  trackByQuestionId(_: number, q: EventQuestion): string { return q.id; }
+  trackBySpotId(_: number, s: EventSpot): string { return s.id; }
+  trackByTicketId(_: number, t: EventOptionalTicket): string { return t.id; }
 
   async addSpot(): Promise<void> {
     const doAdd = async ({ name, price, limit }): Promise<void> => {
@@ -285,6 +289,22 @@ export class ManageEventPage implements OnInit {
   removeManagerById(userId: string): void {
     const index = this.event.additionalManagersIds.indexOf(userId);
     if (index !== -1) this.event.additionalManagersIds.splice(index, 1);
+  }
+  
+  getQuestionConditionTooltip(q: EventQuestion): string {
+    if (q.spotIdCondition) {
+      const spot = this.event.spots.find(s => s.id === q.spotIdCondition);
+      return `${this.t._('ERS_EVENTS.CONDITION_DISPLAY_SPOT')}: ${spot?.name || '?'}`;
+    }
+    if (q.optionalTicketIdCondition) {
+      const ticket = this.event.optionalTickets.find(t => t.id === q.optionalTicketIdCondition);
+      return `${this.t._('ERS_EVENTS.CONDITION_DISPLAY_TICKET')}: ${ticket?.name || '?'}`;
+    }
+    if (q.dependsOnQuestionId) {
+      const parent = this.event.questions.find(pq => pq.id === q.dependsOnQuestionId);
+      return `${this.t._('ERS_EVENTS.CONDITION_DISPLAY_QUESTION')}: ${parent?.text || '?'} (${q.dependsOnAnswer})`;
+    }
+    return '';
   }
 
   async deleteEvent(): Promise<void> {

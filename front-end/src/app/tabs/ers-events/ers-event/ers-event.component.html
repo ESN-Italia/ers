@@ -17,7 +17,8 @@
         color="medium">
         {{ 'ERS_EVENTS.REGISTRATION_ENDED' | translate }}
       </ion-badge>
-      <ion-badge *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt <= now && (!event.registrationCloseAt || event.registrationCloseAt >= now)"
+      <ion-badge
+        *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt <= now && (!event.registrationCloseAt || event.registrationCloseAt >= now)"
         color="warning">
         {{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}
       </ion-badge>

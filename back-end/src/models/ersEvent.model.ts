@@ -11,6 +11,7 @@ export enum EventType {
 export class ERSEvent extends Resource {
   eventId: string;
   name: string;
+  location: string;
   description: string;
   startAt: epochISOString;
   endAt: epochISOString;
@@ -34,6 +35,7 @@ export class ERSEvent extends Resource {
     super.load(x);
     this.eventId = this.clean(x.eventId, String);
     this.name = this.clean(x.name, String);
+    this.location = this.clean(x.location, String);
     this.description = this.clean(x.description, String);
     this.startAt = this.clean(x.startAt, d => new Date(d).toISOString());
     this.endAt = this.clean(x.endAt, d => new Date(d).toISOString());
@@ -61,12 +63,12 @@ export class ERSEvent extends Resource {
     if (safeData.updatedAt) this.updatedAt = safeData.updatedAt;
     if (safeData.archivedAt) this.archivedAt = safeData.archivedAt;
     if (safeData.proofsOfPaymentDeleted) this.proofsOfPaymentDeleted = safeData.proofsOfPaymentDeleted;
-    if (safeData.imageURL) this.imageURL = safeData.imageURL;
   }
 
   validate(): string[] {
     const e = super.validate();
     if (this.iE(this.name)) e.push('name');
+    if (this.iE(this.location)) e.push('location');
     if (this.iE(this.type)) e.push('type');
     if (this.iE(this.description)) e.push('description');
     if (this.iE(this.startAt)) e.push('startAt');
@@ -162,7 +164,8 @@ export enum QuestionType {
   TEXT = 'text',
   RADIOBOX = 'radiobox',
   CHECKBOX = 'checkbox',
-  DATE = 'date'
+  DATE = 'date',
+  TIME = 'time'
 }
 
 export class EventQuestion extends Resource {
@@ -174,6 +177,7 @@ export class EventQuestion extends Resource {
   spotIdCondition?: string; // If set, this question is shown only if this spot is selected
   dependsOnQuestionId?: string; // If set, this question depends on another question
   dependsOnAnswer?: string; // The specific answer required for the dependency
+  optionalTicketIdCondition?: string; // If set, this question is shown only if this optional ticket is selected
 
   load(x: any): void {
     super.load(x);
@@ -185,13 +189,14 @@ export class EventQuestion extends Resource {
     this.spotIdCondition = this.clean(x.spotIdCondition, String);
     this.dependsOnQuestionId = this.clean(x.dependsOnQuestionId, String);
     this.dependsOnAnswer = this.clean(x.dependsOnAnswer, String);
+    this.optionalTicketIdCondition = this.clean(x.optionalTicketIdCondition, String);
   }
 
   validate(): string[] {
     const e = [];
     if (this.iE(this.id)) e.push('id');
     if (this.iE(this.text)) e.push('text');
-    if (this.type !== QuestionType.TEXT && this.type !== QuestionType.DATE && (!this.options || this.options.length === 0)) e.push('options');
+    if (this.type !== QuestionType.TEXT && this.type !== QuestionType.DATE && this.type !== QuestionType.TIME && (!this.options || this.options.length === 0)) e.push('options');
     return e;
   }
 }

@@ -21,6 +21,17 @@ import { AppService } from '@app/app.service';
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule],
   selector: 'app-datetime-timezone',
+  styles: [`
+    input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 10px 0;
+      color: inherit;
+      font: inherit;
+      outline: none;
+    }
+  `],
   template: `
     <ion-item [lines]="lines" [color]="color">
       <ion-label position="stacked">{{ label }} <ion-text class="obligatoryDot" *ngIf="obligatory" /></ion-label>
@@ -78,7 +89,7 @@ export class DatetimeWithTimezoneStandaloneComponent implements OnInit, OnChange
   /**
    * The presentation of the field.
    */
-  @Input() presentation: 'date' | 'datetime-local' = 'datetime-local';
+  @Input() presentation: 'date' | 'datetime-local' | 'time' = 'datetime-local';
 
   initialValue: epochISOString;
   minLocalValue: string;
@@ -108,10 +119,17 @@ export class DatetimeWithTimezoneStandaloneComponent implements OnInit, OnChange
 
   utcToZonedTimeString(isoString: epochISOString): string {
     if (!isoString) return '';
-    const format = this.presentation === 'date' ? 'yyyy-MM-dd' : "yyyy-MM-dd'T'HH:mm";
+    let format = "yyyy-MM-dd'T'HH:mm";
+    if (this.presentation === 'date') format = 'yyyy-MM-dd';
+    if (this.presentation === 'time') format = 'HH:mm';
     return formatInTimeZone(isoString, this.timezone, format);
   }
   zonedTimeStringToUTC(dateLocale: string): epochISOString {
-    return zonedTimeToUtc(new Date(dateLocale), this.timezone).toISOString();
+    let dateStr = dateLocale;
+    if (this.presentation === 'time') {
+      const baseDate = this.date ? formatInTimeZone(this.date, this.timezone, 'yyyy-MM-dd') : formatInTimeZone(new Date(), this.timezone, 'yyyy-MM-dd');
+      dateStr = `${baseDate}T${dateLocale}`;
+    }
+    return zonedTimeToUtc(new Date(dateStr), this.timezone).toISOString();
   }
 }

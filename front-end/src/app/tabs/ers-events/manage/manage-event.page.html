@@ -19,6 +19,16 @@
 
     <ion-list-header>
       <ion-label>
+        <h2>{{ 'ERS_EVENTS.EVENT_LOCATION' | translate }}</h2>
+      </ion-label>
+    </ion-list-header>
+
+    <ion-item [class.fieldHasError]="hasFieldAnError('location')">
+      <ion-input [(ngModel)]="event.location" [disabled]="editMode === UXMode.VIEW"></ion-input>
+    </ion-item>
+
+    <ion-list-header>
+      <ion-label>
         <h2>{{ 'ERS_EVENTS.TYPE' | translate }}</h2>
       </ion-label>
     </ion-list-header>
@@ -105,12 +115,12 @@
     <ion-item *ngIf="!event.spots?.length">
       <ion-label class="medium-color">{{ 'COMMON.NO_ELEMENT_FOUND' | translate }}</ion-label>
     </ion-item>
-    <ion-item *ngFor="let spot of event.spots">
+    <ion-item *ngFor="let spot of event.spots; trackBy: trackBySpotId">
       <ion-label>
         <h3>{{ spot.name }}</h3>
         <p>{{ 'ERS_EVENTS.SPOT_LIMIT' | translate }}: {{ spot.limit }} | {{
           'ERS_EVENTS.PRICE' | translate }}: {{
-          spot.price }}</p>
+          spot.price | currency:'EUR' }}</p>
       </ion-label>
       <ion-button fill="clear" color="danger" slot="end" *ngIf="editMode !== UXMode.VIEW" (click)="removeSpot(spot)">
         <ion-icon name="trash" slot="icon-only"></ion-icon>
@@ -128,11 +138,11 @@
     <ion-item *ngIf="!event.optionalTickets?.length">
       <ion-label class="medium-color">{{ 'COMMON.NO_ELEMENT_FOUND' | translate }}</ion-label>
     </ion-item>
-    <ion-item *ngFor="let ticket of event.optionalTickets">
+    <ion-item *ngFor="let ticket of event.optionalTickets; trackBy: trackByTicketId">
       <ion-label>
         <h3>{{ ticket.name }}</h3>
         <p *ngIf="ticket.description">{{ ticket.description }}</p>
-        <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price }}</p>
+        <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price | currency:'EUR' }}</p>
       </ion-label>
       <ion-button fill="clear" color="danger" slot="end" *ngIf="editMode !== UXMode.VIEW"
         (click)="removeOptionalTicket(ticket)">
@@ -150,11 +160,12 @@
     <ion-item *ngIf="!event.questions?.length">
       <ion-label class="medium-color">{{ 'COMMON.NO_ELEMENT_FOUND' | translate }}</ion-label>
     </ion-item>
-    <ion-item *ngFor="let question of event.questions">
+    <ion-item *ngFor="let question of event.questions; trackBy: trackByQuestionId">
       <ion-label>
         <h3>
           {{ question.text }}
-          <ion-icon *ngIf="question.spotIdCondition || question.dependsOnQuestionId" name="link-outline" color="primary"></ion-icon>
+          <ion-icon *ngIf="question.spotIdCondition || question.dependsOnQuestionId || question.optionalTicketIdCondition" 
+            name="link-outline" color="primary" [title]="getQuestionConditionTooltip(question)"></ion-icon>
         </h3>
         <p>
           {{ ('ERS_EVENTS.' + question.type.toUpperCase()) | translate }}
@@ -170,6 +181,10 @@
         <p *ngIf="question.dependsOnQuestionId" class="small-color">
           <ion-icon name="link-outline"></ion-icon>
           {{ 'ERS_EVENTS.CONDITION_DISPLAY_QUESTION' | translate }}: <i>{{ event.questions | findById:question.dependsOnQuestionId:'text' }}</i> ({{ question.dependsOnAnswer }})
+        </p>
+        <p *ngIf="question.optionalTicketIdCondition" class="small-color">
+          <ion-icon name="ticket-outline"></ion-icon>
+          {{ 'ERS_EVENTS.CONDITION_DISPLAY_TICKET' | translate }}: {{ event.optionalTickets | findById:question.optionalTicketIdCondition:'name' }}
         </p>
       </ion-label>
       <ion-button fill="clear" slot="end" *ngIf="editMode !== UXMode.VIEW"

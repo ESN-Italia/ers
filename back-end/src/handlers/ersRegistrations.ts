@@ -5,7 +5,7 @@
 import { DynamoDB, HandledError, ResourceController, S3, SES } from 'idea-aws';
 
 import { ERSEvent } from '../models/ersEvent.model';
-import { ERSRegistration, Receipt, RegistrationStatus } from '../models/ersRegistration.model';
+import { ERSRegistration, ProofOfPayment, RegistrationStatus } from '../models/ersRegistration.model';
 import { Subject } from '../models/subject.model';
 import { User } from '../models/user.model';
 
@@ -157,9 +157,9 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   protected async patchResource(): Promise<ERSRegistration> {
-    if (this.body.action === 'receipt-upload-url') return await this.getReceiptUploadUrl();
-    if (this.body.action === 'GET_RECEIPT_DOWNLOAD_URL') return await this.getReceiptDownloadUrl();
-    if (this.body.action === 'SUBMIT_RECEIPT') return await this.submitReceipt();
+    if (this.body.action === 'GET_PROOF_OF_PAYMENT_UPLOAD_URL') return await this.getProofOfPaymentUploadUrl();
+    if (this.body.action === 'GET_PROOF_OF_PAYMENT_DOWNLOAD_URL') return await this.getProofOfPaymentDownloadUrl();
+    if (this.body.action === 'SUBMIT_PROOF_OF_PAYMENT') return await this.submitProofOfPayment();
 
     if (!this.managedEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
 
@@ -167,7 +167,7 @@ class ERSRegistrationsRC extends ResourceController {
       case 'APPROVE': return await this.updateStatus(RegistrationStatus.APPROVED, 'REGISTRATION_APPROVED');
       case 'REJECT': return await this.updateStatus(RegistrationStatus.REJECTED, 'REGISTRATION_REJECTED');
       case 'CONFIRM_PAYMENT': return await this.updateStatus(RegistrationStatus.CONFIRMED, 'PAYMENT_CONFIRMED');
-      case 'DELETE_RECEIPT': return await this.deleteReceipt();
+      case 'DELETE_PROOF_OF_PAYMENT': return await this.deleteProofOfPayment();
       case 'SET_STATUS': return await this.setStatus(this.body.status);
       default: throw new HandledError('Unsupported action');
     }
@@ -178,12 +178,12 @@ class ERSRegistrationsRC extends ResourceController {
       throw new HandledError('Unauthorized');
     }
 
-    // Optional: Delete receipt from S3 if it exists
-    if (this.registration.receipt?.key) {
+    // Optional: Delete proof of payment from S3 if it exists
+    if (this.registration.proofOfPayment?.key) {
       try {
         await s3.deleteObject({
           bucket: S3_BUCKET_MEDIA,
-          key: this.registration.receipt.key
+          key: this.registration.proofOfPayment.key
         });
       } catch (err) {
         console.error('Failed to delete S3 resource on registration delete', err);
@@ -224,9 +224,9 @@ class ERSRegistrationsRC extends ResourceController {
       }
     }
 
-    if (status === RegistrationStatus.APPROVED && this.registration.receiptNumber === undefined) {
+    if (status === RegistrationStatus.APPROVED && this.registration.invoiceNumber === undefined) {
       this.managedEvent.receiptsCounter = (this.managedEvent.receiptsCounter || 0) + 1;
-      this.registration.receiptNumber = this.managedEvent.receiptsCounter;
+      this.registration.invoiceNumber = this.managedEvent.receiptsCounter;
       this.registration.approvedAt = new Date().toISOString();
       await ddb.put({ TableName: DDB_TABLES.events, Item: this.managedEvent });
     }
@@ -248,44 +248,46 @@ class ERSRegistrationsRC extends ResourceController {
     return this.registration;
   }
 
-  private async getReceiptUploadUrl(): Promise<any> {
+  private async getProofOfPaymentUploadUrl(): Promise<any> {
     if (this.registration.userId !== this.galaxyUser.userId) throw new HandledError('Unauthorized');
-    if (this.registration.status !== RegistrationStatus.APPROVED) throw new HandledError('Cannot upload receipt in this status');
+    if (this.registration.status !== RegistrationStatus.APPROVED) throw new HandledError('Cannot upload proof of payment in this status');
 
     const extension = this.body.extension ? `.${this.body.extension}` : '';
-    const key = `${S3_ATTACHMENTS_FOLDER}/events/${this.managedEvent.eventId}/receipts/${this.registration.registrationId}/${Date.now()}_receipt${extension}`;
+    const key = `${S3_ATTACHMENTS_FOLDER}/events/${this.managedEvent.eventId}/proof-of-payments/${this.registration.registrationId}/${Date.now()}_proof_of_payment${extension}`;
     const url = await s3.signedURLPut(S3_BUCKET_MEDIA, key);
     return { url: url.url, key };
   }
 
-  private async getReceiptDownloadUrl(): Promise<any> {
+  private async getProofOfPaymentDownloadUrl(): Promise<any> {
     if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
       throw new HandledError('Unauthorized');
     }
 
-    if (!this.registration.receipt?.key) throw new HandledError('No receipt found');
+    if (!this.registration.proofOfPayment?.key) throw new HandledError('No proof of payment found');
 
-    const extensionMatch = this.registration.receipt.key.match(/\.[0-9a-z]+$/i);
+    const extensionMatch = this.registration.proofOfPayment.key.match(/\.[0-9a-z]+$/i);
     const extension = extensionMatch ? extensionMatch[0] : '';
-    const filename = `${this.registration.subject.name.replace(/\s+/g, '_')}_receipt${extension}`;
-    return await s3.signedURLGet(S3_BUCKET_MEDIA, this.registration.receipt.key, { filename });
+    const filename = `${this.registration.subject.name.replace(/\s+/g, '_')}_proof_of_payment${extension}`;
+    return await s3.signedURLGet(S3_BUCKET_MEDIA, this.registration.proofOfPayment.key, { filename });
   }
 
-  private async submitReceipt(): Promise<ERSRegistration> {
+  private async submitProofOfPayment(): Promise<ERSRegistration> {
     if (this.registration.userId !== this.galaxyUser.userId) throw new HandledError('Unauthorized');
-    if (!this.body.receiptKey) throw new HandledError('Missing receipt key');
+    if (!this.body.proofOfPaymentKey) throw new HandledError('Missing proof of payment key');
+
+    const key = this.body.proofOfPaymentKey;
 
     // Verify existence in S3
     const exists = await s3.doesObjectExist({
       bucket: S3_BUCKET_MEDIA,
-      key: this.body.receiptKey
+      key
     });
-    if (!exists) throw new HandledError('Receipt file not found in storage');
+    if (!exists) throw new HandledError('Proof of payment file not found in storage');
 
     this.registration.status = RegistrationStatus.PAID;
     this.registration.updatedAt = new Date().toISOString();
-    this.registration.receipt = new Receipt({
-      key: this.body.receiptKey,
+    this.registration.proofOfPayment = new ProofOfPayment({
+      key,
       uploadedAt: new Date().toISOString()
     });
 
@@ -293,18 +295,18 @@ class ERSRegistrationsRC extends ResourceController {
     return this.registration;
   }
 
-  private async deleteReceipt(): Promise<ERSRegistration> {
+  private async deleteProofOfPayment(): Promise<ERSRegistration> {
     if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
       throw new HandledError('Unauthorized');
     }
 
-    if (!this.registration.receipt?.key) throw new HandledError('No receipt to delete');
+    if (!this.registration.proofOfPayment?.key) throw new HandledError('No proof of payment to delete');
 
     // Delete from S3
     try {
       await s3.deleteObject({
         bucket: S3_BUCKET_MEDIA,
-        key: this.registration.receipt.key
+        key: this.registration.proofOfPayment.key
       });
     } catch (err) {
       console.error('Failed to delete S3 resource', err);
@@ -312,7 +314,7 @@ class ERSRegistrationsRC extends ResourceController {
     }
 
     // Reset registration state
-    delete this.registration.receipt;
+    delete this.registration.proofOfPayment;
     this.registration.status = RegistrationStatus.APPROVED;
     this.registration.updatedAt = new Date().toISOString();
 

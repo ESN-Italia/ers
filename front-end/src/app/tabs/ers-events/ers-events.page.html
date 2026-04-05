@@ -52,18 +52,20 @@
     <ion-spinner></ion-spinner>
   </div>
 
-  <ion-list class="aList" *ngIf="events?.length > 0">
+  <div *ngIf="filteredEvents?.length === 0" class="ion-text-center ion-padding">
+    <p>{{ 'COMMON.NO_ELEMENT_FOUND' | translate }}</p>
+  </div>
+
+  <ion-list class="aList" *ngIf="filteredEvents?.length > 0">
     <!-- Mobile View -->
     <ng-container *ngIf="app.isInMobileMode()">
-      <app-ers-event *ngIf="!events" />
       <app-ers-event *ngFor="let event of filteredEvents" [event]="event" (select)="openEvent(event)"
         (viewRegs)="viewRegistrations(event, $event)" />
     </ng-container>
 
     <!-- Desktop View -->
     <ion-grid *ngIf="!app.isInMobileMode()">
-      <app-ers-event *ngIf="!events" [row]="true" />
-      <app-ers-event *ngIf="events?.length" [row]="true" [header]="true" />
+      <app-ers-event [row]="true" [header]="true" />
       <app-ers-event *ngFor="let event of filteredEvents" [event]="event" [row]="true" (select)="openEvent(event)"
         (viewRegs)="viewRegistrations(event, $event)" />
       <div *ngIf="filteredEvents?.length === 0" class="ion-text-center ion-padding">

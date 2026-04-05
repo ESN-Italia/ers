@@ -23,6 +23,8 @@ export class RegistrationFormPage implements OnInit {
 
   privacyPolicyAccepted = false;
   codeOfConductAccepted = false;
+  errors = new Set<string>();
+  now = new Date().toISOString();
 
   constructor(
     private route: ActivatedRoute,
@@ -82,12 +84,14 @@ export class RegistrationFormPage implements OnInit {
   }
 
   async submit(): Promise<void> {
-    if (!this.privacyPolicyAccepted) return this.message.error('ERS_EVENTS.PRIVACY_POLICY_REQUIRED');
-    if (!this.codeOfConductAccepted) return this.message.error('ERS_EVENTS.CODE_OF_CONDUCT_REQUIRED');
-
     // Validate
-    const errors = this.registration.validate(this.event);
-    if (errors.length) return this.message.error('COMMON.FORM_HAS_ERROR_TO_CHECK');
+    this.errors = new Set(this.registration.validate(this.event));
+    if (!this.privacyPolicyAccepted) this.errors.add('privacyPolicyAccepted');
+    if (!this.codeOfConductAccepted) this.errors.add('codeOfConductAccepted');
+
+    if (this.errors.size) {
+      return this.message.error('COMMON.FORM_HAS_ERROR_TO_CHECK');
+    }
 
     try {
       await this.loading.show();
@@ -103,6 +107,10 @@ export class RegistrationFormPage implements OnInit {
     } finally {
       this.loading.hide();
     }
+  }
+
+  hasFieldAnError(field: string): boolean {
+    return this.errors.has(field) || this.errors.has(field + ' > now') || this.errors.has(field + ' < now');
   }
 
   isCheckboxChecked(questionId: string, option: string): boolean {
@@ -165,5 +173,9 @@ export class RegistrationFormPage implements OnInit {
       delete this.registration.answers[q.id];
     }
     return show;
+  }
+
+  get hasVisibleQuestions(): boolean {
+    return this.event?.questions?.some(q => this.shouldShowQuestion(q)) || false;
   }
 }

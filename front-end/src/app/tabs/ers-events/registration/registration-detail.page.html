@@ -38,9 +38,9 @@
                 <p><strong>{{ 'ERS_EVENTS.SPOT' | translate }}:</strong> {{ getSpotName() }}</p>
                 <p *ngIf="registration.selectedOptionalTickets?.length"><strong>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' |
                     translate }}:</strong> {{ getOptionalTicketsNames() }}</p>
-                <p><strong>{{ 'ERS_EVENTS.TOTAL_PRICE' | translate }}:</strong> {{ getTotalPrice() }}</p>
+                <p><strong>{{ 'ERS_EVENTS.TOTAL_PRICE' | translate }}:</strong> {{ getTotalPrice() | currency:'EUR' }}</p>
 
-                <ion-button *ngIf="registration.receiptNumber" expand="block" fill="outline" color="ESNorange"
+                <ion-button *ngIf="registration.invoiceNumber" expand="block" fill="outline" color="ESNorange"
                   class="ion-margin-top" (click)="downloadInvoice()">
                   <ion-icon name="download-outline" slot="start"></ion-icon>
                   {{ 'ERS_EVENTS.DOWNLOAD_INVOICE' | translate }}
@@ -69,25 +69,25 @@
                     <ion-icon name="cloud-upload" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.UPLOAD_PAYMENT_PROOF' | translate }}
                   </ion-button>
-                  <input #fileInput type="file" (change)="uploadReceipt($event)" style="display: none"
+                  <input #fileInput type="file" (change)="uploadProofOfPayment($event)" style="display: none"
                     accept="application/pdf,image/*">
                 </div>
 
                 <div class="ion-margin-top">
-                  <p *ngIf="registration.status === RegistrationStatus.PAID">{{ 'ERS_EVENTS.RECEIPT_UPLOADED_WAITING' |
+                  <p *ngIf="registration.status === RegistrationStatus.PAID">{{ 'ERS_EVENTS.PROOF_OF_PAYMENT_UPLOADED_WAITING' |
                     translate }}</p>
-                  <div *ngIf="registration.receipt">
+                  <div *ngIf="registration.proofOfPayment">
                     <p>
-                      <a (click)="viewReceipt()" class="ion-activatable"
+                      <a (click)="viewProofOfPayment()" class="ion-activatable"
                         style="cursor: pointer; text-decoration: underline; color: var(--ion-color-primary);">
-                        {{ 'ERS_EVENTS.VIEW_RECEIPT' | translate }}
+                        {{ 'ERS_EVENTS.VIEW_PROOF_OF_PAYMENT' | translate }}
                       </a>
                     </p>
                     <ion-button
                       *ngIf="registration.status !== RegistrationStatus.CONFIRMED && (isMyRegistration() || event.canUserManage(app.user))"
-                      fill="clear" color="danger" size="small" (click)="deleteReceipt()">
+                      fill="clear" color="danger" size="small" (click)="deleteProofOfPayment()">
                       <ion-icon name="trash-outline" slot="start"></ion-icon>
-                      {{ 'ERS_EVENTS.DELETE_RECEIPT' | translate }}
+                      {{ 'ERS_EVENTS.DELETE_PROOF_OF_PAYMENT' | translate }}
                     </ion-button>
                   </div>
                 </div>

@@ -20,7 +20,7 @@ export class QuestionEditorComponent implements OnInit {
   localQuestion: EventQuestion;
   isEdit = false;
   optionsString = '';
-  conditionType: 'none' | 'spot' | 'question' = 'none';
+  conditionType: 'none' | 'spot' | 'question' | 'ticket' = 'none';
 
   QuestionType = QuestionType;
 
@@ -37,6 +37,8 @@ export class QuestionEditorComponent implements OnInit {
         this.conditionType = 'spot';
       } else if (this.localQuestion.dependsOnQuestionId) {
         this.conditionType = 'question';
+      } else if (this.localQuestion.optionalTicketIdCondition) {
+        this.conditionType = 'ticket';
       }
     } else {
       this.localQuestion = new EventQuestion({
@@ -64,6 +66,7 @@ export class QuestionEditorComponent implements OnInit {
       this.localQuestion.dependsOnQuestionId = undefined;
       this.localQuestion.dependsOnAnswer = undefined;
     }
+    if (this.conditionType !== 'ticket') this.localQuestion.optionalTicketIdCondition = undefined;
   }
 
   get availableParentQuestions(): EventQuestion[] {
@@ -93,6 +96,7 @@ export class QuestionEditorComponent implements OnInit {
     
     if (this.conditionType === 'spot' && !this.localQuestion.spotIdCondition) return false;
     if (this.conditionType === 'question' && (!this.localQuestion.dependsOnQuestionId || !this.localQuestion.dependsOnAnswer)) return false;
+    if (this.conditionType === 'ticket' && !this.localQuestion.optionalTicketIdCondition) return false;
 
     return true;
   }

@@ -130,29 +130,29 @@ export class ERSEventsService {
   }
 
   /**
-   * Get receipt upload URL.
+   * Get proof of payment upload URL.
    */
-  async getReceiptUploadUrl(eventId: string, registrationId: string, extension?: string): Promise<SignedURL> {
+  async getProofOfPaymentUploadUrl(eventId: string, registrationId: string, extension?: string): Promise<SignedURL> {
     return await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
-      body: { action: 'receipt-upload-url', extension }
+      body: { action: 'GET_PROOF_OF_PAYMENT_UPLOAD_URL', extension }
     });
   }
 
   /**
-   * Submit receipt (notify backend after upload).
+   * Submit proof of payment (notify backend after upload).
    */
-  async submitReceipt(eventId: string, registrationId: string, receiptKey: string): Promise<void> {
+  async submitProofOfPayment(eventId: string, registrationId: string, proofOfPaymentKey: string): Promise<void> {
     await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
-      body: { action: 'SUBMIT_RECEIPT', receiptKey }
+      body: { action: 'SUBMIT_PROOF_OF_PAYMENT', proofOfPaymentKey }
     });
   }
 
   /**
-   * Get receipt download URL.
+   * Get proof of payment download URL.
    */
-  async getReceiptDownloadUrl(eventId: string, registrationId: string): Promise<SignedURL> {
+  async getProofOfPaymentDownloadUrl(eventId: string, registrationId: string): Promise<SignedURL> {
     return await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
-      body: { action: 'GET_RECEIPT_DOWNLOAD_URL' }
+      body: { action: 'GET_PROOF_OF_PAYMENT_DOWNLOAD_URL' }
     });
   }
 
@@ -166,11 +166,11 @@ export class ERSEventsService {
   }
 
   /**
-   * Delete receipt.
+   * Delete proof of payment.
    */
-  async deleteReceipt(eventId: string, registrationId: string): Promise<void> {
+  async deleteProofOfPayment(eventId: string, registrationId: string): Promise<void> {
     await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
-      body: { action: 'DELETE_RECEIPT' }
+      body: { action: 'DELETE_PROOF_OF_PAYMENT' }
     });
   }
 

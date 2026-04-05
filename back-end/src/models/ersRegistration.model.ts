@@ -1,7 +1,6 @@
 import { epochISOString, Resource } from 'idea-toolbox';
 
 import { ERSEvent } from './ersEvent.model';
-import { User } from './user.model';
 import { Subject } from './subject.model';
 
 export enum RegistrationStatus {
@@ -12,7 +11,7 @@ export enum RegistrationStatus {
   REJECTED = "REJECTED"
 }
 
-export class Receipt extends Resource {
+export class ProofOfPayment extends Resource {
   key: string;
   uploadedAt: epochISOString;
 
@@ -47,8 +46,8 @@ export class ERSRegistration extends Resource {
   selectedOptionalTickets: string[];
   answers: { [questionId: string]: string | string[] };
   status: RegistrationStatus;
-  receipt?: Receipt;
-  receiptNumber?: number;
+  proofOfPayment?: ProofOfPayment;
+  invoiceNumber?: number;
   approvedAt?: epochISOString;
   createdAt: epochISOString;
   updatedAt?: epochISOString;
@@ -80,8 +79,8 @@ export class ERSRegistration extends Resource {
     this.selectedOptionalTickets = this.cleanArray(x.selectedOptionalTickets, String);
     this.answers = this.clean(x.answers, Object, {});
     this.status = this.clean(x.status, String, RegistrationStatus.PENDING) as RegistrationStatus;
-    this.receipt = this.clean(x.receipt, r => new Receipt(r));
-    if (x.receiptNumber !== undefined) this.receiptNumber = this.clean(x.receiptNumber, Number);
+    this.proofOfPayment = this.clean(x.proofOfPayment || x.receipt, r => new ProofOfPayment(r));
+    if (x.invoiceNumber !== undefined) this.invoiceNumber = this.clean(x.invoiceNumber, Number);
     if (x.approvedAt) this.approvedAt = this.clean(x.approvedAt, d => new Date(d).toISOString());
     this.createdAt = this.clean(x.createdAt, d => new Date(d).toISOString(), new Date().toISOString());
     if (x.updatedAt) this.updatedAt = this.clean(x.updatedAt, d => new Date(d).toISOString());
@@ -97,8 +96,8 @@ export class ERSRegistration extends Resource {
     this.status = safeData.status;
     this.subject = safeData.subject;
 
-    if (safeData.receipt) this.receipt = safeData.receipt;
-    if (safeData.receiptNumber !== undefined) this.receiptNumber = safeData.receiptNumber;
+    if (safeData.proofOfPayment) this.proofOfPayment = safeData.proofOfPayment;
+    if (safeData.invoiceNumber !== undefined) this.invoiceNumber = safeData.invoiceNumber;
     if (safeData.approvedAt) this.approvedAt = safeData.approvedAt;
     if (safeData.selectedOptionalTickets) this.selectedOptionalTickets = safeData.selectedOptionalTickets;
     if (safeData.updatedAt) this.updatedAt = safeData.updatedAt;
@@ -116,6 +115,10 @@ export class ERSRegistration extends Resource {
     if (this.iE(this.identityCard?.issuedDate)) e.push('identityCard.issuedDate');
     if (this.iE(this.identityCard?.issuedBy)) e.push('identityCard.issuedBy');
     if (this.iE(this.identityCard?.validUntil)) e.push('identityCard.validUntil');
+
+    const now = new Date().toISOString();
+    if (this.identityCard?.issuedDate && this.identityCard.issuedDate > now) e.push('identityCard.issuedDate > now');
+    if (this.identityCard?.validUntil && this.identityCard.validUntil < now) e.push('identityCard.validUntil < now');
     if (this.iE(this.esnCardNumber)) e.push('esnCardNumber');
     if (this.iE(this.homeAddress)) e.push('homeAddress');
     if (this.iE(this.foodAllergies)) e.push('foodAllergies');
@@ -151,6 +154,7 @@ export class ERSRegistration extends Resource {
 
   shouldShowQuestion(q: any, event: ERSEvent): boolean {
     if (q.spotIdCondition && this.spotId !== q.spotIdCondition) return false;
+    if (q.optionalTicketIdCondition && !this.selectedOptionalTickets?.includes(q.optionalTicketIdCondition)) return false;
     if (q.dependsOnQuestionId) {
       const parentAnswer = this.answers[q.dependsOnQuestionId];
       if (Array.isArray(parentAnswer)) {

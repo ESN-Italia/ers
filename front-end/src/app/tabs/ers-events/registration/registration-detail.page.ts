@@ -8,6 +8,7 @@ import { ERSEventsService } from '../ers-events.service';
 import { EditStatusComponent } from './edit-status.component';
 import { ERSEvent, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
+import { formatInTimeZone } from 'date-fns-tz';
 
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -70,7 +71,7 @@ export class RegistrationDetailPage implements OnInit {
     }
   }
 
-  async uploadReceipt(event: any): Promise<void> {
+  async uploadProofOfPayment(event: any): Promise<void> {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -78,7 +79,7 @@ export class RegistrationDetailPage implements OnInit {
       await this.loading.show();
       // Get presigned URL
       const extension = file.name.split('.').pop();
-      const signedUrl: any = await this.service.getReceiptUploadUrl(this.eventId, this.registration.registrationId, extension);
+      const signedUrl: any = await this.service.getProofOfPaymentUploadUrl(this.eventId, this.registration.registrationId, extension);
 
       // Upload
       const response = await fetch(signedUrl.url, {
@@ -90,7 +91,7 @@ export class RegistrationDetailPage implements OnInit {
       if (!response.ok) throw new Error('Upload failed');
 
       // Notify backend
-      await this.service.submitReceipt(this.eventId, this.registration.registrationId, signedUrl.key);
+      await this.service.submitProofOfPayment(this.eventId, this.registration.registrationId, signedUrl.key);
 
       this.message.success('COMMON.OPERATION_COMPLETED');
       await this.loadData(false); // reload status
@@ -101,7 +102,7 @@ export class RegistrationDetailPage implements OnInit {
     }
   }
 
-  async deleteReceipt(): Promise<void> {
+  async deleteProofOfPayment(): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: this.t._('COMMON.ARE_YOU_SURE'),
       buttons: [
@@ -111,7 +112,7 @@ export class RegistrationDetailPage implements OnInit {
           handler: async () => {
             try {
               await this.loading.show();
-              await this.service.deleteReceipt(this.eventId, this.registration.registrationId);
+              await this.service.deleteProofOfPayment(this.eventId, this.registration.registrationId);
               await this.loadData(false);
               this.message.success('COMMON.OPERATION_COMPLETED');
             } catch (err) {
@@ -126,10 +127,10 @@ export class RegistrationDetailPage implements OnInit {
     await alert.present();
   }
 
-  async viewReceipt(): Promise<void> {
+  async viewProofOfPayment(): Promise<void> {
     try {
       await this.loading.show();
-      const signedUrl = await this.service.getReceiptDownloadUrl(this.eventId, this.registration.registrationId);
+      const signedUrl = await this.service.getProofOfPaymentDownloadUrl(this.eventId, this.registration.registrationId);
       window.open(signedUrl.url, '_blank');
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
@@ -275,6 +276,10 @@ export class RegistrationDetailPage implements OnInit {
       const d = new Date(answer as string);
       if (!isNaN(d.getTime())) return d.toISOString().substring(0, 10);
     }
+    if (answer && this.event?.questions?.find(q => q.id === questionId)?.type === QuestionType.TIME) {
+      const d = new Date(answer as string);
+      if (!isNaN(d.getTime())) return formatInTimeZone(answer as string, this.event.timezone, 'HH:mm');
+    }
     return (answer as string) || '-';
   }
 
@@ -284,11 +289,11 @@ export class RegistrationDetailPage implements OnInit {
   }
 
   async downloadInvoice(): Promise<void> {
-    if (!this.registration || !this.registration.receiptNumber) return;
+    if (!this.registration || !this.registration.invoiceNumber) return;
 
     const cleanName = (this.registration.subject?.name || '').replace(/[^a-zA-Z0-9 ]/g, '');
     const cleanEventName = (this.event?.name || '').replace(/[^a-zA-Z0-9 ]/g, '');
-    const bankTransferReason = `${cleanName} ${this.registration.receiptNumber} ${cleanEventName}`;
+    const bankTransferReason = `${cleanName} ${this.registration.invoiceNumber} ${cleanEventName}`;
 
     const docDefinition: any = {
       content: [
@@ -308,7 +313,7 @@ export class RegistrationDetailPage implements OnInit {
               width: 'auto',
               text: [
                 { text: 'Details:\n', style: 'subheader' },
-                { text: `Receipt #: ${this.registration.receiptNumber}\n` },
+                { text: `Invoice #: ${this.registration.invoiceNumber}\n` },
                 { text: `Date: ${new Date(this.registration.approvedAt || new Date()).toLocaleDateString()}\n` },
                 { text: `Event: ${this.event?.name}` }
               ]
@@ -342,7 +347,7 @@ export class RegistrationDetailPage implements OnInit {
       }
     };
 
-    pdfMake.createPdf(docDefinition).download(`Invoice_${this.registration.receiptNumber}_${cleanEventName.replace(/ /g, '_')}.pdf`);
+    pdfMake.createPdf(docDefinition).download(`Invoice_${this.registration.invoiceNumber}_${cleanEventName.replace(/ /g, '_')}.pdf`);
   }
 
   private getInvoiceTableBody(): any[] {

@@ -21,7 +21,7 @@
     <ion-item>
       <ion-label position="stacked">{{ 'ERS_EVENTS.QUESTION_TEXT' | translate }}</ion-label>
       <ion-input [(ngModel)]="localQuestion.text" type="text"
-        placeholder="e.g. Do you have any dietary restrictions?"></ion-input>
+        placeholder="{{ 'ERS_EVENTS.CUSTOM_QUESTION_PLACEHOLDER' | translate }}"></ion-input>
     </ion-item>
 
     <ion-item>
@@ -31,13 +31,14 @@
         <ion-select-option [value]="QuestionType.RADIOBOX">{{ 'ERS_EVENTS.RADIOBOX' | translate }}</ion-select-option>
         <ion-select-option [value]="QuestionType.CHECKBOX">{{ 'ERS_EVENTS.CHECKBOX' | translate }}</ion-select-option>
         <ion-select-option [value]="QuestionType.DATE">{{ 'ERS_EVENTS.DATE' | translate }}</ion-select-option>
+        <ion-select-option [value]="QuestionType.TIME">{{ 'ERS_EVENTS.TIME' | translate }}</ion-select-option>
       </ion-select>
     </ion-item>
 
     <ion-item *ngIf="showOptions">
       <ion-label position="stacked">{{ 'ERS_EVENTS.OPTIONS_COMMA_SEP' | translate }}</ion-label>
       <ion-input [ngModel]="optionsString" (ngModelChange)="updateOptions($event)" type="text"
-        placeholder="Option 1, Option 2, Option 3"></ion-input>
+        placeholder="{{ 'ERS_EVENTS.OPTIONS_PLACEHOLDER' | translate }}"></ion-input>
     </ion-item>
 
     <ion-item>
@@ -55,6 +56,7 @@
         <ion-select-option value="none">{{ 'ERS_EVENTS.CONDITION_TYPE_NONE' | translate }}</ion-select-option>
         <ion-select-option value="spot">{{ 'ERS_EVENTS.CONDITION_TYPE_SPOT' | translate }}</ion-select-option>
         <ion-select-option value="question">{{ 'ERS_EVENTS.CONDITION_TYPE_QUESTION' | translate }}</ion-select-option>
+        <ion-select-option value="ticket">{{ 'ERS_EVENTS.CONDITION_TYPE_TICKET' | translate }}</ion-select-option>
       </ion-select>
     </ion-item>
 
@@ -64,6 +66,16 @@
       <ion-select [(ngModel)]="localQuestion.spotIdCondition">
         <ion-select-option *ngFor="let spot of event.spots" [value]="spot.id">
           {{ spot.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Ticket Condition Settings -->
+    <ion-item *ngIf="conditionType === 'ticket'">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.SELECT_TICKET' | translate }}</ion-label>
+      <ion-select [(ngModel)]="localQuestion.optionalTicketIdCondition">
+        <ion-select-option *ngFor="let ticket of event.optionalTickets" [value]="ticket.id">
+          {{ ticket.name }}
         </ion-select-option>
       </ion-select>
     </ion-item>

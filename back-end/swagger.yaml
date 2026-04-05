@@ -631,10 +631,10 @@ paths:
               properties:
                 action:
                   type: string
-                  enum: [APPROVE, REJECT, CONFIRM_PAYMENT, receipt-upload-url, SUBMIT_RECEIPT]
-                receiptKey:
+                  enum: [APPROVE, REJECT, CONFIRM_PAYMENT, GET_PROOF_OF_PAYMENT_UPLOAD_URL, SUBMIT_PROOF_OF_PAYMENT]
+                proofOfPaymentKey:
                   type: string
-                  description: (SUBMIT_RECEIPT)
+                  description: (SUBMIT_PROOF_OF_PAYMENT)
       responses:
         200:
           $ref: '#/components/responses/OperationCompleted'
