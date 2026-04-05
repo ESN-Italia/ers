@@ -291,7 +291,7 @@ export class ManageEventPage implements OnInit {
     if (index !== -1) this.event.additionalManagersIds.splice(index, 1);
   }
   
-  getQuestionConditionTooltip(q: EventQuestion): string {
+  getQuestionConditionInfo(q: EventQuestion): string {
     if (q.spotIdCondition) {
       const spot = this.event.spots.find(s => s.id === q.spotIdCondition);
       return `${this.t._('ERS_EVENTS.CONDITION_DISPLAY_SPOT')}: ${spot?.name || '?'}`;
