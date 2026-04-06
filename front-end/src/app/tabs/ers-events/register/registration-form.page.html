@@ -88,8 +88,7 @@
         [placeholder]="'ERS_EVENTS.ESNCARD_NUMBER_PLACEHOLDER' | translate"></ion-input>
     </ion-item>
     <ion-item [class.fieldHasError]="hasFieldAnError('foodAllergies')">
-      <ion-label position="stacked">{{ 'ERS_EVENTS.FOOD_ALLERGIES' | translate }} <span
-          class="obligatoryDot">*</span></ion-label>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.FOOD_ALLERGIES' | translate }}</ion-label>
       <ion-input type="text" [(ngModel)]="registration.foodAllergies"
         [placeholder]="'ERS_EVENTS.FOOD_ALLERGIES_PLACEHOLDER' | translate"></ion-input>
     </ion-item>

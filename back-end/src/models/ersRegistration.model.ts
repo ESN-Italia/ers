@@ -36,7 +36,7 @@ export class ERSRegistration extends Resource {
   };
   esnCardNumber: string;
   homeAddress: string;
-  foodAllergies: string;
+  foodAllergies?: string;
   emergencyContact: {
     name: string;
     phone: string;
@@ -121,7 +121,6 @@ export class ERSRegistration extends Resource {
     if (this.identityCard?.validUntil && this.identityCard.validUntil < now) e.push('identityCard.validUntil < now');
     if (this.iE(this.esnCardNumber)) e.push('esnCardNumber');
     if (this.iE(this.homeAddress)) e.push('homeAddress');
-    if (this.iE(this.foodAllergies)) e.push('foodAllergies');
     if (this.iE(this.emergencyContact?.name)) e.push('emergencyContact.name');
     if (this.iE(this.emergencyContact?.phone)) e.push('emergencyContact.phone');
     if (this.iE(this.emergencyContact?.spokenLanguages)) e.push('emergencyContact.spokenLanguages');
