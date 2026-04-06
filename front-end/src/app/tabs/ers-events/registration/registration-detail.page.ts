@@ -14,6 +14,8 @@ import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 (pdfMake as any).vfs = pdfFonts && (pdfFonts as any).pdfMake ? (pdfFonts as any).pdfMake.vfs : (pdfFonts as any).vfs;
 
+import htmlToPdfmake from 'html-to-pdfmake';
+
 @Component({
   selector: 'app-registration-detail',
   templateUrl: './registration-detail.page.html',
@@ -339,7 +341,7 @@ export class RegistrationDetailPage implements OnInit {
         { text: `Total: ${this.getTotalPrice().toFixed(2)} €`, style: 'totals' },
         { text: '\n\n' },
         { text: 'Payment Information', style: 'subheader' },
-        { text: (this.event?.paymentInfo || '').replace(/<br\s*[\/]?>/gi, '\n').replace(/<\/p>/gi, '\n\n').replace(/<[^>]*>?/gm, '') },
+        htmlToPdfmake(this.event?.paymentInfo || ''),
         { text: '\n' },
         { text: 'Bank Transfer Reason:', style: 'subheader' },
         { text: bankTransferReason, bold: true, fontSize: 14 }
