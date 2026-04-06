@@ -9,6 +9,7 @@ import { PrivacyPolicyComponent } from './privacy-policy.component';
 import { ERSEvent, EventQuestion, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration } from '@models/ersRegistration.model';
 import { Subject } from '@models/subject.model';
+import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
 
 @Component({
   selector: 'app-registration-form',

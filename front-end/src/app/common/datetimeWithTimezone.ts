@@ -119,17 +119,23 @@ export class DatetimeWithTimezoneStandaloneComponent implements OnInit, OnChange
 
   utcToZonedTimeString(isoString: epochISOString): string {
     if (!isoString) return '';
+    if (this.presentation === 'date') {
+      if (isoString.includes('T')) return formatInTimeZone(isoString, this.timezone, 'yyyy-MM-dd');
+      return isoString;
+    }
+    if (this.presentation === 'time') {
+      if (isoString.includes('T')) return formatInTimeZone(isoString, this.timezone, 'HH:mm');
+      return isoString;
+    }
     let format = "yyyy-MM-dd'T'HH:mm";
-    if (this.presentation === 'date') format = 'yyyy-MM-dd';
-    if (this.presentation === 'time') format = 'HH:mm';
     return formatInTimeZone(isoString, this.timezone, format);
   }
+  
   zonedTimeStringToUTC(dateLocale: string): epochISOString {
+    if (!dateLocale) return '';
+    if (this.presentation === 'date') return dateLocale;
+    if (this.presentation === 'time') return dateLocale;
     let dateStr = dateLocale;
-    if (this.presentation === 'time') {
-      const baseDate = this.date ? formatInTimeZone(this.date, this.timezone, 'yyyy-MM-dd') : formatInTimeZone(new Date(), this.timezone, 'yyyy-MM-dd');
-      dateStr = `${baseDate}T${dateLocale}`;
-    }
     return zonedTimeToUtc(new Date(dateStr), this.timezone).toISOString();
   }
 }

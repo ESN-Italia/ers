@@ -146,8 +146,7 @@
                 <p><strong>{{ 'ERS_EVENTS.COUNTRY' | translate }}:</strong> {{ registration.subject.country }}</p>
               </ion-label></ion-item>
             <ion-item><ion-label>
-                <p><strong>{{ 'ERS_EVENTS.REGISTRATION_DATE' | translate }}:</strong> {{ registration.createdAt | date:
-                  'medium' }}</p>
+                <p><strong>{{ 'ERS_EVENTS.REGISTRATION_DATE' | translate }}:</strong> {{ getRegistrationDate() }}</p>
               </ion-label></ion-item>
             <ion-item><ion-label>
                 <p><strong>{{ 'ERS_EVENTS.ESNCARD_NUMBER' | translate }}:</strong> {{ registration.esnCardNumber || '-'
@@ -175,13 +174,14 @@
                 <p><strong>{{ 'ERS_EVENTS.ID_ISSUED_BY' | translate }}:</strong> {{ registration.identityCard?.issuedBy
                   || '-' }}</p>
               </ion-label></ion-item>
+            <!-- 'UTC' prevents Angular from shifting the pure YYYY-MM-DD string to the user's local timezone -->
             <ion-item><ion-label>
                 <p><strong>{{ 'ERS_EVENTS.ID_ISSUED_DATE' | translate }}:</strong> {{
-                  registration.identityCard?.issuedDate | date: 'mediumDate' }}</p>
+                  registration.identityCard?.issuedDate | date: 'yyyy-MM-dd':'UTC' }}</p>
               </ion-label></ion-item>
             <ion-item><ion-label>
                 <p><strong>{{ 'ERS_EVENTS.ID_VALID_UNTIL' | translate }}:</strong> {{
-                  registration.identityCard?.validUntil | date: 'mediumDate' }}</p>
+                  registration.identityCard?.validUntil | date: 'yyyy-MM-dd':'UTC' }}</p>
               </ion-label></ion-item>
 
             <ion-list-header class="ion-margin-top">

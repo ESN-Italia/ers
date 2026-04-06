@@ -269,6 +269,10 @@ export class RegistrationDetailPage implements OnInit {
     }
   }
 
+  getRegistrationDate(): string {
+    return formatInTimeZone(this.registration.createdAt, this.event.timezone, 'yyyy-MM-dd HH:mm:ss');
+  }
+
   formatAnswer(questionId: string): string {
     const answer = this.registration?.answers?.[questionId];
     if (Array.isArray(answer)) return answer.join(', ');
@@ -335,7 +339,7 @@ export class RegistrationDetailPage implements OnInit {
         { text: `Total: ${this.getTotalPrice().toFixed(2)} €`, style: 'totals' },
         { text: '\n\n' },
         { text: 'Payment Information', style: 'subheader' },
-        { text: (this.event?.paymentInfo || '').replace(/<[^>]*>?/gm, '') },
+        { text: (this.event?.paymentInfo || '').replace(/<br\s*[\/]?>/gi, '\n').replace(/<\/p>/gi, '\n\n').replace(/<[^>]*>?/gm, '') },
         { text: '\n' },
         { text: 'Bank Transfer Reason:', style: 'subheader' },
         { text: bankTransferReason, bold: true, fontSize: 14 }
