@@ -17,7 +17,14 @@
         <ion-col [size]="12" [sizeLg]="6" class="ion-padding">
           <ion-card class="ion-no-margin">
             <ion-card-header>
-              <ion-card-subtitle>{{ event.name }}</ion-card-subtitle>
+              <ion-card-title>{{ event.name }}</ion-card-title>
+              <ion-card-subtitle class="ion-margin-top" style="text-transform: none;">
+                <ion-icon name="calendar-sharp" style="vertical-align: sub;"></ion-icon>
+                {{ event.startAt | date: 'mediumDate' }} — {{ event.endAt | date: 'mediumDate' }}
+                <br />
+                <ion-icon name="location-sharp" style="vertical-align: sub;"></ion-icon>
+                {{ event.location }}
+              </ion-card-subtitle>
             </ion-card-header>
             <ion-card-content class="ion-no-padding">
               <div class="ion-padding-horizontal">
@@ -38,7 +45,8 @@
                 <p><strong>{{ 'ERS_EVENTS.SPOT' | translate }}:</strong> {{ getSpotName() }}</p>
                 <p *ngIf="registration.selectedOptionalTickets?.length"><strong>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' |
                     translate }}:</strong> {{ getOptionalTicketsNames() }}</p>
-                <p><strong>{{ 'ERS_EVENTS.TOTAL_PRICE' | translate }}:</strong> {{ getTotalPrice() | currency:'EUR' }}</p>
+                <p><strong>{{ 'ERS_EVENTS.TOTAL_PRICE' | translate }}:</strong> {{ getTotalPrice() | currency:'EUR' }}
+                </p>
 
                 <ion-button *ngIf="registration.invoiceNumber" expand="block" fill="outline" color="ESNorange"
                   class="ion-margin-top" (click)="downloadInvoice()">
@@ -74,7 +82,8 @@
                 </div>
 
                 <div class="ion-margin-top">
-                  <p *ngIf="registration.status === RegistrationStatus.PAID">{{ 'ERS_EVENTS.PROOF_OF_PAYMENT_UPLOADED_WAITING' |
+                  <p *ngIf="registration.status === RegistrationStatus.PAID">{{
+                    'ERS_EVENTS.PROOF_OF_PAYMENT_UPLOADED_WAITING' |
                     translate }}</p>
                   <div *ngIf="registration.proofOfPayment">
                     <p>
@@ -121,7 +130,7 @@
 
         <!-- Right Column: Registration Details -->
         <ion-col [size]="12" [sizeLg]="6" class="ion-padding">
-          <ion-list lines="none">
+          <ion-list class="aList" lines="none">
             <ion-list-header>
               <ion-label>
                 <h2>{{ 'ERS_EVENTS.PERSONAL_INFORMATION' | translate }}</h2>
