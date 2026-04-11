@@ -35,11 +35,24 @@
       </ion-select>
     </ion-item>
 
-    <ion-item *ngIf="showOptions">
-      <ion-label position="stacked">{{ 'ERS_EVENTS.OPTIONS_COMMA_SEP' | translate }}</ion-label>
-      <ion-input [ngModel]="optionsString" (ngModelChange)="updateOptions($event)" type="text"
-        placeholder="{{ 'ERS_EVENTS.OPTIONS_PLACEHOLDER' | translate }}"></ion-input>
-    </ion-item>
+    <ng-container *ngIf="showOptions">
+      <ion-list-header>
+        <ion-label>{{ 'ERS_EVENTS.OPTIONS' | translate }}</ion-label>
+      </ion-list-header>
+      <ion-item *ngFor="let opt of localQuestion.options; let i = index">
+        <ion-label>{{ opt }}</ion-label>
+        <ion-button slot="end" fill="clear" color="danger" (click)="removeOption(i)">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <ion-item>
+        <ion-input [(ngModel)]="newOption" placeholder="{{ 'ERS_EVENTS.OPTIONS_PLACEHOLDER' | translate }}"
+          (keyup.enter)="addOption()"></ion-input>
+        <ion-button slot="end" fill="clear" (click)="addOption()" [disabled]="!newOption || !newOption.trim()">
+          <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ng-container>
 
     <ion-item>
       <ion-label>{{ 'ERS_EVENTS.REQUIRED' | translate }}</ion-label>

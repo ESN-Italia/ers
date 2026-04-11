@@ -19,7 +19,7 @@ export class QuestionEditorComponent implements OnInit {
 
   localQuestion: EventQuestion;
   isEdit = false;
-  optionsString = '';
+  newOption = '';
   conditionType: 'none' | 'spot' | 'question' | 'ticket' = 'none';
 
   QuestionType = QuestionType;
@@ -31,7 +31,9 @@ export class QuestionEditorComponent implements OnInit {
       this.isEdit = true;
       // Copy to avoid live editing the original object before clicking "Save"
       this.localQuestion = new EventQuestion({ ...this.question });
-      this.optionsString = (this.localQuestion.options || []).join(', ');
+      if (!this.localQuestion.options) {
+        this.localQuestion.options = [];
+      }
       
       if (this.localQuestion.spotIdCondition) {
         this.conditionType = 'spot';
@@ -55,9 +57,18 @@ export class QuestionEditorComponent implements OnInit {
     return this.localQuestion.type === QuestionType.RADIOBOX || this.localQuestion.type === QuestionType.CHECKBOX;
   }
 
-  updateOptions(val: string): void {
-    this.optionsString = val;
-    this.localQuestion.options = val.split(',').map(o => o.trim()).filter(o => o);
+  addOption(): void {
+    if (this.newOption && this.newOption.trim()) {
+      if (!this.localQuestion.options) {
+        this.localQuestion.options = [];
+      }
+      this.localQuestion.options.push(this.newOption.trim());
+      this.newOption = '';
+    }
+  }
+
+  removeOption(index: number): void {
+    this.localQuestion.options.splice(index, 1);
   }
 
   onConditionTypeChange(): void {
