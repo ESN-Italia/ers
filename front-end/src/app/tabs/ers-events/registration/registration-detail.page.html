@@ -28,26 +28,44 @@
             </ion-card-header>
             <ion-card-content class="ion-no-padding">
               <div class="ion-padding-horizontal">
-                <app-subject [subject]="registration.subject" />
-                <ion-chip [color]="registration.status === RegistrationStatus.APPROVED ? 'success' :
-                                     registration.status === RegistrationStatus.CONFIRMED ? 'success' :
-                                     registration.status === RegistrationStatus.REJECTED ? 'danger' : 'warning'">
-                  <ion-icon name="information-circle"></ion-icon>
-                  <ion-label>
-                    {{ (registration.status === RegistrationStatus.PENDING ? 'ERS_EVENTS.STATUS_PENDING' :
-                    registration.status === RegistrationStatus.APPROVED ? 'ERS_EVENTS.STATUS_APPROVED' :
-                    registration.status === RegistrationStatus.PAID ? 'ERS_EVENTS.STATUS_PAID' :
-                    registration.status === RegistrationStatus.CONFIRMED ? 'ERS_EVENTS.STATUS_CONFIRMED' :
-                    'ERS_EVENTS.STATUS_REJECTED') | translate }}
-                  </ion-label>
-                </ion-chip>
+                <div style="border-top: 1px solid var(--ion-color-step-150); margin-bottom: 16px;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <app-subject [subject]="registration.subject" />
+                  <ion-chip [color]="registration.status === RegistrationStatus.APPROVED ? 'success' :
+                                       registration.status === RegistrationStatus.CONFIRMED ? 'success' :
+                                       registration.status === RegistrationStatus.REJECTED ? 'danger' : 'warning'">
+                    <ion-icon name="information-circle"></ion-icon>
+                    <ion-label>
+                      {{ (registration.status === RegistrationStatus.PENDING ? 'ERS_EVENTS.STATUS_PENDING' :
+                      registration.status === RegistrationStatus.APPROVED ? 'ERS_EVENTS.STATUS_APPROVED' :
+                      registration.status === RegistrationStatus.PAID ? 'ERS_EVENTS.STATUS_PAID' :
+                      registration.status === RegistrationStatus.CONFIRMED ? 'ERS_EVENTS.STATUS_CONFIRMED' :
+                      'ERS_EVENTS.STATUS_REJECTED') | translate }}
+                    </ion-label>
+                  </ion-chip>
+                </div>
 
-                <p><strong>{{ 'ERS_EVENTS.SPOT' | translate }}:</strong> {{ getSpotName() }}</p>
-                <p *ngIf="registration.selectedOptionalTickets?.length"><strong>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' |
-                    translate }}:</strong> {{ getOptionalTicketsNames() }}</p>
-                <p><strong>{{ 'ERS_EVENTS.TOTAL_PRICE' | translate }}:</strong> {{ getTotalPrice() | currency:'EUR' }}
-                </p>
-
+                <ion-list lines="none">
+                  <ion-item>
+                    <ion-label class="ion-text-wrap">
+                      <h3>{{ 'ERS_EVENTS.SPOT' | translate }}</h3>
+                      <p>{{ getSpotName() }}</p>
+                    </ion-label>
+                  </ion-item>
+                  <ion-item *ngIf="registration.selectedOptionalTickets?.length">
+                    <ion-label class="ion-text-wrap">
+                      <h3>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' | translate }}</h3>
+                      <p>{{ getOptionalTicketsNames() }}</p>
+                    </ion-label>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label class="ion-text-wrap">
+                      <h3>{{ 'ERS_EVENTS.TOTAL_PRICE' | translate }}</h3>
+                      <p>{{ getTotalPrice() | currency:'EUR' }}</p>
+                    </ion-label>
+                  </ion-item>
+                </ion-list>
+                <div style="border-top: 1px solid var(--ion-color-step-150); margin: 16px 0;"></div>
                 <ion-button *ngIf="registration.invoiceNumber" expand="block" fill="outline" color="ESNorange"
                   class="ion-margin-top" (click)="downloadInvoice()">
                   <ion-icon name="download-outline" slot="start"></ion-icon>
@@ -86,12 +104,10 @@
                     'ERS_EVENTS.PROOF_OF_PAYMENT_UPLOADED_WAITING' |
                     translate }}</p>
                   <div *ngIf="registration.proofOfPayment">
-                    <p>
-                      <a (click)="viewProofOfPayment()" class="ion-activatable"
-                        style="cursor: pointer; text-decoration: underline; color: var(--ion-color-primary);">
-                        {{ 'ERS_EVENTS.VIEW_PROOF_OF_PAYMENT' | translate }}
-                      </a>
-                    </p>
+                    <ion-button expand="block" fill="outline" color="ESNpink" class="ion-margin-top" (click)="viewProofOfPayment()">
+                      <ion-icon name="eye-outline" slot="start"></ion-icon>
+                      {{ 'ERS_EVENTS.VIEW_PROOF_OF_PAYMENT' | translate }}
+                    </ion-button>
                     <ion-button
                       *ngIf="registration.status !== RegistrationStatus.CONFIRMED && (isMyRegistration() || event.canUserManage(app.user))"
                       fill="clear" color="danger" size="small" (click)="deleteProofOfPayment()">
@@ -101,9 +117,6 @@
                   </div>
                 </div>
 
-                <div *ngIf="registration.status === RegistrationStatus.CONFIRMED" class="ion-margin-top">
-                  <p class="success-color">{{ 'ERS_EVENTS.SEE_YOU_THERE' | translate }}</p>
-                </div>
 
                 <div *ngIf="(isMyRegistration() || event.canUserManage(app.user)) && event.isRegistrationOpen()"
                   class="ion-margin-vertical">
@@ -113,11 +126,11 @@
                     {{ 'COMMON.EDIT' | translate }}
                   </ion-button>
                   <ion-button *ngIf="isMyRegistration() && registration.status === RegistrationStatus.PENDING"
-                    expand="block" fill="clear" color="danger" class="ion-margin-top" (click)="withdraw()">
+                    expand="block" fill="outline" color="danger" class="ion-margin-top" (click)="withdraw()">
                     <ion-icon name="trash-outline" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.WITHDRAW_REGISTRATION' | translate }}
                   </ion-button>
-                  <ion-button *ngIf="event.canUserManage(app.user)" expand="block" fill="clear" color="warning"
+                  <ion-button *ngIf="event.canUserManage(app.user)" expand="block" fill="outline" color="warning"
                     class="ion-margin-top" (click)="editStatus()">
                     <ion-icon name="options-outline" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.EDIT_STATUS' | translate }}
