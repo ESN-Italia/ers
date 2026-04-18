@@ -8,6 +8,7 @@ import { MediaService } from '@app/common/media.service';
 import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent, EventSpot, EventQuestion, EventOptionalTicket, QuestionType, EventType } from '@models/ersEvent.model';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
+import { BulkDeleteComponent } from './bulk-delete/bulk-delete.component';
 
 @Component({
   selector: 'app-manage-event',
@@ -164,19 +165,40 @@ export class ManageEventPage implements OnInit {
     await alert.present();
   }
 
-  async removeSpot(spot: EventSpot): Promise<void> {
-    const doRemove = (): void => {
-      const index = this.event.spots.indexOf(spot);
-      if (index !== -1) this.event.spots.splice(index, 1);
+  async editSpot(spot: EventSpot): Promise<void> {
+    const doEdit = async ({ name, price, limit }): Promise<void> => {
+      if (!name || price === undefined || limit === undefined) return;
+      spot.name = name;
+      spot.price = Number(price);
+      spot.limit = Number(limit);
     };
 
-    const header = this.t._('COMMON.ARE_YOU_SURE');
+    const header = this.t._('ERS_EVENTS.EDIT_SPOT');
+    const inputs: any = [
+      { name: 'name', type: 'text', placeholder: this.t._('ERS_EVENTS.SPOT_NAME'), value: spot.name },
+      { name: 'price', type: 'number', placeholder: this.t._('ERS_EVENTS.PRICE'), value: spot.price },
+      { name: 'limit', type: 'number', placeholder: this.t._('ERS_EVENTS.SPOT_LIMIT'), value: spot.limit }
+    ];
     const buttons = [
       { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-      { text: this.t._('COMMON.REMOVE'), role: 'destructive', handler: doRemove }
+      { text: this.t._('COMMON.SAVE'), handler: doEdit }
     ];
-    const alert = await this.alertCtrl.create({ header, buttons });
-    alert.present();
+
+    const alert = await this.alertCtrl.create({ header, inputs, buttons });
+    await alert.present();
+  }
+
+  async bulkRemoveSpots(): Promise<void> {
+    const items = this.event.spots.map(spot => ({ id: spot.id, label: spot.name }));
+    const modal = await this.modalCtrl.create({
+      component: BulkDeleteComponent,
+      componentProps: { items }
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data?.length) {
+      this.event.spots = this.event.spots.filter(spot => !data.includes(spot.id));
+    }
   }
 
   async addOptionalTicket(): Promise<void> {
@@ -207,20 +229,40 @@ export class ManageEventPage implements OnInit {
     await alert.present();
   }
 
-  async removeOptionalTicket(ticket: EventOptionalTicket): Promise<void> {
-    const doRemove = (): void => {
-      if (!this.event.optionalTickets) return;
-      const index = this.event.optionalTickets.indexOf(ticket);
-      if (index !== -1) this.event.optionalTickets.splice(index, 1);
+  async editOptionalTicket(ticket: EventOptionalTicket): Promise<void> {
+    const doEdit = async ({ name, description, price }): Promise<void> => {
+      if (!name || price === undefined) return;
+      ticket.name = name;
+      ticket.description = description || '';
+      ticket.price = Number(price);
     };
 
-    const header = this.t._('COMMON.ARE_YOU_SURE');
+    const header = this.t._('ERS_EVENTS.EDIT_OPTIONAL_TICKET');
+    const inputs: any = [
+      { name: 'name', type: 'text', placeholder: this.t._('ERS_EVENTS.NAME'), value: ticket.name },
+      { name: 'description', type: 'text', placeholder: `${this.t._('ERS_EVENTS.DESCRIPTION')}`, value: ticket.description },
+      { name: 'price', type: 'number', placeholder: this.t._('ERS_EVENTS.PRICE'), value: ticket.price }
+    ];
     const buttons = [
       { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-      { text: this.t._('COMMON.REMOVE'), role: 'destructive', handler: doRemove }
+      { text: this.t._('COMMON.SAVE'), handler: doEdit }
     ];
-    const alert = await this.alertCtrl.create({ header, buttons });
-    alert.present();
+
+    const alert = await this.alertCtrl.create({ header, inputs, buttons });
+    await alert.present();
+  }
+
+  async bulkRemoveOptionalTickets(): Promise<void> {
+    const items = this.event.optionalTickets.map(ticket => ({ id: ticket.id, label: ticket.name }));
+    const modal = await this.modalCtrl.create({
+      component: BulkDeleteComponent,
+      componentProps: { items }
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data?.length) {
+      this.event.optionalTickets = this.event.optionalTickets.filter(ticket => !data.includes(ticket.id));
+    }
   }
 
   async addQuestion(): Promise<void> {
@@ -251,19 +293,19 @@ export class ManageEventPage implements OnInit {
     await modal.present();
   }
 
-  async removeQuestion(question: EventQuestion): Promise<void> {
-    const doRemove = (): void => {
-      const index = this.event.questions.indexOf(question);
-      if (index !== -1) this.event.questions.splice(index, 1);
-    };
 
-    const header = this.t._('COMMON.ARE_YOU_SURE');
-    const buttons = [
-      { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-      { text: this.t._('COMMON.REMOVE'), role: 'destructive', handler: doRemove }
-    ];
-    const alert = await this.alertCtrl.create({ header, buttons });
-    alert.present();
+
+  async bulkRemoveQuestions(): Promise<void> {
+    const items = this.event.questions.map(q => ({ id: q.id, label: q.text }));
+    const modal = await this.modalCtrl.create({
+      component: BulkDeleteComponent,
+      componentProps: { items }
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data?.length) {
+      this.event.questions = this.event.questions.filter(q => !data.includes(q.id));
+    }
   }
 
   async addManager(): Promise<void> {

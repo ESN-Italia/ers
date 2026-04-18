@@ -110,6 +110,7 @@
       <ion-label>
         <h2>{{ 'ERS_EVENTS.SPOTS' | translate }}</h2>
       </ion-label>
+      <ion-button color="danger" *ngIf="editMode !== UXMode.VIEW && event.spots?.length" (click)="bulkRemoveSpots()">{{ 'COMMON.DELETE' | translate }}</ion-button>
       <ion-button *ngIf="editMode !== UXMode.VIEW" (click)="addSpot()">{{ 'COMMON.ADD' | translate }}</ion-button>
     </ion-list-header>
     <ion-item *ngIf="!event.spots?.length">
@@ -122,8 +123,8 @@
           'ERS_EVENTS.PRICE' | translate }}: {{
           spot.price | currency:'EUR' }}</p>
       </ion-label>
-      <ion-button fill="clear" color="danger" slot="end" *ngIf="editMode !== UXMode.VIEW" (click)="removeSpot(spot)">
-        <ion-icon name="trash" slot="icon-only"></ion-icon>
+      <ion-button fill="clear" slot="end" *ngIf="editMode !== UXMode.VIEW" (click)="editSpot(spot)">
+        <ion-icon name="create-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-item>
 
@@ -132,6 +133,7 @@
       <ion-label>
         <h2>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' | translate }}</h2>
       </ion-label>
+      <ion-button color="danger" *ngIf="editMode !== UXMode.VIEW && event.optionalTickets?.length" (click)="bulkRemoveOptionalTickets()">{{ 'COMMON.DELETE' | translate }}</ion-button>
       <ion-button *ngIf="editMode !== UXMode.VIEW" (click)="addOptionalTicket()">{{ 'COMMON.ADD' | translate
         }}</ion-button>
     </ion-list-header>
@@ -144,9 +146,9 @@
         <p *ngIf="ticket.description">{{ ticket.description }}</p>
         <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price | currency:'EUR' }}</p>
       </ion-label>
-      <ion-button fill="clear" color="danger" slot="end" *ngIf="editMode !== UXMode.VIEW"
-        (click)="removeOptionalTicket(ticket)">
-        <ion-icon name="trash" slot="icon-only"></ion-icon>
+      <ion-button fill="clear" slot="end" *ngIf="editMode !== UXMode.VIEW"
+        (click)="editOptionalTicket(ticket)">
+        <ion-icon name="create-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-item>
 
@@ -155,6 +157,7 @@
       <ion-label>
         <h2>{{ 'ERS_EVENTS.QUESTIONS' | translate }}</h2>
       </ion-label>
+      <ion-button color="danger" *ngIf="editMode !== UXMode.VIEW && event.questions?.length" (click)="bulkRemoveQuestions()">{{ 'COMMON.DELETE' | translate }}</ion-button>
       <ion-button *ngIf="editMode !== UXMode.VIEW" (click)="addQuestion()">{{ 'COMMON.ADD' | translate }}</ion-button>
     </ion-list-header>
     <ion-item *ngIf="!event.questions?.length">
@@ -180,10 +183,6 @@
       </ion-label>
       <ion-button fill="clear" slot="end" *ngIf="editMode !== UXMode.VIEW" (click)="openQuestionEditor(question)">
         <ion-icon name="create-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button fill="clear" color="danger" slot="end" *ngIf="editMode !== UXMode.VIEW"
-        (click)="removeQuestion(question)">
-        <ion-icon name="trash" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-item>
 

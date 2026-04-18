@@ -1,0 +1,26 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="ideaToolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      {{ 'COMMON.DELETE' | translate }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="confirm()" [disabled]="!hasSelected()">
+        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list lines="full">
+    <ion-item *ngFor="let item of items">
+      <ion-checkbox slot="start" [(ngModel)]="item.selected"></ion-checkbox>
+      <ion-label>{{ item.label }}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

@@ -12,6 +12,7 @@ import { HTMLEditorModule } from '@common/htmlEditor.module';
 import { AttachmentsModule } from '@common/attachments.module';
 import { DatetimeWithTimezoneStandaloneComponent } from '@common/datetimeWithTimezone';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
+import { BulkDeleteComponent } from './bulk-delete/bulk-delete.component';
 
 @NgModule({
   imports: [
@@ -24,7 +25,8 @@ import { QuestionEditorComponent } from './question-editor/question-editor.compo
     HTMLEditorModule,
     AttachmentsModule,
     DatetimeWithTimezoneStandaloneComponent,
-    QuestionEditorComponent
+    QuestionEditorComponent,
+    BulkDeleteComponent
   ],
   declarations: [ManageEventPage]
 })
