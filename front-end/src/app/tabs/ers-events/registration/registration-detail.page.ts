@@ -297,36 +297,61 @@ export class RegistrationDetailPage implements OnInit {
   async downloadInvoice(): Promise<void> {
     if (!this.registration || !this.registration.invoiceNumber) return;
 
+    let iconImage = null;
+    let isSvg = false;
+    const iconUrl = this.app.getIcon(false);
+    if (iconUrl) {
+      try {
+        const response = await fetch(iconUrl);
+        if (response.ok) {
+          if (iconUrl.toLowerCase().endsWith('.svg') || response.headers.get('content-type')?.includes('svg')) {
+            iconImage = await response.text();
+            isSvg = true;
+          } else {
+            const blob = await response.blob();
+            iconImage = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.readAsDataURL(blob);
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load icon for PDF', e);
+      }
+    }
+
     const cleanName = (this.registration.subject?.name || '').replace(/[^a-zA-Z0-9 ]/g, '');
     const cleanEventName = (this.event?.name || '').replace(/[^a-zA-Z0-9 ]/g, '');
     const bankTransferReason = `${cleanName} ${this.registration.invoiceNumber} ${cleanEventName}`;
 
     const docDefinition: any = {
       content: [
-        { text: 'ERS INVOICE', style: 'header' },
+        { text: 'Event invoice', style: 'header', margin: [0, 0, 0, 5] },
+        { text: this.event?.name, style: 'subtitle', margin: [0, 0, 0, 20] },
         {
           columns: [
             {
               width: '*',
               text: [
-                { text: 'Bill To:\n', style: 'subheader' },
-                { text: `${this.registration.subject?.name}\n` },
-                { text: `${this.registration.homeAddress || ''}\n` },
-                { text: `${this.registration.subject?.email || ''}` }
+                { text: `${this.registration.subject.name}\n`, bold: true, fontSize: 13 },
+                { text: `${this.registration.homeAddress}\n`, color: '#555555' },
+                { text: `${this.registration.subject.email}\n`, color: '#555555' },
+                { text: `${this.registration.phone}`, color: '#555555' }
               ]
             },
             {
               width: 'auto',
+              alignment: 'right',
               text: [
-                { text: 'Details:\n', style: 'subheader' },
-                { text: `Invoice #: ${this.registration.invoiceNumber}\n` },
-                { text: `Date: ${new Date(this.registration.approvedAt || new Date()).toLocaleDateString()}\n` },
-                { text: `Event: ${this.event?.name}` }
+                { text: `Invoice number: ${this.registration.invoiceNumber}\n` },
+                { text: `Date: ${new Date(this.registration.approvedAt || new Date()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n` }
               ]
             }
-          ]
+          ],
+          margin: [0, 0, 0, 20]
         },
-        { text: '\n\n' },
+        this.createSectionHeader('Details', '#00aeef'),
         {
           table: {
             headerRows: 1,
@@ -339,21 +364,42 @@ export class RegistrationDetailPage implements OnInit {
           layout: 'lightHorizontalLines'
         },
         { text: `Total: ${this.getTotalPrice().toFixed(2)} €`, style: 'totals' },
-        { text: '\n\n' },
-        { text: 'Payment Information', style: 'subheader' },
+        { text: '\n' },
+        ...(this.event.invoiceDueDate ? [
+          this.createSectionHeader('Due Date', '#ec008c'),
+          { text: `${new Date(this.event.invoiceDueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n`, bold: true, color: 'black', alignment: 'center' },
+          { text: '\n' }
+        ] : []),
+        this.createSectionHeader('Payment Information', '#f47b20'),
         htmlToPdfmake(this.event?.paymentInfo || ''),
         { text: '\n' },
-        { text: 'Bank Transfer Reason:', style: 'subheader' },
+        this.createSectionHeader('Bank Transfer Reason', '#7ac143'),
         { text: bankTransferReason, bold: true, fontSize: 14 }
       ],
       styles: {
-        header: { fontSize: 24, bold: true, margin: [0, 0, 0, 20], color: '#de282e' },
-        subheader: { fontSize: 12, bold: true, margin: [0, 10, 0, 5] },
+        header: { fontSize: 24, bold: true, color: 'black' },
+        subtitle: { fontSize: 16, color: '#555555' },
         totals: { fontSize: 16, bold: true, alignment: 'right', margin: [0, 20, 0, 0] }
       }
     };
 
     pdfMake.createPdf(docDefinition).download(`Invoice_${this.registration.invoiceNumber}_${cleanEventName.replace(/ /g, '_')}.pdf`);
+  }
+
+  private createSectionHeader(title: string, color: string): any {
+    return {
+      table: {
+        widths: ['*'],
+        body: [
+          [{ text: title, alignment: 'center', bold: true, fontSize: 14, color: color, margin: [0, 6, 0, 6], border: [true, true, true, true] }]
+        ]
+      },
+      layout: {
+        hLineColor: () => color,
+        vLineColor: () => color,
+      },
+      margin: [0, 10, 0, 10]
+    };
   }
 
   private getInvoiceTableBody(): any[] {

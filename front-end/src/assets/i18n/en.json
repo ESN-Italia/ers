@@ -935,6 +935,7 @@
     "END_AT": "End date",
     "REGISTRATION_OPEN_AT": "Registration opens at",
     "REGISTRATION_CLOSE_AT": "Registration closes at",
+    "INVOICE_DUE_DATE": "Invoice due date",
     "TIMEZONE": "Timezone",
     "ADD_SPOT": "Add spot",
     "SPOT_NAME": "Spot name",

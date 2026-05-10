@@ -17,6 +17,7 @@ export class ERSEvent extends Resource {
   endAt: epochISOString;
   registrationOpenAt: epochISOString;
   registrationCloseAt: epochISOString;
+  invoiceDueDate: epochISOString;
   timezone: string;
   spots: EventSpot[];
   optionalTickets: EventOptionalTicket[];
@@ -41,6 +42,7 @@ export class ERSEvent extends Resource {
     this.endAt = this.clean(x.endAt, d => new Date(d).toISOString());
     this.registrationOpenAt = this.clean(x.registrationOpenAt, d => new Date(d).toISOString());
     this.registrationCloseAt = this.clean(x.registrationCloseAt, d => new Date(d).toISOString());
+    this.invoiceDueDate = this.clean(x.invoiceDueDate, d => new Date(d).toISOString());
     this.timezone = this.clean(x.timezone, String);
     this.spots = this.cleanArray(x.spots, s => new EventSpot(s));
     this.optionalTickets = this.cleanArray(x.optionalTickets, t => new EventOptionalTicket(t));
@@ -76,6 +78,7 @@ export class ERSEvent extends Resource {
     if (this.iE(this.registrationOpenAt)) e.push('registrationOpenAt');
     if (this.iE(this.registrationCloseAt)) e.push('registrationCloseAt');
     if (this.iE(this.timezone)) e.push('timezone');
+    if (this.iE(this.invoiceDueDate)) e.push('invoiceDueDate');
     if (this.iE(this.paymentInfo)) e.push('paymentInfo');
     if (!this.spots || this.spots.length === 0) e.push('spots');
 
