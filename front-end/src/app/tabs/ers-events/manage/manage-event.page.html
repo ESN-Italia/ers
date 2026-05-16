@@ -217,6 +217,10 @@
 
     <div class="ion-padding" *ngIf="editMode === UXMode.VIEW">
       <div style="display: flex; gap: 8px;">
+        <ion-button expand="block" color="primary" style="flex: 1;" (click)="cloneEvent()">
+          <ion-icon name="copy" slot="start"></ion-icon>
+          {{ 'COMMON.DUPLICATE' | translate }}
+        </ion-button>
         <ion-button expand="block" [color]="event.archivedAt ? 'success' : 'warning'" style="flex: 1;"
           (click)="event.archivedAt ? unarchive() : archive()">
           <ion-icon [name]="event.archivedAt ? 'refresh' : 'archive'" slot="start"></ion-icon>

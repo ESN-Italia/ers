@@ -23,6 +23,10 @@ export class ERSEventsPage implements OnInit {
   constructor(public app: AppService, private service: ERSEventsService) { }
 
   async ngOnInit(): Promise<void> {
+    // await this.loadList();
+  }
+
+  async ionViewWillEnter(): Promise<void> {
     await this.loadList();
   }
 

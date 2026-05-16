@@ -332,7 +332,7 @@ export class ManageEventPage implements OnInit {
     const index = this.event.additionalManagersIds.indexOf(userId);
     if (index !== -1) this.event.additionalManagersIds.splice(index, 1);
   }
-  
+
   getQuestionConditionInfo(q: EventQuestion): string {
     if (q.spotIdCondition) {
       const spot = this.event.spots.find(s => s.id === q.spotIdCondition);
@@ -398,6 +398,39 @@ export class ManageEventPage implements OnInit {
     } finally {
       this.loading.hide();
     }
+  }
+
+  async cloneEvent(): Promise<void> {
+    const doClone = async (): Promise<void> => {
+      try {
+        await this.loading.show();
+        const clone = new ERSEvent(this.event);
+        clone.eventId = undefined;
+        clone.createdAt = new Date().toISOString();
+        clone.updatedAt = undefined;
+        clone.archivedAt = undefined;
+        clone.receiptsCounter = 0;
+        clone.proofsOfPaymentDeleted = false;
+        clone.name = `${clone.name} - Copy`;
+
+        const result = await this.service.insert(clone);
+        this.message.success('COMMON.OPERATION_COMPLETED');
+        this.app.goToInTabs(['ers-events', result.eventId, 'manage']);
+      } catch (err) {
+        this.message.error(err.message, true);
+      } finally {
+        this.loading.hide();
+      }
+    };
+
+    const header = this.t._('COMMON.ARE_YOU_SURE');
+    const buttons = [
+      { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+      { text: this.t._('COMMON.DUPLICATE'), handler: doClone }
+    ];
+
+    const alert = await this.alertCtrl.create({ header, buttons });
+    await alert.present();
   }
 }
 
