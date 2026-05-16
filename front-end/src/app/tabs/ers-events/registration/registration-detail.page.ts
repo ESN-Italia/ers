@@ -110,7 +110,7 @@ export class RegistrationDetailPage implements OnInit {
       buttons: [
         { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: this.t._('COMMON.CONFIRM'),
+          text: this.t._('COMMON.DELETE'), role: 'destructive',
           handler: async () => {
             try {
               await this.loading.show();
@@ -133,7 +133,7 @@ export class RegistrationDetailPage implements OnInit {
     try {
       await this.loading.show();
       const signedUrl = await this.service.getProofOfPaymentDownloadUrl(this.eventId, this.registration.registrationId);
-      window.open(signedUrl.url, '_blank');
+      await this.app.openURL(signedUrl.url);
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {

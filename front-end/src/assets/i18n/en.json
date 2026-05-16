@@ -890,6 +890,7 @@
     "EDIT_STATUS": "Edit status",
     "EDIT_STATUS_I": "Select the new status for this registration. No email notification will be sent.",
     "DELETE_PROOF_OF_PAYMENT": "Delete proof of payment",
+    "PROOF_OF_PAYMENT": "Proof of payment",
     "REQUIRED": "Required",
     "OPTIONAL": "Optional",
     "SPOTS": "Spots",

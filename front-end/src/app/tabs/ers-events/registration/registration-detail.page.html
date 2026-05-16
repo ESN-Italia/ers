@@ -65,12 +65,20 @@
                     </ion-label>
                   </ion-item>
                 </ion-list>
-                <div style="border-top: 1px solid var(--ion-color-step-150); margin: 16px 0;"></div>
-                <ion-button *ngIf="registration.invoiceNumber" expand="block" fill="outline" color="ESNorange"
-                  class="ion-margin-top" (click)="downloadInvoice()">
-                  <ion-icon name="download-outline" slot="start"></ion-icon>
-                  {{ 'ERS_EVENTS.DOWNLOAD_INVOICE' | translate }}
-                </ion-button>
+
+                <div *ngIf="registration.proofOfPayment">
+                  <ion-item button (click)="viewProofOfPayment()">
+                    <ion-icon name="attach" slot="start"></ion-icon>
+                    <ion-label class="ion-text-wrap">{{ 'ERS_EVENTS.PROOF_OF_PAYMENT' | translate }}</ion-label>
+                    <ion-buttons slot="end"
+                      *ngIf="registration.status !== RegistrationStatus.CONFIRMED && (isMyRegistration() || event.canUserManage(app.user))">
+                      <ion-button color="danger" fill="clear"
+                        (click)="$event.stopPropagation(); deleteProofOfPayment()">
+                        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                      </ion-button>
+                    </ion-buttons>
+                  </ion-item>
+                </div>
 
                 <div *ngIf="event.canUserManage(app.user)" class="ion-margin-top">
                   <ion-button *ngIf="registration.status === RegistrationStatus.PENDING" expand="block" color="success"
@@ -98,25 +106,6 @@
                   <input #fileInput type="file" (change)="uploadProofOfPayment($event)" style="display: none"
                     accept="application/pdf,image/*">
                 </div>
-
-                <div class="ion-margin-top">
-                  <p *ngIf="registration.status === RegistrationStatus.PAID">{{
-                    'ERS_EVENTS.PROOF_OF_PAYMENT_UPLOADED_WAITING' |
-                    translate }}</p>
-                  <div *ngIf="registration.proofOfPayment">
-                    <ion-button expand="block" fill="outline" color="ESNpink" class="ion-margin-top" (click)="viewProofOfPayment()">
-                      <ion-icon name="eye-outline" slot="start"></ion-icon>
-                      {{ 'ERS_EVENTS.VIEW_PROOF_OF_PAYMENT' | translate }}
-                    </ion-button>
-                    <ion-button
-                      *ngIf="registration.status !== RegistrationStatus.CONFIRMED && (isMyRegistration() || event.canUserManage(app.user))"
-                      fill="clear" color="danger" size="small" (click)="deleteProofOfPayment()">
-                      <ion-icon name="trash-outline" slot="start"></ion-icon>
-                      {{ 'ERS_EVENTS.DELETE_PROOF_OF_PAYMENT' | translate }}
-                    </ion-button>
-                  </div>
-                </div>
-
 
                 <div *ngIf="(isMyRegistration() || event.canUserManage(app.user)) && event.isRegistrationOpen()"
                   class="ion-margin-vertical">
