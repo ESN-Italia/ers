@@ -40,7 +40,7 @@ npm i --silent 1>/dev/null
 
 # lint the code in search for errors
 echo -e "${C}Linting...${NC}"
-npm run lint ${SRC_FOLDER} 1>/dev/null
+npm run lint ${SRC_FOLDER}
 
 # compile the project's typescript code
 echo -e "${C}Compiling...${NC}"

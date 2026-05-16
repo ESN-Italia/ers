@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { AppService } from '@app/app.service';
 import { ERSEvent, EventType } from '@models/ersEvent.model';
@@ -9,7 +9,7 @@ import { ERSEventsService } from './ers-events.service';
   templateUrl: './ers-events.page.html',
   styleUrls: ['./ers-events.page.scss']
 })
-export class ERSEventsPage implements OnInit {
+export class ERSEventsPage {
   events: ERSEvent[];
   filteredEvents: ERSEvent[];
 
@@ -21,10 +21,6 @@ export class ERSEventsPage implements OnInit {
   EventType = EventType;
 
   constructor(public app: AppService, private service: ERSEventsService) { }
-
-  async ngOnInit(): Promise<void> {
-    // await this.loadList();
-  }
 
   async ionViewWillEnter(): Promise<void> {
     await this.loadList();
