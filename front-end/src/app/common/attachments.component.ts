@@ -38,7 +38,8 @@ export class AttachmentsComponent {
     public app: AppService,
     public t: IDEATranslationsService
   ) {
-    addIcons({ close, cloudDownloadOutline, remove });}
+    addIcons({ close, cloudDownloadOutline, remove });
+  }
 
   browseFiles(event?: any): void {
     if (event) event.stopPropagation();
@@ -73,7 +74,7 @@ export class AttachmentsComponent {
     } catch (err) {
       this.uploadErrors.push({ file: name, error: err.message });
       this.removeAttachment(attachment);
-      this.message.error(err.message, true);
+      this.message.error(err.message, { dontTranslate: true });
     }
   }
 
