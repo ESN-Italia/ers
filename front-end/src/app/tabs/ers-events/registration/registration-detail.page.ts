@@ -10,9 +10,11 @@ import { ERSEvent, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { formatInTimeZone } from 'date-fns-tz';
 
-import * as pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
-(pdfMake as any).vfs = pdfFonts && (pdfFonts as any).pdfMake ? (pdfFonts as any).pdfMake.vfs : (pdfFonts as any).vfs;
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+
+// @ts-ignore
+pdfMake.vfs = pdfFonts?.pdfMake?.vfs || pdfFonts;
 
 import htmlToPdfmake from 'html-to-pdfmake';
 
