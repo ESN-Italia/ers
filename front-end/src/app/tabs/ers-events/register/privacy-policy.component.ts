@@ -4,6 +4,9 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { IDEATranslationsModule, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
+import { addIcons } from 'ionicons';
+import { close } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -19,7 +22,8 @@ export class PrivacyPolicyComponent implements OnInit {
     private modalCtrl: ModalController,
     public app: AppService,
     public t: IDEATranslationsService
-  ) { }
+  ) {
+    addIcons({ close }); }
 
   ngOnInit(): void {
     this.section = {

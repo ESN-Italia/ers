@@ -7,6 +7,9 @@ import { HTMLEditorModule } from '@common/htmlEditor.module';
 import { DateTimezonePipe } from '@common/dateTimezone.pipe';
 
 import { Communication } from '@models/communication.model';
+import { addIcons } from 'ionicons';
+import { close } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -78,7 +81,8 @@ export class CommunicationDetailComponent {
    */
   @Input() communication: Communication;
 
-  constructor(private modalCtrl: ModalController) {}
+  constructor(private modalCtrl: ModalController) {
+    addIcons({ close });}
 
   close(): void {
     this.modalCtrl.dismiss();

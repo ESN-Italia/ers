@@ -5,6 +5,9 @@ import { AppService } from '@app/app.service';
 import { GAEventsService } from './events.service';
 
 import { GAEvent } from '@models/event.model';
+import { addIcons } from 'ionicons';
+import { arrowBack } from 'ionicons/icons';
+
 
 @Component({
   selector: 'events',
@@ -14,7 +17,8 @@ import { GAEvent } from '@models/event.model';
 export class EventsPage {
   events: GAEvent[];
 
-  constructor(private _events: GAEventsService, public app: AppService) {}
+  constructor(private _events: GAEventsService, public app: AppService) {
+    addIcons({ arrowBack });}
   async ionViewDidEnter(): Promise<void> {
     this.events = await this._events.getList({ force: true, withPagination: true, all: true });
   }

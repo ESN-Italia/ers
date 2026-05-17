@@ -7,6 +7,9 @@ import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
+import { addIcons } from 'ionicons';
+import { arrowBack, calendarSharp, create, listOutline, locationSharp } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-event-detail',
@@ -26,7 +29,8 @@ export class EventDetailPage implements OnInit {
     private message: IDEAMessageService,
     private service: ERSEventsService,
     public app: AppService
-  ) { }
+  ) {
+    addIcons({ arrowBack, calendarSharp, create, listOutline, locationSharp }); }
 
   async ngOnInit(): Promise<void> {
     this.eventId = this.route.snapshot.paramMap.get('eventId');

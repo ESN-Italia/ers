@@ -14,6 +14,9 @@ import { AppService } from '@app/app.service';
 import { VotingService } from '../voting.service';
 
 import { Voter, VotingSession } from '@models/votingSession.model';
+import { addIcons } from 'ionicons';
+import { checkmarkCircle, closeCircle, eye, send } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -115,7 +118,8 @@ export class ManageVoterStandaloneComponent implements OnInit {
     private t: IDEATranslationsService,
     private _voting: VotingService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ checkmarkCircle, closeCircle, eye, send });}
   ngOnInit(): void {
     this.voter = new Voter(this.voter, this.votingSession);
   }

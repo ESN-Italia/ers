@@ -4,6 +4,9 @@ import { IonicModule } from '@ionic/angular';
 import { IDEATranslationsModule } from '@idea-ionic/common';
 
 import { UsefulLink } from '@models/usefulLink.model';
+import { addIcons } from 'ionicons';
+import { link } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -56,5 +59,6 @@ export class UsefulLinkComponent {
    */
   @Output() select = new EventEmitter<void>();
 
-  constructor() {}
+  constructor() {
+    addIcons({ link });}
 }

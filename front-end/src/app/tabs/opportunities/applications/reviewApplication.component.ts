@@ -21,6 +21,9 @@ import { Application } from '@models/application.model';
 import { Opportunity } from '@models/opportunity.model';
 import { TopicCategoryAttached } from '@models/category.model';
 import { GAEventAttached } from '@models/event.model';
+import { addIcons } from 'ionicons';
+import { chatbubbles, close, thumbsDown, thumbsUp } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -125,7 +128,8 @@ export class ReviewApplicationStandaloneComponent implements OnInit {
     private _applications: ApplicationsService,
     private _topics: TopicsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ chatbubbles, close, thumbsDown, thumbsUp });}
   ngOnInit(): void {
     this.reviewMessage = this.application.reviewMessage;
   }

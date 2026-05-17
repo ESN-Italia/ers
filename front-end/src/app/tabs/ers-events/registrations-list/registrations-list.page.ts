@@ -8,6 +8,9 @@ import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { formatInTimeZone } from 'date-fns-tz';
+import { addIcons } from 'ionicons';
+import { arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-registrations-list',
@@ -37,7 +40,8 @@ export class RegistrationsListPage implements OnInit {
     private t: IDEATranslationsService,
     private service: ERSEventsService,
     public app: AppService
-  ) { }
+  ) {
+    addIcons({ arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline }); }
 
   async ngOnInit(): Promise<void> {
     this.eventId = this.route.snapshot.paramMap.get('eventId');

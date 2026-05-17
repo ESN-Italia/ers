@@ -13,6 +13,9 @@ import { Topic, TopicTypes } from '@models/topic.model';
 import { Question } from '@models/question.model';
 import { Subject } from '@models/subject.model';
 import { UserDraft } from '@models/userDraft.model';
+import { addIcons } from 'ionicons';
+import { arrowBack, attach, build, close, hourglassOutline, refresh, send, trash } from 'ionicons/icons';
+
 
 @Component({
   selector: 'standard-topic',
@@ -47,7 +50,8 @@ export class StandardTopicPage {
     private _questions: QuestionsService,
     private _drafts: UserDraftsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ arrowBack, attach, build, close, hourglassOutline, refresh, send, trash });}
   async ionViewWillEnter(): Promise<void> {
     try {
       await this.loading.show();

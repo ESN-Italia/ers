@@ -16,6 +16,9 @@ import { AppService } from '@app/app.service';
 import { DeadlinesService } from './deadlines.service';
 
 import { Deadline } from '@models/deadline.model';
+import { addIcons } from 'ionicons';
+import { checkmarkCircle, closeCircle } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -133,7 +136,8 @@ export class ManageDeadlineComponent {
     private message: IDEAMessageService,
     private _deadlines: DeadlinesService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ checkmarkCircle, closeCircle });}
 
   hasFieldAnError(field: string): boolean {
     return this.errors.has(field);

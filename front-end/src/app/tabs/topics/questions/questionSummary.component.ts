@@ -3,6 +3,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AppService } from '@app/app.service';
 
 import { Question } from '@models/question.model';
+import { addIcons } from 'ionicons';
+import { chatbubbles, thumbsUp } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-question-summary',
@@ -23,5 +26,6 @@ export class QuestionSummaryComponent {
    */
   @Output() select = new EventEmitter<void>();
 
-  constructor(public app: AppService) {}
+  constructor(public app: AppService) {
+    addIcons({ chatbubbles, thumbsUp });}
 }

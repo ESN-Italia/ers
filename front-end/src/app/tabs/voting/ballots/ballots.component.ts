@@ -22,6 +22,9 @@ import { AppService } from '@app/app.service';
 
 import { VotingMajorityTypes, VotingSession, VotingBallot } from '@models/votingSession.model';
 import { VotingResults } from '@models/votingResult.model';
+import { addIcons } from 'ionicons';
+import { information, pencil, trashOutline } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -190,7 +193,8 @@ export class BallotsStandaloneComponent implements OnInit, OnChanges, OnDestroy 
     private t: IDEATranslationsService,
     public app: AppService,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    addIcons({ information, pencil, trashOutline });}
 
   ngOnInit(): void {
     this.raw = Array<boolean>(this.votingSession.ballots.length);

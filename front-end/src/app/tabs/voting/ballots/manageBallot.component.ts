@@ -7,6 +7,9 @@ import { IDEAMessageService, IDEAShowHintButtonModule, IDEATranslationsModule } 
 import { AppService } from '@app/app.service';
 
 import { VotingBallot, VotingMajorityTypes } from '@models/votingSession.model';
+import { addIcons } from 'ionicons';
+import { checkmarkCircle, closeCircle, trashOutline } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -87,7 +90,8 @@ export class ManageBallotStandaloneComponent implements OnInit {
 
   MajorityTypes = VotingMajorityTypes;
 
-  constructor(private modalCtrl: ModalController, private message: IDEAMessageService, public app: AppService) {}
+  constructor(private modalCtrl: ModalController, private message: IDEAMessageService, public app: AppService) {
+    addIcons({ checkmarkCircle, closeCircle, trashOutline });}
   ngOnInit(): void {
     this.ballot = new VotingBallot(this.ballot);
   }

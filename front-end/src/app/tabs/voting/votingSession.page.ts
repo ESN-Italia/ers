@@ -6,6 +6,9 @@ import { AppService } from '@app/app.service';
 import { VotingService } from './voting.service';
 
 import { Voter, VotingSession, VotingSessionTypes } from '@models/votingSession.model';
+import { addIcons } from 'ionicons';
+import { arrowBack, build, download, golfOutline, playOutline, stopOutline, ticketOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'voting-session',
@@ -26,7 +29,8 @@ export class VotingSessionPage {
     private _voting: VotingService,
     private t: IDEATranslationsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ arrowBack, build, download, golfOutline, playOutline, stopOutline, ticketOutline });}
   async ionViewWillEnter(): Promise<void> {
     try {
       await this.loading.show();

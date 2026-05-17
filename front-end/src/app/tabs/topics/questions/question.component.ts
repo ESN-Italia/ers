@@ -14,6 +14,9 @@ import { Answer } from '@models/answer.model';
 import { Topic } from '@models/topic.model';
 import { Subject } from '@models/subject.model';
 import { UserDraft } from '@models/userDraft.model';
+import { addIcons } from 'ionicons';
+import { close, eye, send, thumbsUp, trash, trashOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-question',
@@ -54,7 +57,9 @@ export class QuestionComponent implements OnChanges {
     private _answers: AnswersService,
     private _drafts: UserDraftsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ close, eye, send, thumbsUp, trash, trashOutline });
+  }
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.question?.currentValue)
       [this.answers, this.userUpvoted, this.userClapped, this.fromDraft] = await Promise.all([

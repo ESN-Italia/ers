@@ -22,6 +22,9 @@ import { Topic, TopicTypes } from '@models/topic.model';
 import { Message, MessageTypes } from '@models/message.model';
 import { Subject } from '@models/subject.model';
 import { WebSocketConnectionTypes, WebSocketMessage } from '@models/webSocket.model';
+import { addIcons } from 'ionicons';
+import { arrowBack, attach, build, checkmarkDone, close, contract, documentText, ellipsisHorizontal, expand, eye, heart, mic, pulseOutline, send } from 'ionicons/icons';
+
 
 @Component({
   selector: 'live-topic',
@@ -69,7 +72,8 @@ export class LiveTopicPage implements OnInit, OnDestroy {
     private _messages: MessagesService,
     private _configurations: ConfigurationsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ arrowBack, attach, build, checkmarkDone, close, contract, documentText, ellipsisHorizontal, expand, eye, heart, mic, pulseOutline, send });}
   ngOnInit(): void {
     this.webSocket.open({
       openParams: { type: WebSocketConnectionTypes.MESSAGES, referenceId: this.topicId },

@@ -9,6 +9,9 @@ import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent, EventSpot, EventQuestion, EventOptionalTicket, QuestionType, EventType } from '@models/ersEvent.model';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
 import { BulkDeleteComponent } from './bulk-delete/bulk-delete.component';
+import { addIcons } from 'ionicons';
+import { cloudUploadOutline, copy, createOutline, linkOutline, openOutline, trash } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-manage-event',
@@ -37,7 +40,8 @@ export class ManageEventPage implements OnInit {
     private service: ERSEventsService,
     private _media: MediaService,
     public app: AppService
-  ) { }
+  ) {
+    addIcons({ cloudUploadOutline, copy, createOutline, linkOutline, openOutline, trash }); }
 
   async ngOnInit(): Promise<void> {
     this.eventId = this.route.snapshot.paramMap.get('eventId');

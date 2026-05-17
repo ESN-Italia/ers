@@ -6,6 +6,9 @@ import { AppService } from '@app/app.service';
 import { OpportunitiesService, OpportunitiesSortBy } from '../opportunities.service';
 
 import { Opportunity } from '@models/opportunity.model';
+import { addIcons } from 'ionicons';
+import { arrowBack, search } from 'ionicons/icons';
+
 
 const FIRST_YEAR_FOR_ARCHIVE = 2023;
 
@@ -28,7 +31,8 @@ export class ArchivePage implements OnInit {
     private message: IDEAMessageService,
     private _opportunities: OpportunitiesService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ arrowBack, search });}
   ngOnInit(): void {
     this.years = this.app.getYearsSince(FIRST_YEAR_FOR_ARCHIVE);
   }

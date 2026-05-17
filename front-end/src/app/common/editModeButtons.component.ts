@@ -1,6 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AppService } from '../app.service';
+import { addIcons } from 'ionicons';
+import { arrowBack, checkmarkCircle, closeCircle, pencil } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-edit-mode-buttons',
@@ -33,5 +36,6 @@ export class EditModeButtonsComponent {
    */
   @Output() save = new EventEmitter<void>();
 
-  constructor(public app: AppService) {}
+  constructor(public app: AppService) {
+    addIcons({ arrowBack, checkmarkCircle, closeCircle, pencil });}
 }

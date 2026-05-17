@@ -9,6 +9,9 @@ import { BadgesService } from '@tabs/configurations/badges/badges.service';
 
 import { environment as env } from '@env';
 import { UserBadge } from '@models/badge.model';
+import { addIcons } from 'ionicons';
+import { helpBuoyOutline, logOutOutline, personOutline, sadOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'profile',
@@ -16,6 +19,10 @@ import { UserBadge } from '@models/badge.model';
   styleUrls: ['profile.page.scss']
 })
 export class ProfilePage implements OnInit {
+  constructor() {
+    addIcons({ helpBuoyOutline, logOutOutline, personOutline, sadOutline });
+  }
+
   version = env.idea.app.version;
 
   userBadges: UserBadge[];

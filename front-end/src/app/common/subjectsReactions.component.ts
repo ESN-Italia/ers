@@ -4,6 +4,9 @@ import { PopoverController } from '@ionic/angular';
 import { AppService } from '@app/app.service';
 
 import { Subject } from '@models/subject.model';
+import { addIcons } from 'ionicons';
+import { close } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-subject-reactions',
@@ -26,7 +29,8 @@ export class SubjectsReactionsComponent implements AfterViewInit {
   icon: string;
   color: string;
 
-  constructor(private popoverCtrl: PopoverController, public app: AppService) {}
+  constructor(private popoverCtrl: PopoverController, public app: AppService) {
+    addIcons({ close });}
   async ngAfterViewInit(): Promise<void> {
     if (this.subjectsPromise) this.subjects = await this.subjectsPromise;
     this.showSpinner = false;

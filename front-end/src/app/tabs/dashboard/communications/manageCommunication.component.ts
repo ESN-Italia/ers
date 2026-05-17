@@ -17,6 +17,9 @@ import { MediaService } from '@app/common/media.service';
 import { CommunicationsService } from './communications.service';
 
 import { Communication } from '@models/communication.model';
+import { addIcons } from 'ionicons';
+import { checkmarkCircle, closeCircle, cloudUploadOutline } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -113,7 +116,8 @@ export class ManageCommunicationComponent {
     private _communications: CommunicationsService,
     private _media: MediaService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ checkmarkCircle, closeCircle, cloudUploadOutline });}
 
   hasFieldAnError(field: string): boolean {
     return this.errors.has(field);

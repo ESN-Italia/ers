@@ -17,6 +17,9 @@ import { AppService } from '@app/app.service';
 import { ApplicationsService } from './applications.service';
 
 import { Application, ApplicationStatuses } from '@models/application.model';
+import { addIcons } from 'ionicons';
+import { attach } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -115,7 +118,8 @@ export class ApplicationStandaloneComponent {
     private t: IDEATranslationsService,
     private _applications: ApplicationsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ attach });}
 
   getApplicationColorByStatus(application: Application): string {
     const status = application.getStatus();

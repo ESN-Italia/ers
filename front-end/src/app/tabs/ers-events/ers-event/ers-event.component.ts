@@ -2,6 +2,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AppService } from '@app/app.service';
 import { ERSEvent } from '@models/ersEvent.model';
+import { addIcons } from 'ionicons';
+import { listOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-ers-event',
@@ -16,5 +19,6 @@ export class ERSEventComponent {
   @Output() viewRegs = new EventEmitter<Event>();
   now = new Date().toISOString();
 
-  constructor(public app: AppService) { }
+  constructor(public app: AppService) {
+    addIcons({ listOutline }); }
 }

@@ -8,6 +8,9 @@ import { GAEventsService } from '../../configurations/events/events.service';
 
 import { VotingSession } from '@models/votingSession.model';
 import { GAEvent } from '@models/event.model';
+import { addIcons } from 'ionicons';
+import { arrowBack, search } from 'ionicons/icons';
+
 
 @Component({
   selector: 'voting-archive',
@@ -29,7 +32,8 @@ export class VotingArchivePage implements OnInit {
     private _voting: VotingService,
     private _events: GAEventsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ arrowBack, search });}
   async ngOnInit(): Promise<void> {
     this.events = await this._events.getList({ all: true });
   }

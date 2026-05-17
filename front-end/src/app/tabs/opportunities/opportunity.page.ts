@@ -15,6 +15,9 @@ import { environment as env } from '@env';
 import { Opportunity } from '@models/opportunity.model';
 import { Application, ApplicationStatuses } from '@models/application.model';
 import { Subject } from '@models/subject.model';
+import { addIcons } from 'ionicons';
+import { arrowBack, arrowUndoOutline, attach, bandage, build, close, handRight, send, sparkles, trash } from 'ionicons/icons';
+
 
 @Component({
   selector: 'opportunity',
@@ -47,7 +50,8 @@ export class OpportunityPage {
     private _applications: ApplicationsService,
     private _attachments: PublicAttachmentsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ arrowBack, arrowUndoOutline, attach, bandage, build, close, handRight, send, sparkles, trash });}
   async ionViewWillEnter(): Promise<void> {
     try {
       await this.loading.show();

@@ -11,6 +11,9 @@ import { MediaService } from '@app/common/media.service';
 import { Topic, TopicTypes } from '@models/topic.model';
 import { Subject, SubjectTypes } from '@models/subject.model';
 import { UserRoles } from '@models/user.model';
+import { addIcons } from 'ionicons';
+import { cloudUploadOutline, trashOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'manage-topic',
@@ -50,7 +53,8 @@ export class ManageTopicPage {
     private _topics: TopicsService,
     private _media: MediaService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ cloudUploadOutline, trashOutline });}
   async ionViewWillEnter(): Promise<void> {
     if (!this.app.user.isAdministrator) return this.app.closePage('COMMON.UNAUTHORIZED');
 

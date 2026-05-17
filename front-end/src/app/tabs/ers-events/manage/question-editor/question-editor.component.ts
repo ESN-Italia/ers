@@ -5,6 +5,9 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { IDEATranslationsModule } from '@idea-ionic/common';
 
 import { ERSEvent, EventQuestion, QuestionType } from '@models/ersEvent.model';
+import { addIcons } from 'ionicons';
+import { addCircleOutline, checkmark, close, trashOutline } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -24,7 +27,8 @@ export class QuestionEditorComponent implements OnInit {
 
   QuestionType = QuestionType;
 
-  constructor(private modalCtrl: ModalController) {}
+  constructor(private modalCtrl: ModalController) {
+    addIcons({ addCircleOutline, checkmark, close, trashOutline });}
 
   ngOnInit(): void {
     if (this.question) {

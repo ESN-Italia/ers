@@ -5,6 +5,9 @@ import { AppService } from '@app/app.service';
 import { Topic, TopicTypes } from '@models/topic.model';
 import { SubjectTypes } from '@models/subject.model';
 import { StatisticEntityTypes } from '@models/statistic.model';
+import { addIcons } from 'ionicons';
+import { ellipse } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-topic',
@@ -39,7 +42,8 @@ export class TopicComponent {
 
   SET = StatisticEntityTypes;
 
-  constructor(public app: AppService) {}
+  constructor(public app: AppService) {
+    addIcons({ ellipse });}
 
   onCheckboxChange(event: any) {
     this.selected = event.detail.checked;

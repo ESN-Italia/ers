@@ -14,6 +14,9 @@ import { AppService } from '@app/app.service';
 import { VotingService } from '../voting.service';
 
 import { ExportableVoter, Voter, VotingSession } from '@models/votingSession.model';
+import { addIcons } from 'ionicons';
+import { closeCircle, download, folder } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -119,7 +122,8 @@ export class ImportVotersStandaloneComponent implements OnInit {
     private t: IDEATranslationsService,
     private _voting: VotingService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ closeCircle, download, folder });}
   async ngOnInit(): Promise<void> {
     this.otherVotingSessions = (await this._voting.getActiveList()).filter(
       x => x.sessionId !== this.votingSession.sessionId

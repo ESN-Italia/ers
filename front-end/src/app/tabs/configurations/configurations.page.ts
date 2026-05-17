@@ -13,6 +13,9 @@ import { MediaService } from '@app/common/media.service';
 
 import { Configurations, EmailTemplates, UsersOriginDisplayOptions } from '@models/configurations.model';
 import { Badge } from '@models/badge.model';
+import { addIcons } from 'ionicons';
+import { cloudUploadOutline, openOutline, pencil, trashOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'configurations',
@@ -44,7 +47,8 @@ export class ConfigurationsPage implements OnInit {
     private _media: MediaService,
     public _badges: BadgesService,
     public app: AppService
-  ) { }
+  ) {
+    addIcons({ cloudUploadOutline, openOutline, pencil, trashOutline }); }
   async ngOnInit(): Promise<void> {
     this.configurations = await this._configurations.get();
     this.filterBadges(null, null, true);

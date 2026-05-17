@@ -10,6 +10,9 @@ import { GAEventsService } from '@tabs/configurations/events/events.service';
 import { TopicCategory } from '@models/category.model';
 import { GAEvent } from '@models/event.model';
 import { Topic, TopicTypes } from '@models/topic.model';
+import { addIcons } from 'ionicons';
+import { arrowBack, search } from 'ionicons/icons';
+
 
 @Component({
   selector: 'archive',
@@ -35,7 +38,8 @@ export class ArchivePage implements OnInit {
     private _categories: TopicCategoryService,
     private _events: GAEventsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ arrowBack, search });}
   async ngOnInit(): Promise<void> {
     [this.categories, this.events] = await Promise.all([
       this._categories.getList({ all: true }),

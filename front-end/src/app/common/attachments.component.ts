@@ -6,6 +6,9 @@ import { AppService } from '../app.service';
 import { PublicAttachmentsService } from './attachments.service';
 
 import { environment as env } from '@env';
+import { addIcons } from 'ionicons';
+import { close, cloudDownloadOutline, remove } from 'ionicons/icons';
+
 
 export const ACCEPTED_ATTACHMENTS_FORMATS = ['image/*', '.pdf', '.doc', '.docx', '.xls', '.xlsx'];
 
@@ -34,7 +37,8 @@ export class AttachmentsComponent {
     private _attachments: PublicAttachmentsService,
     public app: AppService,
     public t: IDEATranslationsService
-  ) {}
+  ) {
+    addIcons({ close, cloudDownloadOutline, remove });}
 
   browseFiles(event?: any): void {
     if (event) event.stopPropagation();

@@ -7,6 +7,9 @@ import { ConfigurationsService } from '../configurations.service';
 import { AppService } from '@app/app.service';
 
 import { EmailTemplates } from '@models/configurations.model';
+import { addIcons } from 'ionicons';
+import { checkmarkCircleOutline, closeCircleOutline, cloudDownload, folder, send, trash } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-email-template',
@@ -34,7 +37,8 @@ export class EmailTemplateComponent implements OnInit {
     private t: IDEATranslationsService,
     private _configurations: ConfigurationsService,
     private app: AppService
-  ) {}
+  ) {
+    addIcons({ checkmarkCircleOutline, closeCircleOutline, cloudDownload, folder, send, trash });}
   async ngOnInit(): Promise<void> {
     const { subject, content } = await this.getTemplate();
     this.subject = subject;

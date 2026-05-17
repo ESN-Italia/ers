@@ -5,6 +5,9 @@ import { AppService } from '@app/app.service';
 import { TopicCategoryService } from './categories.service';
 
 import { TopicCategory } from '@models/category.model';
+import { addIcons } from 'ionicons';
+import { arrowBack } from 'ionicons/icons';
+
 
 @Component({
   selector: 'categories',
@@ -14,7 +17,8 @@ import { TopicCategory } from '@models/category.model';
 export class CategoriesPage {
   categories: TopicCategory[];
 
-  constructor(private _categories: TopicCategoryService, public app: AppService) {}
+  constructor(private _categories: TopicCategoryService, public app: AppService) {
+    addIcons({ arrowBack });}
   async ionViewDidEnter(): Promise<void> {
     this.categories = await this._categories.getList({ force: true, withPagination: true });
   }

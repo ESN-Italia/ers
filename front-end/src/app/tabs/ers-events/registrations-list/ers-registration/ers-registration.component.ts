@@ -3,6 +3,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AppService } from '@app/app.service';
 import { ERSEvent } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
+import { addIcons } from 'ionicons';
+import { checkmarkOutline, chevronForward, closeOutline, walletOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-ers-registration',
@@ -24,7 +27,8 @@ export class ERSRegistrationComponent {
 
   RegistrationStatus = RegistrationStatus;
 
-  constructor(public app: AppService) { }
+  constructor(public app: AppService) {
+    addIcons({ checkmarkOutline, chevronForward, closeOutline, walletOutline }); }
 
   getUserName(): string {
     if (!this.registration?.subject) return '';

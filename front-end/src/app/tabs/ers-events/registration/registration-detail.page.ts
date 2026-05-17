@@ -17,6 +17,9 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 pdfMake.vfs = pdfFonts?.pdfMake?.vfs || pdfFonts;
 
 import htmlToPdfmake from 'html-to-pdfmake';
+import { addIcons } from 'ionicons';
+import { arrowBack, attach, calendarSharp, checkmarkDoneOutline, closeCircleOutline, cloudUpload, createOutline, downloadOutline, informationCircle, locationSharp, optionsOutline, trashOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-registration-detail',
@@ -41,7 +44,9 @@ export class RegistrationDetailPage implements OnInit {
     private t: IDEATranslationsService,
     private service: ERSEventsService,
     public app: AppService
-  ) { }
+  ) {
+    addIcons({ arrowBack, attach, calendarSharp, checkmarkDoneOutline, closeCircleOutline, cloudUpload, createOutline, downloadOutline, informationCircle, locationSharp, optionsOutline, trashOutline });
+  }
 
   async ngOnInit(): Promise<void> {
     this.eventId = this.route.snapshot.paramMap.get('eventId');

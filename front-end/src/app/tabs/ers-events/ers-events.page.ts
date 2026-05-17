@@ -3,6 +3,9 @@ import { Component } from '@angular/core';
 import { AppService } from '@app/app.service';
 import { ERSEvent, EventType } from '@models/ersEvent.model';
 import { ERSEventsService } from './ers-events.service';
+import { addIcons } from 'ionicons';
+import { add } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-ers-events',
@@ -20,7 +23,8 @@ export class ERSEventsPage {
 
   EventType = EventType;
 
-  constructor(public app: AppService, private service: ERSEventsService) { }
+  constructor(public app: AppService, private service: ERSEventsService) {
+    addIcons({ add }); }
 
   async ionViewWillEnter(): Promise<void> {
     await this.loadList();

@@ -6,6 +6,9 @@ import { IDEALoadingService, IDEAMessageService, IDEATranslationsModule } from '
 
 import { ERSEventsService } from '../ers-events.service';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
+import { addIcons } from 'ionicons';
+import { checkmarkCircle, closeCircle } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -62,7 +65,8 @@ export class EditStatusComponent implements OnInit {
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
     private service: ERSEventsService
-  ) { }
+  ) {
+    addIcons({ checkmarkCircle, closeCircle }); }
 
   ngOnInit(): void {
     this.selectedStatus = this.registration.status;

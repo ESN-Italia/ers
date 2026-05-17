@@ -7,6 +7,9 @@ import { VotingService } from '../voting.service';
 
 import { VotingSession } from '@models/votingSession.model';
 import { VotingTicket } from '@models/votingTicket.model';
+import { addIcons } from 'ionicons';
+import { checkmarkDone, information } from 'ionicons/icons';
+
 
 @Component({
   selector: 'vote',
@@ -42,7 +45,8 @@ export class VotePage implements OnInit {
     private t: IDEATranslationsService,
     private _voting: VotingService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ checkmarkDone, information });}
   async ngOnInit(): Promise<void> {
     try {
       await this.loading.show();

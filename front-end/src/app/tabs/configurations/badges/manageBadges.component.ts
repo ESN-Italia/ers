@@ -14,6 +14,9 @@ import { BadgesService } from './badges.service';
 import { MediaService } from '@common/media.service';
 
 import { Badge } from '@models/badge.model';
+import { addIcons } from 'ionicons';
+import { checkmarkCircleOutline, closeCircleOutline, cloudUploadOutline } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -79,7 +82,8 @@ export class ManageBadgesComponent implements OnInit {
     private _media: MediaService,
     public _badges: BadgesService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ checkmarkCircleOutline, closeCircleOutline, cloudUploadOutline });}
   ngOnInit(): void {
     this.badge = new Badge(this.badge);
   }

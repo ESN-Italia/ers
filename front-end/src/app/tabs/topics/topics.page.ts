@@ -16,6 +16,9 @@ import { TopicCategory } from '@models/category.model';
 import { GAEvent } from '@models/event.model';
 import { Topic, TopicTypes } from '@models/topic.model';
 import { StatisticEntityTypes } from '@models/statistic.model';
+import { addIcons } from 'ionicons';
+import { add, archiveOutline, cog } from 'ionicons/icons';
+
 
 @Component({
   selector: 'topics',
@@ -56,7 +59,8 @@ export class TopicsPage implements OnInit {
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
     private alertCtrl: AlertController
-  ) {}
+  ) {
+    addIcons({ add, archiveOutline, cog });}
   async ngOnInit(): Promise<void> {
     await this.loadResources();
   }

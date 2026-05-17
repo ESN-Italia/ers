@@ -8,6 +8,9 @@ import { GAEventsService } from '../configurations/events/events.service';
 
 import { GAEvent } from '@models/event.model';
 import { VotingSession, VotingSessionTypes } from '@models/votingSession.model';
+import { addIcons } from 'ionicons';
+import { add, archiveOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'voting-sessions',
@@ -32,7 +35,8 @@ export class VotingSessionsPage implements OnInit {
     private _voting: VotingService,
     private _events: GAEventsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ add, archiveOutline });}
   async ngOnInit(): Promise<void> {
     await this.loadResources();
   }

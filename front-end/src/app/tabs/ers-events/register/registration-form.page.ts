@@ -10,6 +10,9 @@ import { ERSEvent, EventQuestion, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration } from '@models/ersRegistration.model';
 import { Subject } from '@models/subject.model';
 import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
+import { addIcons } from 'ionicons';
+import { arrowBack } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-registration-form',
@@ -34,7 +37,8 @@ export class RegistrationFormPage implements OnInit {
     private message: IDEAMessageService,
     private service: ERSEventsService,
     public app: AppService
-  ) { }
+  ) {
+    addIcons({ arrowBack }); }
 
   async ngOnInit(): Promise<void> {
     this.eventId = this.route.snapshot.paramMap.get('eventId');

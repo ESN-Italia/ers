@@ -20,6 +20,9 @@ import { Communication } from '@models/communication.model';
 import { Deadline } from '@models/deadline.model';
 import { UsefulLink } from '@models/usefulLink.model';
 import { Statistic, StatisticEntityTypes, StatisticGranularities } from '@models/statistic.model';
+import { addIcons } from 'ionicons';
+import { archiveOutline, arrowDown, arrowUp, pencil } from 'ionicons/icons';
+
 
 /**
  * The number of days to consider a deadline "upcoming"/next.
@@ -58,7 +61,8 @@ export class DashboardPage implements OnInit {
     private _usefulLinks: UsefulLinksService,
     private _statistics: StatisticsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ archiveOutline, arrowDown, arrowUp, pencil });}
   async ngOnInit(): Promise<void> {
     [this.communications, this.deadlines, this.usefulLinks, this.statistic] = await Promise.all([
       this._communications.getList(),

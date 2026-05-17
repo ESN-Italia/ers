@@ -11,6 +11,9 @@ import { AppService } from '@app/app.service';
 import { DeadlinesService } from './deadlines.service';
 
 import { Deadline } from '@models/deadline.model';
+import { addIcons } from 'ionicons';
+import { close, pencil } from 'ionicons/icons';
+
 
 const FIRST_YEAR_FOR_DEADLINES = 2023;
 
@@ -99,7 +102,8 @@ export class DeadlinesComponent implements OnInit {
     private message: IDEAMessageService,
     private _deadlines: DeadlinesService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ close, pencil });}
   ngOnInit(): void {
     this.years = this.app.getYearsSince(FIRST_YEAR_FOR_DEADLINES);
   }

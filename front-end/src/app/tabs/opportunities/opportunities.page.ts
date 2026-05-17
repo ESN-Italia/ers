@@ -7,6 +7,9 @@ import { OpportunitiesService, OpportunitiesSortBy } from './opportunities.servi
 
 import { Opportunity } from '@models/opportunity.model';
 import { StatisticEntityTypes } from '@models/statistic.model';
+import { addIcons } from 'ionicons';
+import { add, archiveOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'opportunities',
@@ -29,7 +32,8 @@ export class OpportunitiesPage implements OnInit {
     private t: IDEATranslationsService,
     private _opportunities: OpportunitiesService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ add, archiveOutline });}
   async ngOnInit(): Promise<void> {
     await this.loadResources();
   }

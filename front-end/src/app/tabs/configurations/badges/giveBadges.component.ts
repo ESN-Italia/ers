@@ -17,6 +17,9 @@ import { AppService } from '@app/app.service';
 import { BadgesService } from './badges.service';
 
 import { Badge, BuiltInBadges, UserBadge } from '@models/badge.model';
+import { addIcons } from 'ionicons';
+import { add, arrowUndo, closeCircleOutline, openOutline, search, trash } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -114,7 +117,8 @@ export class GiveBadgesComponent implements OnInit {
     private t: IDEATranslationsService,
     public _badges: BadgesService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ add, arrowUndo, closeCircleOutline, openOutline, search, trash });}
   async ngOnInit(): Promise<void> {
     this.badges = await this._badges.getList();
   }

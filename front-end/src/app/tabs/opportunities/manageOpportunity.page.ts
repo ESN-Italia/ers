@@ -7,6 +7,9 @@ import { AppService } from '@app/app.service';
 import { OpportunitiesService } from './opportunities.service';
 
 import { Opportunity, OpportunityApplicationAttachment } from '@models/opportunity.model';
+import { addIcons } from 'ionicons';
+import { openOutline, trash, trashOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'manage-opportunity',
@@ -35,7 +38,8 @@ export class ManageOpportunityPage {
     private t: IDEATranslationsService,
     private _opportunities: OpportunitiesService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ openOutline, trash, trashOutline });}
   async ionViewWillEnter(): Promise<void> {
     try {
       await this.loading.show();

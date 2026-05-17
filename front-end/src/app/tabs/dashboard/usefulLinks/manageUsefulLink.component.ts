@@ -14,6 +14,9 @@ import { EventsPickerComponent } from 'src/app/common/eventsPicker.component';
 import { UsefulLinksService } from './usefulLinks.service';
 
 import { UsefulLink } from '@models/usefulLink.model';
+import { addIcons } from 'ionicons';
+import { checkmarkCircle, closeCircle } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -78,7 +81,8 @@ export class ManageUsefulLinkComponent {
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
     private _usefulLinks: UsefulLinksService
-  ) {}
+  ) {
+    addIcons({ checkmarkCircle, closeCircle });}
 
   hasFieldAnError(field: string): boolean {
     return this.errors.has(field);

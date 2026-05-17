@@ -28,6 +28,9 @@ import {
 import { VotingTicket } from '@models/votingTicket.model';
 import { WebSocketConnectionTypes, WebSocketMessage } from '@models/webSocket.model';
 import { VotingResults } from '@models/votingResult.model';
+import { addIcons } from 'ionicons';
+import { arrowForward, checkmarkDone, checkmarkOutline, download, ellipsisHorizontal, eye, informationCircleOutline, logInOutline, openOutline, optionsOutline, playForward, playOutline, rocket, share, stop, stopOutline, ticketOutline, trailSignOutline, trashOutline } from 'ionicons/icons';
+
 
 @Component({
   selector: 'manage-voting-session',
@@ -95,7 +98,8 @@ export class ManageVotingSessionPage implements OnDestroy {
     private webSocket: IDEAWebSocketApiService,
     private _voting: VotingService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ arrowForward, checkmarkDone, checkmarkOutline, download, ellipsisHorizontal, eye, informationCircleOutline, logInOutline, openOutline, optionsOutline, playForward, playOutline, rocket, share, stop, stopOutline, ticketOutline, trailSignOutline, trashOutline });}
   ngOnDestroy(): void {
     if (this.webSocket) this.webSocket.close();
   }

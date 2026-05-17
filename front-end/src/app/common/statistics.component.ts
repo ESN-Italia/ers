@@ -8,6 +8,9 @@ import { AppService } from '@app/app.service';
 import { StatisticsService } from './statistics.service';
 
 import { StatisticEntityTypes, Statistic, StatisticGranularities } from '@models/statistic.model';
+import { addIcons } from 'ionicons';
+import { closeCircleOutline, earth, home, person } from 'ionicons/icons';
+
 
 @Component({
   selector: 'app-statistics-button',
@@ -59,7 +62,8 @@ export class StatisticsButtonComponent {
    */
   @Input() color: string = 'ESNpink';
 
-  constructor(private modalCtrl: ModalController) {}
+  constructor(private modalCtrl: ModalController) {
+    addIcons({ closeCircleOutline, earth, home, person });}
 
   async openStatistics(event?: Event): Promise<void> {
     if (event) event.stopPropagation();

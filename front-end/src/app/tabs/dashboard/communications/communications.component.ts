@@ -12,6 +12,9 @@ import { AppService } from '@app/app.service';
 import { CommunicationsService } from './communications.service';
 
 import { Communication } from '@models/communication.model';
+import { addIcons } from 'ionicons';
+import { close, pencil } from 'ionicons/icons';
+
 
 const FIRST_YEAR_FOR_COMMUNICATIONS = 2023;
 
@@ -102,7 +105,8 @@ export class CommunicationsComponent implements OnInit {
     private message: IDEAMessageService,
     private _communications: CommunicationsService,
     public app: AppService
-  ) {}
+  ) {
+    addIcons({ close, pencil });}
   async ngOnInit(): Promise<void> {
     this.years = this.app.getYearsSince(FIRST_YEAR_FOR_COMMUNICATIONS);
     await this.loadListOfYear(this.filterByYear);

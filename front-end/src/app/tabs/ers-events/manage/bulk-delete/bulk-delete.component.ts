@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { IDEATranslationsModule } from '@idea-ionic/common';
+import { addIcons } from 'ionicons';
+import { checkmark, close } from 'ionicons/icons';
+
 
 @Component({
   standalone: true,
@@ -14,7 +17,8 @@ import { IDEATranslationsModule } from '@idea-ionic/common';
 export class BulkDeleteComponent {
   @Input() items: { id: string, label: string, selected?: boolean }[] = [];
 
-  constructor(private modalCtrl: ModalController) {}
+  constructor(private modalCtrl: ModalController) {
+    addIcons({ checkmark, close });}
 
   hasSelected(): boolean {
     return this.items.some(i => i.selected);
