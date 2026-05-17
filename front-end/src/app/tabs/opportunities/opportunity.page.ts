@@ -113,7 +113,7 @@ export class OpportunityPage {
     } catch (err) {
       this.removeAttachmentByExpectedName(expectedAttachmentName);
       this.attachmentUploadErros[expectedAttachmentName] = err.message;
-      this.message.error(err.message, { dontTranslate: true });
+      this.message.error(err.message, true);
     }
 
     // empty the file picker to allow the upload of new files with the same name

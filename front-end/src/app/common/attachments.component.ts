@@ -74,7 +74,7 @@ export class AttachmentsComponent {
     } catch (err) {
       this.uploadErrors.push({ file: name, error: err.message });
       this.removeAttachment(attachment);
-      this.message.error(err.message, { dontTranslate: true });
+      this.message.error(err.message, true);
     }
   }
 

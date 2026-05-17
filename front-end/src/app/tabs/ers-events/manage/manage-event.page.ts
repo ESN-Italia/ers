@@ -362,7 +362,7 @@ export class ManageEventPage implements OnInit {
         this.message.success('COMMON.OPERATION_COMPLETED');
         this.app.goToInTabs(['ers-events'], { back: true });
       } catch (err) {
-        this.message.error(err.message, { dontTranslate: true });
+        this.message.error(err.message, true);
       } finally {
         this.loading.hide();
       }
@@ -386,7 +386,7 @@ export class ManageEventPage implements OnInit {
       this.event = await this.service.getById(this.eventId);
       this.message.success('COMMON.OPERATION_COMPLETED');
     } catch (err) {
-      this.message.error(err.message, { dontTranslate: true });
+      this.message.error(err.message, true);
     } finally {
       this.loading.hide();
     }
@@ -399,7 +399,7 @@ export class ManageEventPage implements OnInit {
       this.event = await this.service.getById(this.eventId);
       this.message.success('COMMON.OPERATION_COMPLETED');
     } catch (err) {
-      this.message.error(err.message, { dontTranslate: true });
+      this.message.error(err.message, true);
     } finally {
       this.loading.hide();
     }
@@ -422,7 +422,7 @@ export class ManageEventPage implements OnInit {
         this.message.success('COMMON.OPERATION_COMPLETED');
         this.app.goToInTabs(['ers-events', result.eventId, 'manage']);
       } catch (err) {
-        this.message.error(err.message, { dontTranslate: true });
+        this.message.error(err.message, true);
       } finally {
         this.loading.hide();
       }
