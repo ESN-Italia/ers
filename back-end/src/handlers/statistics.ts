@@ -26,7 +26,7 @@ import { Statistic, StatisticEntityTypes, StatisticEntry, StatisticGranularities
 const DDB_TABLES = { statistics: process.env.DDB_TABLE_statistics };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new StatisticsRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new StatisticsRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -35,8 +35,8 @@ export const handler = (ev: any, _: any, cb: any): Promise<void> => new Statisti
 class StatisticsRC extends ResourceController {
   galaxyUser: User;
 
-  constructor(event: any, callback: any) {
-    super(event, callback);
+  constructor(event: any) {
+    super(event);
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

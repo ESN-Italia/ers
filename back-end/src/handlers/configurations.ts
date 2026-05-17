@@ -32,7 +32,7 @@ const s3 = new S3();
 const S3_BUCKET_MEDIA = process.env.S3_BUCKET_MEDIA;
 const S3_ASSETS_FOLDER = process.env.S3_ASSETS_FOLDER;
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new ConfigurationsRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new ConfigurationsRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -42,8 +42,8 @@ class ConfigurationsRC extends ResourceController {
   galaxyUser: User;
   configurations: Configurations;
 
-  constructor(event: any, callback: any) {
-    super(event, callback);
+  constructor(event: any) {
+    super(event);
     // GET /configurations is public
     this.galaxyUser = event.requestContext.authorizer ? new User(event.requestContext.authorizer.lambda.user) : null;
   }

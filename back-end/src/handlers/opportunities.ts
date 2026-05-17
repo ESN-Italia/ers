@@ -18,7 +18,7 @@ const PROJECT = process.env.PROJECT;
 const DDB_TABLES = { opportunities: process.env.DDB_TABLE_opportunities };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new OpportunitiesRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new OpportunitiesRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -28,8 +28,8 @@ class OpportunitiesRC extends ResourceController {
   galaxyUser: User;
   opportunity: Opportunity;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'opportunityId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'opportunityId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

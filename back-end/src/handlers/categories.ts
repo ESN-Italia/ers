@@ -16,7 +16,7 @@ const PROJECT = process.env.PROJECT;
 const DDB_TABLES = { categories: process.env.DDB_TABLE_categories, topics: process.env.DDB_TABLE_topics };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new TopicCategories(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new TopicCategories(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -26,8 +26,8 @@ class TopicCategories extends ResourceController {
   galaxyUser: User;
   topicCategory: TopicCategory;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'categoryId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'categoryId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

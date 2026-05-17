@@ -38,7 +38,7 @@ const S3_ATTACHMENTS_FOLDER = process.env.S3_ATTACHMENTS_FOLDER;
 const ATTACHMENTS_PREFIX = PROJECT.concat('-public-attachment');
 const s3 = new S3();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new Topics(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new Topics(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -48,8 +48,8 @@ class Topics extends ResourceController {
   galaxyUser: User;
   topic: Topic;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'topicId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'topicId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

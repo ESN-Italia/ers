@@ -19,7 +19,7 @@ const PROJECT = process.env.PROJECT;
 const DDB_TABLES = { usefulLinks: process.env.DDB_TABLE_usefulLinks, events: process.env.DDB_TABLE_events };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new UsefulLinks(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new UsefulLinks(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -29,8 +29,8 @@ class UsefulLinks extends ResourceController {
   galaxyUser: User;
   usefulLink: UsefulLink;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'linkId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'linkId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

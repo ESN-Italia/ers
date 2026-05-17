@@ -18,7 +18,7 @@ interface EmailInBlockList {
   expiresAt: number;
 }
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new HandleSESNotifications(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new HandleSESNotifications(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER

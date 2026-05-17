@@ -19,7 +19,7 @@ const PROJECT = process.env.PROJECT;
 const DDB_TABLES = { deadlines: process.env.DDB_TABLE_deadlines, events: process.env.DDB_TABLE_events };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new Deadlines(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new Deadlines(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -29,8 +29,8 @@ class Deadlines extends ResourceController {
   galaxyUser: User;
   deadline: Deadline;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'deadlineId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'deadlineId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

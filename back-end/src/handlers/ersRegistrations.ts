@@ -33,7 +33,7 @@ const SES_SENDER = {
   replyToAddresses: [process.env.SES_SOURCE_ADDRESS] // Default reply-to
 };
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new ERSRegistrationsRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new ERSRegistrationsRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -44,8 +44,8 @@ class ERSRegistrationsRC extends ResourceController {
   managedEvent: ERSEvent;
   registration: ERSRegistration;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'registrationId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'registrationId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

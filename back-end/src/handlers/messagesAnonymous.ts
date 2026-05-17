@@ -14,7 +14,7 @@ import { Topic, TopicTypes } from '../models/topic.model';
 const DDB_TABLES = { messages: process.env.DDB_TABLE_messages, topics: process.env.DDB_TABLE_topics };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new MessagesAnonymousRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new MessagesAnonymousRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -23,8 +23,8 @@ export const handler = (ev: any, _: any, cb: any): Promise<void> => new Messages
 class MessagesAnonymousRC extends ResourceController {
   topic: Topic;
 
-  constructor(event: any, callback: any) {
-    super(event, callback);
+  constructor(event: any) {
+    super(event);
   }
 
   protected async checkAuthBeforeRequest(): Promise<void> {

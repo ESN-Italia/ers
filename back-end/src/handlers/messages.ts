@@ -21,7 +21,7 @@ const DDB_TABLES = {
 };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new MessagesRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new MessagesRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -32,8 +32,8 @@ class MessagesRC extends ResourceController {
   topic: Topic;
   message: Message;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'messageId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'messageId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

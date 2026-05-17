@@ -36,7 +36,7 @@ const SES_CONFIG = {
 };
 const ses = new SES();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new VotingSessionsRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new VotingSessionsRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -46,8 +46,8 @@ class VotingSessionsRC extends ResourceController {
   galaxyUser: User;
   votingSession: VotingSession;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'sessionId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'sessionId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

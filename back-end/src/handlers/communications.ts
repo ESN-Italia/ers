@@ -19,7 +19,7 @@ const PROJECT = process.env.PROJECT;
 const DDB_TABLES = { communications: process.env.DDB_TABLE_communications, events: process.env.DDB_TABLE_events };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new Communications(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new Communications(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -29,8 +29,8 @@ class Communications extends ResourceController {
   galaxyUser: User;
   communication: Communication;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'communicationId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'communicationId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

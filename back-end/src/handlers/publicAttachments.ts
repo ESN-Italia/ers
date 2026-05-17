@@ -19,7 +19,7 @@ const S3_BUCKET_MEDIA = process.env.S3_BUCKET_MEDIA;
 const S3_ATTACHMENTS_FOLDER = process.env.S3_ATTACHMENTS_FOLDER;
 const s3 = new S3();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new PublicAttachmentsRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new PublicAttachmentsRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -28,8 +28,8 @@ export const handler = (ev: any, _: any, cb: any): Promise<void> => new PublicAt
 class PublicAttachmentsRC extends ResourceController {
   galaxyUser: User;
 
-  constructor(event: any, callback: any) {
-    super(event, callback);
+  constructor(event: any) {
+    super(event);
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

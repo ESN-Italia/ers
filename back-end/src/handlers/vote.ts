@@ -29,7 +29,7 @@ const SES_CONFIG = {
 };
 const ses = new SES();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new VoteRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new VoteRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -38,8 +38,8 @@ export const handler = (ev: any, _: any, cb: any): Promise<void> => new VoteRC(e
 class VoteRC extends ResourceController {
   votingSession: VotingSession;
 
-  constructor(event: any, callback: any) {
-    super(event, callback);
+  constructor(event: any) {
+    super(event);
     this.silentLambdaLogs(); // avoid logging the requests, for secrecy
   }
 

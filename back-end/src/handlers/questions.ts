@@ -39,7 +39,7 @@ const SES_CONFIG = {
 };
 const ses = new SES();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new Questions(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new Questions(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -50,8 +50,8 @@ class Questions extends ResourceController {
   topic: Topic;
   question: Question;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'questionId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'questionId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

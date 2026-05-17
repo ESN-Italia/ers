@@ -11,8 +11,7 @@ import { DynamoDB, GenericController, HandledError, S3 } from 'idea-aws';
 const DDB_TABLES = { topics: process.env.DDB_TABLE_topics, opportunities: process.env.DDB_TABLE_opportunities };
 const ddb = new DynamoDB();
 
-export const handler = async (ev: any, _: any, cb: any): Promise<void> =>
-  await new ScheduledOps(ev, cb).handleRequest();
+export const handler = async (ev: any): Promise<void> => await new ScheduledOps(ev).handleRequest();
 
 class ScheduledOps extends GenericController {
   async handleRequest(): Promise<void> {

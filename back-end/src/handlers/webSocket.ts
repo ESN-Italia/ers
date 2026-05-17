@@ -25,9 +25,9 @@ const ddb = new DynamoDB();
 
 const TWO_HOURS_FROM_NOW_IN_SECONDS = Math.floor(Date.now() / 1000) + 60 * 60 * 2;
 
-export const handler = (ev: any, _: any, cb: any): void => {
-  if (ev.Records) new WebSocketStreamController(ev, cb).handleRequest();
-  else new WebSocketApiController(ev, cb).handleRequest();
+export const handler = async (ev: any): Promise<any> => {
+  if (ev.Records) return await new WebSocketStreamController(ev).handleRequest();
+  else return await new WebSocketApiController(ev).handleRequest();
 };
 
 ///
@@ -35,7 +35,7 @@ export const handler = (ev: any, _: any, cb: any): void => {
 ///
 
 class WebSocketApiController extends GenericController {
-  async handleRequest(): Promise<void> {
+  async handleRequest(): Promise<any> {
     try {
       const { queryStringParameters: qp, requestContext } = this.event;
       const { routeKey, connectionId, authorizer } = requestContext ?? {};
@@ -52,10 +52,10 @@ class WebSocketApiController extends GenericController {
         default:
           throw new HandledError('Unsupported action');
       }
-      this.callback(null, { statusCode: 200 });
+      return { statusCode: 200 };
     } catch (error) {
       this.logger.error('Web socket error', error);
-      this.callback(null, { statusCode: 400 });
+      return { statusCode: 400 };
     }
   }
   private async connect(

@@ -14,7 +14,7 @@ import { Badge, UserBadge } from '../models/badge.model';
 const DDB_TABLES = { badges: process.env.DDB_TABLE_badges, usersBadges: process.env.DDB_TABLE_usersBadges };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new UsersBadgesRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new UsersBadgesRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -24,8 +24,8 @@ class UsersBadgesRC extends ResourceController {
   galaxyUser: User;
   userBadge: UserBadge;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'badge' });
+  constructor(event: any) {
+    super(event, { resourceId: 'badge' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

@@ -23,7 +23,7 @@ const DDB_TABLES = {
 };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new QuestionsUpvotesRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new QuestionsUpvotesRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -34,8 +34,8 @@ class QuestionsUpvotesRC extends ResourceController {
   topic: Topic;
   question: Question;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'userId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'userId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

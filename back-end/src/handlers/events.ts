@@ -23,7 +23,7 @@ const DDB_TABLES = {
 };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new GAEvents(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new GAEvents(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -33,8 +33,8 @@ class GAEvents extends ResourceController {
   galaxyUser: User;
   gaEvent: GAEvent;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'eventId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'eventId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 

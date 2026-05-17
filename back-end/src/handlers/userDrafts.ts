@@ -14,7 +14,7 @@ import { UserDraft } from '../models/userDraft.model';
 const DDB_TABLES = { drafts: process.env.DDB_TABLE_usersDrafts };
 const ddb = new DynamoDB();
 
-export const handler = (ev: any, _: any, cb: any): Promise<void> => new UserDraftsRC(ev, cb).handleRequest();
+export const handler = (ev: any): Promise<any> => new UserDraftsRC(ev).handleRequest();
 
 ///
 /// RESOURCE CONTROLLER
@@ -24,8 +24,8 @@ class UserDraftsRC extends ResourceController {
   galaxyUser: User;
   draft: UserDraft;
 
-  constructor(event: any, callback: any) {
-    super(event, callback, { resourceId: 'draftId' });
+  constructor(event: any) {
+    super(event, { resourceId: 'draftId' });
     this.galaxyUser = new User(event.requestContext.authorizer.lambda.user);
   }
 
