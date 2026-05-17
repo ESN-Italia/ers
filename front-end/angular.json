@@ -11,12 +11,15 @@
       "schematics": {},
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "www",
+            "outputPath": {
+              "base": "www", "browser": ""
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -38,9 +41,7 @@
             "styles": ["src/theme/variables.scss", "src/global.scss"],
             "scripts": [],
             "aot": false,
-            "vendorChunk": true,
             "extractLicenses": false,
-            "buildOptimizer": false,
             "sourceMap": true,
             "namedChunks": true,
             "optimization": false,
@@ -58,7 +59,8 @@
               "date-fns/_lib/getTimezoneOffsetInMilliseconds/index.js",
               "date-fns/_lib/toInteger/index.js",
               "date-fns/_lib/cloneObject/index.js"
-            ]
+            ],
+            "browser": "src/main.ts"
           },
           "configurations": {
             "development": {
@@ -68,8 +70,6 @@
               "namedChunks": false,
               "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
@@ -90,8 +90,6 @@
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
               "optimization": { "styles": { "inlineCritical": false } },
               "budgets": [
                 {
