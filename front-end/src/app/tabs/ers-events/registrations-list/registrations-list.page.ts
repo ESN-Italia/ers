@@ -288,7 +288,11 @@ export class RegistrationsListPage implements OnInit {
     const csvRows = [];
     csvRows.push(headers.join(','));
 
-    for (const reg of this.registrations) {
+    const sortedRegistrations = [...this.registrations].sort((a, b) =>
+      (a.createdAt || '').localeCompare(b.createdAt || '')
+    );
+
+    for (const reg of sortedRegistrations) {
       const row = [
         formatInTimeZone(reg.createdAt, this.app.configurations.timezone, 'yyyy-MM-dd HH:mm:ss'),
         this.escapeCSV(reg.subject?.name),
