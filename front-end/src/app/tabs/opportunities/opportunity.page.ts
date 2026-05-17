@@ -51,7 +51,8 @@ export class OpportunityPage {
     private _attachments: PublicAttachmentsService,
     public app: AppService
   ) {
-    addIcons({ arrowBack, arrowUndoOutline, attach, bandage, build, close, handRight, send, sparkles, trash });}
+    addIcons({ arrowBack, arrowUndoOutline, attach, bandage, build, close, handRight, send, sparkles, trash });
+  }
   async ionViewWillEnter(): Promise<void> {
     try {
       await this.loading.show();
@@ -112,7 +113,7 @@ export class OpportunityPage {
     } catch (err) {
       this.removeAttachmentByExpectedName(expectedAttachmentName);
       this.attachmentUploadErros[expectedAttachmentName] = err.message;
-      this.message.error(err.message, true);
+      this.message.error(err.message, { dontTranslate: true });
     }
 
     // empty the file picker to allow the upload of new files with the same name

@@ -41,7 +41,8 @@ export class ManageEventPage implements OnInit {
     private _media: MediaService,
     public app: AppService
   ) {
-    addIcons({ cloudUploadOutline, copy, createOutline, linkOutline, openOutline, trash }); }
+    addIcons({ cloudUploadOutline, copy, createOutline, linkOutline, openOutline, trash });
+  }
 
   async ngOnInit(): Promise<void> {
     this.eventId = this.route.snapshot.paramMap.get('eventId');
@@ -361,7 +362,7 @@ export class ManageEventPage implements OnInit {
         this.message.success('COMMON.OPERATION_COMPLETED');
         this.app.goToInTabs(['ers-events'], { back: true });
       } catch (err) {
-        this.message.error(err.message, true);
+        this.message.error(err.message, { dontTranslate: true });
       } finally {
         this.loading.hide();
       }
@@ -385,7 +386,7 @@ export class ManageEventPage implements OnInit {
       this.event = await this.service.getById(this.eventId);
       this.message.success('COMMON.OPERATION_COMPLETED');
     } catch (err) {
-      this.message.error(err.message, true);
+      this.message.error(err.message, { dontTranslate: true });
     } finally {
       this.loading.hide();
     }
@@ -398,7 +399,7 @@ export class ManageEventPage implements OnInit {
       this.event = await this.service.getById(this.eventId);
       this.message.success('COMMON.OPERATION_COMPLETED');
     } catch (err) {
-      this.message.error(err.message, true);
+      this.message.error(err.message, { dontTranslate: true });
     } finally {
       this.loading.hide();
     }
@@ -421,7 +422,7 @@ export class ManageEventPage implements OnInit {
         this.message.success('COMMON.OPERATION_COMPLETED');
         this.app.goToInTabs(['ers-events', result.eventId, 'manage']);
       } catch (err) {
-        this.message.error(err.message, true);
+        this.message.error(err.message, { dontTranslate: true });
       } finally {
         this.loading.hide();
       }
