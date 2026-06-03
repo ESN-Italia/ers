@@ -187,34 +187,52 @@
                 <p>{{ registration.foodAllergies || '-' }}</p>
               </ion-label>
             </ion-item>
+            <ion-item *ngIf="registration.subject.preferredPronouns?.length">
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.PREFERRED_PRONOUNS' | translate }}</h3>
+                <p>{{ registration.subject.preferredPronouns.join(' / ') }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item *ngIf="registration.specialAssistance">
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.SPECIAL_ASSISTANCE' | translate }}</h3>
+                <p>{{ registration.specialAssistance }}</p>
+              </ion-label>
+            </ion-item>
 
             <ion-list-header class="ion-margin-top">
               <ion-label>
-                <h2>{{ 'ERS_EVENTS.IDENTITY_CARD' | translate }}</h2>
+                <h2>{{ 'ERS_EVENTS.DOCUMENT' | translate }}</h2>
               </ion-label>
             </ion-list-header>
             <ion-item>
               <ion-label class="ion-text-wrap">
-                <h3>{{ 'ERS_EVENTS.ID_NUMBER' | translate }}</h3>
-                <p>{{ registration.identityCard?.number || '-' }}</p>
+                <h3>{{ 'ERS_EVENTS.DOCUMENT_TYPE' | translate }}</h3>
+                <p>{{ registration.document?.type || '-' }}</p>
               </ion-label>
             </ion-item>
             <ion-item>
               <ion-label class="ion-text-wrap">
-                <h3>{{ 'ERS_EVENTS.ID_ISSUED_BY' | translate }}</h3>
-                <p>{{ registration.identityCard?.issuedBy || '-' }}</p>
+                <h3>{{ 'ERS_EVENTS.DOCUMENT_NUMBER' | translate }}</h3>
+                <p>{{ registration.document?.number || '-' }}</p>
               </ion-label>
             </ion-item>
             <ion-item>
               <ion-label class="ion-text-wrap">
-                <h3>{{ 'ERS_EVENTS.ID_ISSUED_DATE' | translate }}</h3>
-                <p>{{ registration.identityCard?.issuedDate }}</p>
+                <h3>{{ 'ERS_EVENTS.DOCUMENT_ISSUED_BY' | translate }}</h3>
+                <p>{{ registration.document?.issuedBy || '-' }}</p>
               </ion-label>
             </ion-item>
             <ion-item>
               <ion-label class="ion-text-wrap">
-                <h3>{{ 'ERS_EVENTS.ID_VALID_UNTIL' | translate }}</h3>
-                <p>{{ registration.identityCard?.validUntil }}</p>
+                <h3>{{ 'ERS_EVENTS.DOCUMENT_ISSUED_DATE' | translate }}</h3>
+                <p>{{ registration.document?.issuedDate }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.DOCUMENT_VALID_UNTIL' | translate }}</h3>
+                <p>{{ registration.document?.validUntil }}</p>
               </ion-label>
             </ion-item>
 
@@ -227,6 +245,12 @@
               <ion-label class="ion-text-wrap">
                 <h3>{{ 'ERS_EVENTS.CONTACT_NAME' | translate }}</h3>
                 <p>{{ registration.emergencyContact?.name || '-' }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.CONTACT_RELATIONSHIP' | translate }}</h3>
+                <p>{{ registration.emergencyContact?.relationship || '-' }}</p>
               </ion-label>
             </ion-item>
             <ion-item>

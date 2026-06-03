@@ -80,6 +80,22 @@ export class User extends Resource {
    */
   avatarURL: string;
   /**
+   * Birth date.
+   */
+  birthDate: string;
+  /**
+   * Nationality.
+   */
+  nationality: string;
+  /**
+   * Gender.
+   */
+  gender: string;
+  /**
+   * Phone number.
+   */
+  phone: string;
+  /**
    * Whether the user is administrator, based on the platform's configurations.
    * A change in this permission will require a new sign-in to take full place.
    */
@@ -129,6 +145,10 @@ export class User extends Resource {
     this.section = this.clean(x.section, String);
     this.country = this.clean(x.country, String);
     this.avatarURL = this.clean(x.avatarURL, String);
+    this.birthDate = this.clean(x.birthDate, String);
+    this.nationality = this.clean(x.nationality, String);
+    this.gender = this.clean(x.gender, String);
+    this.phone = this.clean(x.phone, String);
     this.isAdministrator = this.clean(x.isAdministrator, Boolean);
     this.canManageOpportunities = this.clean(x.canManageOpportunities, Boolean);
     this.canManageERSEvents = this.clean(x.canManageERSEvents, Boolean);

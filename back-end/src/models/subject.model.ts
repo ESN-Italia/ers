@@ -24,19 +24,39 @@ export class Subject extends Resource {
   /**
    * The URL to the subject's avatar.
    */
-  avatarURL?: string;
+  avatarURL: string;
   /**
    * The name of the subject's ESN Section.
    */
-  section?: string;
+  section: string;
   /**
    * The name of the subject's ESN country.
    */
-  country?: string;
+  country: string;
   /**
    * The email for notifications.
    */
   email: string;
+  /**
+   * Birth date.
+   */
+  birthDate: string;
+  /**
+   * Birth place.
+   */
+  birthPlace: string;
+  /**
+   * Nationality.
+   */
+  nationality: string;
+  /**
+   * Gender.
+   */
+  gender: string;
+  /**
+   * Preferred pronouns (e.g. He/Him, She/Her, They/Them).
+   */
+  preferredPronouns?: string[];
 
   /**
    * Create a new subject starting from a user.
@@ -49,7 +69,10 @@ export class Subject extends Resource {
       avatarURL: user.avatarURL,
       section: user.section,
       country: user.country,
-      email: user.email
+      email: user.email,
+      birthDate: user.birthDate,
+      nationality: user.nationality,
+      gender: user.gender
     });
   }
 
@@ -61,9 +84,19 @@ export class Subject extends Resource {
     if (this.type === SubjectTypes.USER) {
       this.avatarURL = this.clean(x.avatarURL, String);
       this.section = this.clean(x.section, String);
+      this.birthDate = this.clean(x.birthDate, String);
+      this.nationality = this.clean(x.nationality, String);
+      this.gender = this.clean(x.gender, String);
+      this.birthPlace = this.clean(x.birthPlace, String);
+      this.preferredPronouns = this.cleanArray(x.preferredPronouns, String);
     } else {
       delete this.avatarURL;
       delete this.section;
+      delete this.birthDate;
+      delete this.nationality;
+      delete this.gender;
+      delete this.birthPlace;
+      delete this.preferredPronouns;
     }
     if (this.type !== SubjectTypes.COUNTRY) {
       this.country = this.clean(x.country, String);

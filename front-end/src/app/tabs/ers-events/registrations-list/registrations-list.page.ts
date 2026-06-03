@@ -41,7 +41,8 @@ export class RegistrationsListPage implements OnInit {
     private service: ERSEventsService,
     public app: AppService
   ) {
-    addIcons({ arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline }); }
+    addIcons({ arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline });
+  }
 
   async ngOnInit(): Promise<void> {
     this.eventId = this.route.snapshot.paramMap.get('eventId');
@@ -259,26 +260,38 @@ export class RegistrationsListPage implements OnInit {
   downloadCSV(): void {
     if (!this.registrations?.length) return;
 
+    let serial = 1;
+
     const headers = [
-      'Registration Date',
-      'Name',
+      'Serial',
+      'Created time',
+      'Modified time',
+      'User name',
+      'Full name',
+      'Gender',
+      'Preferred pronouns',
+      'Date of birth',
+      'Place of birth',
+      'Nationality',
+      'Document type',
+      'Document number',
+      'Document issued by',
+      'Document issue date',
+      'Document expiration date',
       'Email',
-      'Phone',
-      'ESN Country',
-      'ESN Section',
-      'Spot',
-      'Total Price',
-      'Status',
+      'Phone number',
       'ESNcard number',
-      'ID Number',
-      'ID Issued By',
-      'ID Issued Date',
-      'ID Valid Until',
-      'Home address',
+      'ESN country',
+      'ESN section',
+      'Spot',
+      'Total price',
+      'Status',
       'Food allergies',
-      'Emergency Name',
-      'Emergency Phone',
-      'Emergency Languages'
+      'Special assistance',
+      'Emergency contact name',
+      'Emergency contact relationship',
+      'Emergency contact phone number',
+      'Emergency contact spoken languages'
     ];
 
     // Add dynamic optional tickets to headers
@@ -298,23 +311,33 @@ export class RegistrationsListPage implements OnInit {
 
     for (const reg of sortedRegistrations) {
       const row = [
+        serial++,
         formatInTimeZone(reg.createdAt, this.app.configurations.timezone, 'yyyy-MM-dd HH:mm:ss'),
+        reg.updatedAt ? formatInTimeZone(reg.updatedAt, this.app.configurations.timezone, 'yyyy-MM-dd HH:mm:ss') : '',
+        this.escapeCSV(reg.subject?.id),
         this.escapeCSV(reg.subject?.name),
+        this.escapeCSV(reg.subject?.gender),
+        this.escapeCSV(reg.subject?.preferredPronouns?.join(' / ')),
+        this.escapeCSV(reg.subject?.birthDate),
+        this.escapeCSV(reg.subject?.birthPlace),
+        this.escapeCSV(reg.subject?.nationality),
+        this.escapeCSV(reg.document?.type),
+        this.escapeCSV(reg.document?.number),
+        this.escapeCSV(reg.document?.issuedBy),
+        this.escapeCSV(reg.document?.issuedDate),
+        this.escapeCSV(reg.document?.validUntil),
         this.escapeCSV(reg.subject?.email),
         this.escapeCSV(reg.phone),
-        this.escapeCSV(reg.subject?.country),
-        this.escapeCSV(reg.subject?.section),
-        this.escapeCSV(this.getSpotName(reg.spotId)),
-        this.getTotalPrice(reg),
-        reg.status,
         this.escapeCSV(reg.esnCardNumber),
-        this.escapeCSV(reg.identityCard?.number),
-        this.escapeCSV(reg.identityCard?.issuedBy),
-        reg.identityCard?.issuedDate,
-        reg.identityCard?.validUntil,
-        this.escapeCSV(reg.homeAddress),
+        this.escapeCSV(reg.subject.country),
+        this.escapeCSV(reg.subject.section),
+        this.escapeCSV(this.getSpotName(reg.spotId)),
+        this.escapeCSV(this.getTotalPrice(reg)),
+        this.escapeCSV(reg.status),
         this.escapeCSV(reg.foodAllergies),
+        this.escapeCSV(reg.specialAssistance),
         this.escapeCSV(reg.emergencyContact?.name),
+        this.escapeCSV(reg.emergencyContact?.relationship),
         this.escapeCSV(reg.emergencyContact?.phone),
         this.escapeCSV(reg.emergencyContact?.spokenLanguages)
       ];

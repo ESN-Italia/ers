@@ -69,6 +69,29 @@
       <ion-input type="email" [(ngModel)]="registration.subject.email"
         [placeholder]="'ERS_EVENTS.EMAIL_PLACEHOLDER' | translate"></ion-input>
     </ion-item>
+    <app-datetime-timezone [label]="'ERS_EVENTS.BIRTH_DATE' | translate" [obligatory]="true" presentation="date"
+      [max]="now" [class.fieldHasError]="hasFieldAnError('subject.birthDate')" [timezone]="event.timezone"
+      [(date)]="registration.subject.birthDate" />
+    <ion-item [class.fieldHasError]="hasFieldAnError('subject.birthPlace')">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.BIRTH_PLACE' | translate }} <span
+          class="obligatoryDot">*</span></ion-label>
+      <ion-input type="text" [(ngModel)]="registration.subject.birthPlace"
+        [placeholder]="'ERS_EVENTS.BIRTH_PLACE_PLACEHOLDER' | translate"></ion-input>
+    </ion-item>
+    <ion-item [class.fieldHasError]="hasFieldAnError('subject.nationality')">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.NATIONALITY' | translate }} <span
+          class="obligatoryDot">*</span></ion-label>
+      <ion-input type="text" [(ngModel)]="registration.subject.nationality"></ion-input>
+    </ion-item>
+    <ion-item [class.fieldHasError]="hasFieldAnError('subject.gender')">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.GENDER' | translate }} <span
+          class="obligatoryDot">*</span></ion-label>
+      <ion-select [(ngModel)]="registration.subject.gender">
+        <ion-select-option *ngFor="let option of Genders | keyvalue" [value]="option.value">
+          {{ ('ERS_EVENTS.GENDER_' + option.key) | translate }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
     <ion-item [class.fieldHasError]="hasFieldAnError('phone')">
       <ion-label position="stacked">{{ 'ERS_EVENTS.PHONE' | translate }} <span
           class="obligatoryDot">*</span></ion-label>
@@ -87,34 +110,58 @@
       <ion-input type="text" [(ngModel)]="registration.esnCardNumber"
         [placeholder]="'ERS_EVENTS.ESNCARD_NUMBER_PLACEHOLDER' | translate"></ion-input>
     </ion-item>
+    <ion-item>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.PREFERRED_PRONOUNS' | translate }}</ion-label>
+      <ion-select [(ngModel)]="registration.subject.preferredPronouns" [multiple]="true"
+        [placeholder]="'ERS_EVENTS.PREFERRED_PRONOUNS_PLACEHOLDER' | translate">
+        <ion-item *ngFor="let option of Pronouns | keyvalue">
+          <ion-select-option slot="start" [value]="option.value"></ion-select-option>
+          <ion-label>{{ ('ERS_EVENTS.PREFERRED_PRONOUNS_' + option.key) | translate }}</ion-label>
+        </ion-item>
+      </ion-select>
+    </ion-item>
     <ion-item [class.fieldHasError]="hasFieldAnError('foodAllergies')">
       <ion-label position="stacked">{{ 'ERS_EVENTS.FOOD_ALLERGIES' | translate }}</ion-label>
       <ion-input type="text" [(ngModel)]="registration.foodAllergies"
         [placeholder]="'ERS_EVENTS.FOOD_ALLERGIES_PLACEHOLDER' | translate"></ion-input>
     </ion-item>
+    <ion-item>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.SPECIAL_ASSISTANCE' | translate }}</ion-label>
+      <ion-input type="text" [(ngModel)]="registration.specialAssistance"
+        [placeholder]="'ERS_EVENTS.SPECIAL_ASSISTANCE_PLACEHOLDER' | translate"></ion-input>
+    </ion-item>
 
     <ion-list-header>
       <ion-label>
-        <h2>{{ 'ERS_EVENTS.IDENTITY_CARD' | translate }}</h2>
+        <h2>{{ 'ERS_EVENTS.DOCUMENT' | translate }}</h2>
       </ion-label>
     </ion-list-header>
-    <ion-item [class.fieldHasError]="hasFieldAnError('identityCard.number')">
-      <ion-label position="stacked">{{ 'ERS_EVENTS.ID_NUMBER' | translate }} <span
+    <ion-item [class.fieldHasError]="hasFieldAnError('document.type')">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.DOCUMENT_TYPE' | translate }} <span
           class="obligatoryDot">*</span></ion-label>
-      <ion-input type="text" [(ngModel)]="registration.identityCard.number"
-        [placeholder]="'ERS_EVENTS.ID_NUMBER_PLACEHOLDER' | translate"></ion-input>
+      <ion-select [(ngModel)]="registration.document.type">
+        <ion-select-option *ngFor="let option of DocumentTypes | keyvalue" [value]="option.value">
+          {{ ('ERS_EVENTS.DOCUMENT_TYPE_' + option.key) | translate }}
+        </ion-select-option>
+      </ion-select>
     </ion-item>
-    <app-datetime-timezone [label]="'ERS_EVENTS.ID_ISSUED_DATE' | translate" [obligatory]="true" presentation="date"
-      [max]="now" [class.fieldHasError]="hasFieldAnError('identityCard.issuedDate')" [timezone]="event.timezone"
-      [(date)]="registration.identityCard.issuedDate" />
-    <ion-item [class.fieldHasError]="hasFieldAnError('identityCard.issuedBy')">
-      <ion-label position="stacked">{{ 'ERS_EVENTS.ID_ISSUED_BY' | translate }} <span
+    <ion-item [class.fieldHasError]="hasFieldAnError('document.number')">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.DOCUMENT_NUMBER' | translate }} <span
           class="obligatoryDot">*</span></ion-label>
-      <ion-input type="text" [(ngModel)]="registration.identityCard.issuedBy"></ion-input>
+      <ion-input type="text" [(ngModel)]="registration.document.number"
+        [placeholder]="'ERS_EVENTS.DOCUMENT_NUMBER_PLACEHOLDER' | translate"></ion-input>
     </ion-item>
-    <app-datetime-timezone [label]="'ERS_EVENTS.ID_VALID_UNTIL' | translate" [obligatory]="true" presentation="date"
-      [min]="now" [class.fieldHasError]="hasFieldAnError('identityCard.validUntil')" [timezone]="event.timezone"
-      [(date)]="registration.identityCard.validUntil" />
+    <app-datetime-timezone [label]="'ERS_EVENTS.DOCUMENT_ISSUED_DATE' | translate" [obligatory]="true"
+      presentation="date" [max]="now" [class.fieldHasError]="hasFieldAnError('document.issuedDate')"
+      [timezone]="event.timezone" [(date)]="registration.document.issuedDate" />
+    <ion-item [class.fieldHasError]="hasFieldAnError('document.issuedBy')">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.DOCUMENT_ISSUED_BY' | translate }} <span
+          class="obligatoryDot">*</span></ion-label>
+      <ion-input type="text" [(ngModel)]="registration.document.issuedBy"></ion-input>
+    </ion-item>
+    <app-datetime-timezone [label]="'ERS_EVENTS.DOCUMENT_VALID_UNTIL' | translate" [obligatory]="true"
+      presentation="date" [min]="now" [class.fieldHasError]="hasFieldAnError('document.validUntil')"
+      [timezone]="event.timezone" [(date)]="registration.document.validUntil" />
 
     <ion-list-header>
       <ion-label>
@@ -125,6 +172,12 @@
       <ion-label position="stacked">{{ 'ERS_EVENTS.CONTACT_NAME' | translate }} <span
           class="obligatoryDot">*</span></ion-label>
       <ion-input type="text" [(ngModel)]="registration.emergencyContact.name"></ion-input>
+    </ion-item>
+    <ion-item [class.fieldHasError]="hasFieldAnError('emergencyContact.relationship')">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.CONTACT_RELATIONSHIP' | translate }} <span
+          class="obligatoryDot">*</span></ion-label>
+      <ion-input type="text" [(ngModel)]="registration.emergencyContact.relationship"
+        [placeholder]="'ERS_EVENTS.CONTACT_RELATIONSHIP_PLACEHOLDER' | translate"></ion-input>
     </ion-item>
     <ion-item [class.fieldHasError]="hasFieldAnError('emergencyContact.phone')">
       <ion-label position="stacked">{{ 'ERS_EVENTS.CONTACT_PHONE' | translate }} <span

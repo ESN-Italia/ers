@@ -24,6 +24,9 @@ export class RegistrationFormPage implements OnInit {
   event: ERSEvent;
   registration: ERSRegistration;
   QuestionType = QuestionType;
+  Genders = Genders;
+  Pronouns = Pronouns;
+  DocumentTypes = DocumentTypes;
 
   privacyPolicyAccepted = false;
   codeOfConductAccepted = false;
@@ -38,7 +41,8 @@ export class RegistrationFormPage implements OnInit {
     private service: ERSEventsService,
     public app: AppService
   ) {
-    addIcons({ arrowBack }); }
+    addIcons({ arrowBack });
+  }
 
   async ngOnInit(): Promise<void> {
     this.eventId = this.route.snapshot.paramMap.get('eventId');
@@ -63,9 +67,11 @@ export class RegistrationFormPage implements OnInit {
         this.registration = new ERSRegistration({
           eventId: this.eventId,
           userId: this.app.user.userId,
-          subject: Subject.fromUser(this.app.user), // Assign the whole subject object
-          identityCard: { number: '', issuedDate: '', issuedBy: '', validUntil: '' },
-          emergencyContact: { name: '', phone: '', spokenLanguages: '' },
+          subject: Subject.fromUser(this.app.user),
+          phone: this.app.user.phone,
+          document: { type: '', number: '', issuedDate: '', issuedBy: '', validUntil: '' },
+          specialAssistance: '',
+          emergencyContact: { name: '', relationship: '', phone: '', spokenLanguages: '' },
           answers: {},
           selectedOptionalTickets: []
         });
@@ -183,4 +189,23 @@ export class RegistrationFormPage implements OnInit {
   get hasVisibleQuestions(): boolean {
     return this.event?.questions?.some(q => this.shouldShowQuestion(q)) || false;
   }
+}
+
+export enum DocumentTypes {
+  IDENTITY_CARD = 'IDENTITY_CARD',
+  PASSPORT = 'PASSPORT',
+  DRIVING_LICENSE = 'DRIVING_LICENSE',
+  OTHER = 'OTHER'
+}
+
+export enum Pronouns {
+  HE_HIM = 'HE_HIM',
+  SHE_HER = 'SHE_HER',
+  THEY_THEM = 'THEY_THEM'
+}
+
+export enum Genders {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER'
 }

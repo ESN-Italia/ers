@@ -28,7 +28,8 @@ export class ERSRegistration extends Resource {
   userId: string;
   subject: Subject;
   phone: string;
-  identityCard: {
+  document: {
+    type: string;
     number: string;
     issuedDate: string;
     issuedBy: string;
@@ -37,8 +38,10 @@ export class ERSRegistration extends Resource {
   esnCardNumber: string;
   homeAddress: string;
   foodAllergies?: string;
+  specialAssistance?: string;
   emergencyContact: {
     name: string;
+    relationship: string;
     phone: string;
     spokenLanguages: string;
   };
@@ -60,7 +63,8 @@ export class ERSRegistration extends Resource {
     this.subject = this.clean(x.subject, s => new Subject(s));
 
     this.phone = this.clean(x.phone, String);
-    this.identityCard = this.clean(x.identityCard, Object, {
+    this.document = this.clean(x.document, Object, {
+      type: '',
       number: '',
       issuedDate: '',
       issuedBy: '',
@@ -69,8 +73,10 @@ export class ERSRegistration extends Resource {
     this.esnCardNumber = this.clean(x.esnCardNumber, String);
     this.homeAddress = this.clean(x.homeAddress, String);
     this.foodAllergies = this.clean(x.foodAllergies, String);
+    this.specialAssistance = this.clean(x.specialAssistance, String);
     this.emergencyContact = this.clean(x.emergencyContact, Object, {
       name: '',
+      relationship: '',
       phone: '',
       spokenLanguages: ''
     });
@@ -111,17 +117,19 @@ export class ERSRegistration extends Resource {
     else e.push(...this.subject.validate());
 
     if (this.iE(this.phone)) e.push('phone');
-    if (this.iE(this.identityCard?.number)) e.push('identityCard.number');
-    if (this.iE(this.identityCard?.issuedDate)) e.push('identityCard.issuedDate');
-    if (this.iE(this.identityCard?.issuedBy)) e.push('identityCard.issuedBy');
-    if (this.iE(this.identityCard?.validUntil)) e.push('identityCard.validUntil');
+    if (this.iE(this.document?.type)) e.push('document.type');
+    if (this.iE(this.document?.number)) e.push('document.number');
+    if (this.iE(this.document?.issuedDate)) e.push('document.issuedDate');
+    if (this.iE(this.document?.issuedBy)) e.push('document.issuedBy');
+    if (this.iE(this.document?.validUntil)) e.push('document.validUntil');
 
     const now = new Date().toISOString();
-    if (this.identityCard?.issuedDate && this.identityCard.issuedDate > now) e.push('identityCard.issuedDate > now');
-    if (this.identityCard?.validUntil && this.identityCard.validUntil < now) e.push('identityCard.validUntil < now');
+    if (this.document?.issuedDate && this.document.issuedDate > now) e.push('document.issuedDate > now');
+    if (this.document?.validUntil && this.document.validUntil < now) e.push('document.validUntil < now');
     if (this.iE(this.esnCardNumber)) e.push('esnCardNumber');
     if (this.iE(this.homeAddress)) e.push('homeAddress');
     if (this.iE(this.emergencyContact?.name)) e.push('emergencyContact.name');
+    if (this.iE(this.emergencyContact?.relationship)) e.push('emergencyContact.relationship');
     if (this.iE(this.emergencyContact?.phone)) e.push('emergencyContact.phone');
     if (this.iE(this.emergencyContact?.spokenLanguages)) e.push('emergencyContact.spokenLanguages');
     if (this.iE(this.spotId)) e.push('spotId');
