@@ -1,4 +1,4 @@
-import { Resource } from 'idea-toolbox';
+import { epochISOString, Resource } from 'idea-toolbox';
 
 import { UsersOriginDisplayOptions } from './configurations.model';
 
@@ -68,6 +68,10 @@ export class User extends Resource {
    */
   sectionCode: string;
   /**
+   * Additional section codes in ESN Accounts.
+   */
+  extendedSectionCodes?: string[];
+  /**
    * ESN Section.
    */
   section: string;
@@ -82,19 +86,19 @@ export class User extends Resource {
   /**
    * Birth date.
    */
-  birthDate: string;
+  birthDate: epochISOString;
   /**
    * Nationality.
    */
-  nationality: string;
+  nationality?: string;
   /**
    * Gender.
    */
-  gender: string;
+  gender?: string;
   /**
    * Phone number.
    */
-  phone: string;
+  phone?: string;
   /**
    * Whether the user is administrator, based on the platform's configurations.
    * A change in this permission will require a new sign-in to take full place.
@@ -142,10 +146,11 @@ export class User extends Resource {
     this.lastName = this.clean(x.lastName, String);
     this.roles = this.cleanArray(x.roles, String);
     this.sectionCode = this.clean(x.sectionCode, String);
+    this.extendedSectionCodes = this.cleanArray(x.extendedSectionCodes, String);
     this.section = this.clean(x.section, String);
     this.country = this.clean(x.country, String);
     this.avatarURL = this.clean(x.avatarURL, String);
-    this.birthDate = this.clean(x.birthDate, String);
+    this.birthDate = this.clean(x.birthDate, d => new Date(d).toISOString());
     this.nationality = this.clean(x.nationality, String);
     this.gender = this.clean(x.gender, String);
     this.phone = this.clean(x.phone, String);

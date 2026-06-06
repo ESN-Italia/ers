@@ -187,16 +187,24 @@
                 <p>{{ registration.foodAllergies || '-' }}</p>
               </ion-label>
             </ion-item>
-            <ion-item *ngIf="registration.subject.preferredPronouns?.length">
+            <ion-item>
               <ion-label class="ion-text-wrap">
                 <h3>{{ 'ERS_EVENTS.PREFERRED_PRONOUNS' | translate }}</h3>
-                <p>{{ registration.subject.preferredPronouns.join(' / ') }}</p>
+                <p>{{ registration.subject.preferredPronouns?.length > 0 ? (('ERS_EVENTS.PREFERRED_PRONOUNS_' +
+                  registration.subject.preferredPronouns) | translate) : '-' }}</p>
               </ion-label>
             </ion-item>
-            <ion-item *ngIf="registration.specialAssistance">
+            <ion-item>
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.GENDER' | translate }}</h3>
+                <p>{{ registration.subject.gender ? (('ERS_EVENTS.GENDER_' + registration.subject.gender) | translate) :
+                  '-' }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
               <ion-label class="ion-text-wrap">
                 <h3>{{ 'ERS_EVENTS.SPECIAL_ASSISTANCE' | translate }}</h3>
-                <p>{{ registration.specialAssistance }}</p>
+                <p>{{ registration.specialAssistance || '-' }}</p>
               </ion-label>
             </ion-item>
 
@@ -208,7 +216,8 @@
             <ion-item>
               <ion-label class="ion-text-wrap">
                 <h3>{{ 'ERS_EVENTS.DOCUMENT_TYPE' | translate }}</h3>
-                <p>{{ registration.document?.type || '-' }}</p>
+                <p>{{ registration.document?.type ? (('ERS_EVENTS.DOCUMENT_TYPE_' + registration.document.type) |
+                  translate) : '-' }}</p>
               </ion-label>
             </ion-item>
             <ion-item>

@@ -45,7 +45,8 @@
       <ion-item *ngFor="let spot of event.spots">
         <ion-label>
           <h3>{{ spot.name }}</h3>
-          <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ spot.price | currency:'EUR' }} | {{ 'ERS_EVENTS.SPOT_LIMIT' | translate }}: {{
+          <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ spot.price | currency:'EUR' }} | {{ 'ERS_EVENTS.SPOT_LIMIT' |
+            translate }}: {{
             spot.limit }}</p>
         </ion-label>
       </ion-item>
@@ -103,6 +104,10 @@
             <ion-button *ngIf="!myRegistration && event.isRegistrationOpen()" expand="block" size="medium"
               (click)="register()">
               {{ 'ERS_EVENTS.REGISTER_NOW' | translate }}
+            </ion-button>
+            <ion-button *ngIf="!myRegistration && !event.isRegistrationOpen() && event?.canUserManage(app.user)"
+              expand="block" size="medium" (click)="register()">
+              {{ 'ERS_EVENTS.REGISTER_NOW' | translate }} (admin)
             </ion-button>
             <ion-button *ngIf="event.canUserManage(app.user)" expand="block" fill="outline" size="medium"
               (click)="viewRegistrations()" class="ion-margin-top">

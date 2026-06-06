@@ -66,20 +66,46 @@ class Login extends ResourceController {
       const { administratorsIds, opportunitiesManagersIds, dashboardManagersIds, ersManagersIds } =
         await this.loadOrInitConfigurations(userId);
 
+      const extendedSectionCodes = attributes['cas:extended_roles']
+        .filter((role: string) => role.startsWith('Local'))
+        .map((role: string) => role.split(':')[1])
+        .reduce((acc: string[], sectionCode: string) => {
+          if (!acc.includes(sectionCode)) acc.push(sectionCode);
+          return acc;
+        }, []);
+
+      const convertDate = (d: string) => {
+        // CAS return dates in dd/mm/yyyy format, so we need to convert them to ISO string
+        const dateParts = d.split("/");
+        const convertedDate = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
+        return convertedDate.toISOString();
+      }
+
+      const convertGender = (g: string) => {
+        if (g == undefined) return null;
+
+        switch (g) {
+          case 'M': return Genders.MALE;
+          case 'F': return Genders.FEMALE;
+          default: return Genders.OTHER;
+        }
+      }
+
       const user = new User({
         userId,
         email: attributes['cas:mail'][0],
         sectionCode: attributes['cas:sc'][0],
+        extendedSectionCodes: extendedSectionCodes,
         firstName: attributes['cas:first'][0],
         lastName: attributes['cas:last'][0],
         roles: attributes['cas:roles'],
         section: attributes['cas:section'][0],
         country: attributes['cas:country'][0],
         avatarURL: attributes['cas:picture'][0],
-        birthDate: attributes['cas:birthdate'][0],
-        nationality: attributes['cas:nationality'][0],
-        gender: attributes['cas:gender'][0],
-        phone: attributes['cas:telephone'][0],
+        birthDate: convertDate(attributes['cas:birthdate'][0]),
+        nationality: attributes['cas:nationality']?.[0],
+        gender: convertGender(attributes['cas:gender']?.[0]),
+        phone: attributes['cas:telephone']?.[0],
         isAdministrator: administratorsIds.includes(userId),
         canManageOpportunities: administratorsIds.includes(userId) || opportunitiesManagersIds.includes(userId),
         canManageDashboard: administratorsIds.includes(userId) || dashboardManagersIds.includes(userId),
@@ -125,3 +151,12 @@ const getJwtSecretFromSystemsManager = async (): Promise<string> => {
   if (!JWT_SECRET) JWT_SECRET = await systemsManager.getSecretByName(SECRETS_PATH);
   return JWT_SECRET;
 };
+
+/**
+ * The possible types of genders.
+ */
+export enum Genders {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER'
+}
