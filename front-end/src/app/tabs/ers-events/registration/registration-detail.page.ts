@@ -336,9 +336,30 @@ export class RegistrationDetailPage implements OnInit {
       }
     }
 
-    const cleanName = (this.registration.subject?.name || '').replace(/[^a-zA-Z0-9 ]/g, '');
-    const cleanEventName = (this.event?.name || '').replace(/[^a-zA-Z0-9 ]/g, '');
-    const bankTransferReason = `${cleanName} ${this.registration.invoiceNumber} ${cleanEventName}`;
+    function sanitizeBankReason(reason: string): string {
+      return reason
+        .normalize("NFD")  // Normalize accents (e.g., "à" -> "a")
+        .replace(/[\u0300-\u036f]/g, "") // Remove accents
+        .replace(/[^a-zA-Z0-9\s\-]/g, "") // Keep only letters, numbers, spaces, hyphens
+        .replace(/\s+/g, ' ') // Collapse multiple spaces into one
+        .trim();
+    }
+
+    function sanitizeFilename(input: string, replacement: string = "-"): string {
+      return input
+        .normalize("NFD") // Normalize accents (e.g., "à" -> "a")
+        .replace(/[\u0300-\u036f]/g, "") // Remove accents
+        .replace(/[\x00-\x1f\x80-\x9f<>:"/\\|?*]/g, replacement) // Remove characters that are illegal in filenames
+        .replace(new RegExp(`\\${replacement}+`, 'g'), replacement) // Clean up consecutive replacement characters
+        .replace(/[\s.]+$/, "") // Collapse multiple spaces into one
+        .trim();
+    }
+
+    const bankTransferReason = `${this.registration.subject.name} - N${this.registration.invoiceNumber} - ${this.event.name}`;
+    const sanitizedBankReason = sanitizeBankReason(bankTransferReason);
+
+    const invoiceFilename = `${this.event.name} - Invoice ${this.registration.invoiceNumber}.pdf`
+    const sanitizedInvoiceFilename = sanitizeFilename(invoiceFilename);
 
     const docDefinition: any = {
       content: [
@@ -352,7 +373,7 @@ export class RegistrationDetailPage implements OnInit {
                 { text: `${this.registration.subject.name}\n`, bold: true, fontSize: 13 },
                 { text: `${this.registration.homeAddress}\n`, color: '#555555' },
                 { text: `${this.registration.subject.email}\n`, color: '#555555' },
-                { text: `${this.registration.phone}`, color: '#555555' }
+                { text: `${this.registration.subject.phone}`, color: '#555555' }
               ]
             },
             {
@@ -389,7 +410,7 @@ export class RegistrationDetailPage implements OnInit {
         htmlToPdfmake(this.event?.paymentInfo || ''),
         { text: '\n' },
         this.createSectionHeader('Bank Transfer Reason', '#7ac143'),
-        { text: bankTransferReason, bold: true, fontSize: 14 }
+        { text: sanitizedBankReason, bold: true, fontSize: 14 }
       ],
       styles: {
         header: { fontSize: 24, bold: true, color: 'black' },
@@ -398,7 +419,7 @@ export class RegistrationDetailPage implements OnInit {
       }
     };
 
-    pdfMake.createPdf(docDefinition).download(`Invoice_${this.registration.invoiceNumber}_${cleanEventName.replace(/ /g, '_')}.pdf`);
+    pdfMake.createPdf(docDefinition).download(sanitizedInvoiceFilename);
   }
 
   private createSectionHeader(title: string, color: string): any {
@@ -421,7 +442,12 @@ export class RegistrationDetailPage implements OnInit {
     const tableBody = [];
     const spot = this.event?.spots?.find(s => s.id === this.registration.spotId);
     if (spot) {
-      tableBody.push([`Spot: ${spot.name}`, `${spot.price.toFixed(2)} €`]);
+      tableBody.push(
+        [
+          `Spot: ${spot.name} - ${this.registration.selectedSectionName}`,
+          `${spot.price.toFixed(2)} €`
+        ]
+      );
     }
 
     if (this.registration.selectedOptionalTickets?.length) {
