@@ -71,13 +71,23 @@ export class RegistrationFormPage implements OnInit {
           eventId: this.eventId,
           userId: this.app.user.userId,
           subject: Subject.fromUser(this.app.user),
-          selectedSectionName: this.app.user.section,
           document: { type: '', number: '', issuedDate: '', issuedBy: '', validUntil: '' },
           specialAssistance: '',
           emergencyContact: { name: '', relationship: '', phone: '', spokenLanguages: '' },
           answers: {},
           selectedOptionalTickets: []
         });
+
+        if (this.registration && this.registration.subject) {
+          const hasAdditional = this.registration.subject.additionalSectionNames?.length > 0;
+
+          if (hasAdditional) {
+            this.registration.selectedSectionName = null;
+          } else {
+            this.registration.selectedSectionName = this.registration.subject.section;
+          }
+        }
+
         if (this.event.spots?.length === 1) {
           this.registration.spotId = this.event.spots[0].id;
         }

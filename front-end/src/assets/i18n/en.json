@@ -331,6 +331,7 @@
     "SPOT_LIMIT": "Limit",
     "EMAIL": "Email",
     "SECTION": "ESN Section",
+    "SELECT_SECTION": "Select your Section",
     "COUNTRY": "ESN Country",
     "REGISTRATION_DATE": "Registration date",
     "SELECT_SPOT": "Select a spot",

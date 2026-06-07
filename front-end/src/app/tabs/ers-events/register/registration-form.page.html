@@ -68,10 +68,12 @@
           class="obligatoryDot">*</span></ion-label>
       <ion-select [(ngModel)]="registration.selectedSectionName"
         [placeholder]="'ERS_EVENTS.SELECT_SECTION' | translate">
-        <ion-select-option default [value]="registration.subject.section">{{ registration.subject.section
-          }}</ion-select-option>
-        <ion-select-option *ngFor="let name of registration.subject.additionalSectionNames" [value]="name">{{ name
-          }}</ion-select-option>
+        <ion-select-option [value]="registration.subject.section">
+          {{ registration.subject.section }}
+        </ion-select-option>
+        <ion-select-option *ngFor="let name of registration.subject.additionalSectionNames" [value]="name">
+          {{ name }}
+        </ion-select-option>
       </ion-select>
     </ion-item>
     <ion-item [class.fieldHasError]="hasFieldAnError('subject.email')">
