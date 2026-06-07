@@ -61,7 +61,7 @@
       <ion-item *ngFor="let ticket of event.optionalTickets">
         <ion-label>
           <h3>{{ ticket.name }}</h3>
-          <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price | currency:'EUR' }}</p>
+          <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price | currency:'EUR' }} | {{ ticket.description }}</p>
         </ion-label>
       </ion-item>
     </ion-list>
