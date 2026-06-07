@@ -3,21 +3,9 @@
     <ion-tab-button (click)="app.goTo([''])">
       <ion-img [src]="app.getIcon(true)"></ion-img>
     </ion-tab-button>
-    <!-- <ion-tab-button tab="dashboard">
-      <ion-label>{{ 'TABS.DASHBOARD' | translate }}</ion-label>
-    </ion-tab-button>
-    <ion-tab-button tab="topics" *ngIf="!app.configurations.hideQATopics">
-      <ion-label>{{ 'TABS.TOPICS' | translate }}</ion-label>
-    </ion-tab-button>
-    <ion-tab-button tab="opportunities" *ngIf="!app.configurations.hideOpportunities">
-      <ion-label>{{ 'TABS.OPPORTUNITIES' | translate }}</ion-label>
-    </ion-tab-button> -->
     <ion-tab-button tab="ers-events">
-      <ion-label>{{ 'TABS.ERS_EVENTS' | translate }}</ion-label>
+      <ion-label>{{ 'TABS.EVENTS' | translate }}</ion-label>
     </ion-tab-button>
-    <!-- <ion-tab-button tab="voting" *ngIf="!app.configurations.hideVoting">
-      <ion-label>{{ 'TABS.VOTING' | translate }}</ion-label>
-    </ion-tab-button> -->
     <ion-tab-button tab="profile">
       <ion-label>{{ 'TABS.PROFILE' | translate }}</ion-label>
     </ion-tab-button>

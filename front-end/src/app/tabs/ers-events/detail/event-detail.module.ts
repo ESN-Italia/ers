@@ -7,16 +7,13 @@ import { IDEATranslationsModule } from '@idea-ionic/common';
 import { EventDetailPageRoutingModule } from './event-detail-routing.module';
 import { EventDetailPage } from './event-detail.page';
 
-import { AttachmentsModule } from '@common/attachments.module';
-
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     EventDetailPageRoutingModule,
-    IDEATranslationsModule,
-    AttachmentsModule
+    IDEATranslationsModule
   ],
   declarations: [EventDetailPage]
 })

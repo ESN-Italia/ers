@@ -5,13 +5,13 @@ import { IDEALoadingService, IDEAMessageService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
-import { PrivacyPolicyComponent } from './privacy-policy.component';
 import { ERSEvent, EventQuestion, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration } from '@models/ersRegistration.model';
 import { Subject } from '@models/subject.model';
 import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
 import { addIcons } from 'ionicons';
 import { arrowBack } from 'ionicons/icons';
+import { PrivacyPolicyComponent } from '@app/common/privacy-policy/privacy-policy.component';
 
 
 @Component({

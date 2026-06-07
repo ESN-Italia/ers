@@ -25,7 +25,7 @@ import { cloudUploadOutline, openOutline, pencil, trashOutline } from 'ionicons/
 export class ConfigurationsPage implements OnInit {
   configurations: Configurations;
 
-  pageSection = PageSections.CONTENTS;
+  pageSection = PageSections.OPTIONS;
   PageSections = PageSections;
 
   EmailTemplates = EmailTemplates;
@@ -48,7 +48,8 @@ export class ConfigurationsPage implements OnInit {
     public _badges: BadgesService,
     public app: AppService
   ) {
-    addIcons({ cloudUploadOutline, openOutline, pencil, trashOutline }); }
+    addIcons({ cloudUploadOutline, openOutline, pencil, trashOutline });
+  }
   async ngOnInit(): Promise<void> {
     this.configurations = await this._configurations.get();
     this.filterBadges(null, null, true);
@@ -270,7 +271,6 @@ export class ConfigurationsPage implements OnInit {
 }
 
 enum PageSections {
-  CONTENTS = 'CONTENTS',
   USERS = 'USERS',
   USERS_BADGES = 'USERS_BADGES',
   TEMPLATES = 'TEMPLATES',
