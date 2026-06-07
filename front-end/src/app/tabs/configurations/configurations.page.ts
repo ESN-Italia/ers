@@ -25,7 +25,7 @@ import { cloudUploadOutline, openOutline, pencil, trashOutline } from 'ionicons/
 export class ConfigurationsPage implements OnInit {
   configurations: Configurations;
 
-  pageSection = PageSections.OPTIONS;
+  pageSection = PageSections.USERS;
   PageSections = PageSections;
 
   EmailTemplates = EmailTemplates;
@@ -58,12 +58,6 @@ export class ConfigurationsPage implements OnInit {
   addAdministrator(): void {
     this.addUserToList('administratorsIds', 'ADD_ADMINISTRATOR');
   }
-  addOpportunitiesManager(): void {
-    this.addUserToList('opportunitiesManagersIds', 'ADD_OPPORTUNITIES_MANAGER');
-  }
-  addDashboardManager(): void {
-    this.addUserToList('dashboardManagersIds', 'ADD_DASHBOARD_MANAGER');
-  }
   addBannedUser(): void {
     this.addUserToList('bannedUsersIds', 'ADD_BANNED_USER');
   }
@@ -92,12 +86,6 @@ export class ConfigurationsPage implements OnInit {
 
   removeAdministratorById(userId: string): void {
     this.removeUserFromListById(userId, 'administratorsIds');
-  }
-  removeOpportunitiesManagerById(userId: string): void {
-    this.removeUserFromListById(userId, 'opportunitiesManagersIds');
-  }
-  removeDashboardManagerById(userId: string): void {
-    this.removeUserFromListById(userId, 'dashboardManagersIds');
   }
   removeBannedUserById(userId: string): void {
     this.removeUserFromListById(userId, 'bannedUsersIds');

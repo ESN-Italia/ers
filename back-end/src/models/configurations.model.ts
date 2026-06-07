@@ -87,7 +87,7 @@ export class Configurations extends Resource {
     this.ersManagersIds = this.cleanArray(x.ersManagersIds, String).map(x => x.toLowerCase());
     this.bannedUsersIds = this.cleanArray(x.bannedUsersIds, String).map(x => x.toLowerCase());
 
-    this.appTitle = this.clean(x.appTitle, String, 'Event Registration System app');
+    this.appTitle = this.clean(x.appTitle, String, 'Event Registration System');
     this.appSubtitle = this.clean(x.appSubtitle, String);
     this.supportEmail = this.clean(x.supportEmail, String);
     this.appLogoURL = this.clean(x.appLogoURL, String);
@@ -117,12 +117,6 @@ export class Configurations extends Resource {
  * The possible email templates.
  */
 export enum EmailTemplates {
-  QUESTIONS = 'QUESTIONS',
-  ANSWERS = 'ANSWERS',
-  APPLICATION_APPROVED = 'APPLICATION_APPROVED',
-  APPLICATION_REJECTED = 'APPLICATION_REJECTED',
-  VOTING_INSTRUCTIONS = 'VOTING_INSTRUCTIONS',
-  VOTING_CONFIRMATION = 'VOTING_CONFIRMATION',
   ERS_REGISTRATION_APPROVED = 'ERS_REGISTRATION_APPROVED',
   ERS_REGISTRATION_REJECTED = 'ERS_REGISTRATION_REJECTED',
   ERS_PAYMENT_CONFIRMED = 'ERS_PAYMENT_CONFIRMED'

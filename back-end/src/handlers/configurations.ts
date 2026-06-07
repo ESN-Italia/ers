@@ -94,18 +94,6 @@ class ConfigurationsRC extends ResourceController {
   }
   private getSESTemplateName(emailTemplate: EmailTemplates): string {
     switch (emailTemplate) {
-      case EmailTemplates.QUESTIONS:
-        return 'notify-new-question';
-      case EmailTemplates.ANSWERS:
-        return 'notify-new-answer';
-      case EmailTemplates.APPLICATION_APPROVED:
-        return 'notify-application-approved';
-      case EmailTemplates.APPLICATION_REJECTED:
-        return 'notify-application-rejected';
-      case EmailTemplates.VOTING_INSTRUCTIONS:
-        return 'notify-voting-instructions';
-      case EmailTemplates.VOTING_CONFIRMATION:
-        return 'notify-voting-confirmation';
       case EmailTemplates.ERS_REGISTRATION_APPROVED:
         return 'ers-registration-approved';
       case EmailTemplates.ERS_REGISTRATION_REJECTED:

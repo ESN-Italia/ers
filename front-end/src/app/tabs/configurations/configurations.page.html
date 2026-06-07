@@ -94,36 +94,6 @@
         <idea-show-hint-button slot="start" class="ion-margin-top" hint="CONFIGURATIONS.TIMEZONE_OF_REFERENCE"
           translate />
       </ion-item>
-      <ion-list-header>
-        <ion-label>
-          <h2>{{ 'CONFIGURATIONS.HIDE_APP_FEATURES' | translate }}</h2>
-          <p>{{ 'CONFIGURATIONS.HIDE_APP_FEATURES_I' | translate }}</p>
-        </ion-label>
-      </ion-list-header>
-      <ion-item>
-        <ion-checkbox slot="end" [(ngModel)]="configurations.hideQATopics"
-          (ionChange)="setVisibilityQATopicsFeature(!$event.detail.checked)" />
-        <ion-label>{{ 'CONFIGURATIONS.HIDE_QA_TOPICS' | translate }}</ion-label>
-        <idea-show-hint-button slot="start" hint="CONFIGURATIONS.HIDE_APP_FEATURES" translate />
-      </ion-item>
-      <ion-item>
-        <ion-checkbox slot="end" [(ngModel)]="configurations.hideOpportunities"
-          (ionChange)="setVisibilityOpportunitiesFeature(!$event.detail.checked)" />
-        <ion-label>{{ 'CONFIGURATIONS.HIDE_OPPORTUNITIES' | translate }}</ion-label>
-        <idea-show-hint-button slot="start" hint="CONFIGURATIONS.HIDE_APP_FEATURES" translate />
-      </ion-item>
-      <ion-item>
-        <ion-checkbox slot="end" [(ngModel)]="configurations.hideVoting"
-          (ionChange)="setVisibilityVotingFeature(!$event.detail.checked)" />
-        <ion-label>{{ 'CONFIGURATIONS.HIDE_VOTING' | translate }}</ion-label>
-        <idea-show-hint-button slot="start" hint="CONFIGURATIONS.HIDE_APP_FEATURES" translate />
-      </ion-item>
-      <ion-item>
-        <ion-checkbox slot="end" [(ngModel)]="configurations.hideBadges"
-          (ionChange)="setVisibilityBadgesFeature(!$event.detail.checked)" />
-        <ion-label>{{ 'CONFIGURATIONS.HIDE_BADGES' | translate }}</ion-label>
-        <idea-show-hint-button slot="start" hint="CONFIGURATIONS.HIDE_APP_FEATURES" translate />
-      </ion-item>
     </ion-list>
 
     <ion-list class="aList" *ngIf="pageSection === PageSections.USERS">
