@@ -118,11 +118,15 @@ export class ManageEventPage implements OnInit {
       const imageURI = await this._media.uploadImage(file);
       this.event.imageURL = this.app.getImageURLByURI(imageURI);
     } catch (error) {
-      this.message.error('COMMON.OPERATION_FAILED');
+      this.message.error(error.message, true);
     } finally {
       if (target) target.value = '';
       this.loading.hide();
     }
+  }
+
+  removeImage(): void {
+    this.event.imageURL = null;
   }
 
   enterEditMode(): void {

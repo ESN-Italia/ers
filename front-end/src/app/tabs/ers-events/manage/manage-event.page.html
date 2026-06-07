@@ -59,6 +59,10 @@
         (click)="browseImagesForElementId('upload-image')">
         <ion-icon name="cloud-upload-outline" slot="icon-only"></ion-icon>
       </ion-button>
+      <ion-button slot="end" fill="clear" color="danger" *ngIf="editMode !== UXMode.VIEW && event.imageURL"
+        (click)="removeImage()">
+        <ion-icon name="trash" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-item>
 
     <ion-list-header>

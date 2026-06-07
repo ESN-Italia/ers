@@ -33,7 +33,7 @@ class Media extends ResourceController {
   }
 
   protected async checkAuthBeforeRequest(): Promise<void> {
-    if (!(this.galaxyUser.isAdministrator || this.galaxyUser.canManageDashboard))
+    if (!(this.galaxyUser.isAdministrator || this.galaxyUser.canManageDashboard || this.galaxyUser.canManageERSEvents))
       throw new HandledError('Unauthorized');
   }
 
