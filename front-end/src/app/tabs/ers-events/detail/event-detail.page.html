@@ -55,6 +55,20 @@
     <ion-list class="aList">
       <ion-list-header>
         <ion-label>
+          <h2>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' | translate }}</h2>
+        </ion-label>
+      </ion-list-header>
+      <ion-item *ngFor="let ticket of event.optionalTickets">
+        <ion-label>
+          <h3>{{ ticket.name }}</h3>
+          <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price | currency:'EUR' }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <ion-list class="aList">
+      <ion-list-header>
+        <ion-label>
           <h2>{{ 'ERS_EVENTS.REGISTRATION' | translate }}</h2>
         </ion-label>
       </ion-list-header>
