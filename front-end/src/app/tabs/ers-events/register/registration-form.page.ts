@@ -63,12 +63,15 @@ export class RegistrationFormPage implements OnInit {
       if (existing) {
         this.registration = existing;
         if (!this.registration.selectedOptionalTickets) this.registration.selectedOptionalTickets = [];
+        if (!this.registration.selectedSectionName && this.registration.subject?.section) {
+          this.registration.selectedSectionName = this.registration.subject.section;
+        }
       } else {
         this.registration = new ERSRegistration({
           eventId: this.eventId,
           userId: this.app.user.userId,
           subject: Subject.fromUser(this.app.user),
-          phone: this.app.user.phone,
+          selectedSectionName: this.app.user.section,
           document: { type: '', number: '', issuedDate: '', issuedBy: '', validUntil: '' },
           specialAssistance: '',
           emergencyContact: { name: '', relationship: '', phone: '', spokenLanguages: '' },

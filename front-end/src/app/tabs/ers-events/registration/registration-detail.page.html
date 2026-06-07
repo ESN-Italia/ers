@@ -151,10 +151,10 @@
                 <p>{{ registration.subject.email }}</p>
               </ion-label>
             </ion-item>
-            <ion-item *ngIf="registration.subject.section">
+            <ion-item *ngIf="registration.selectedSectionName">
               <ion-label class="ion-text-wrap">
                 <h3>{{ 'ERS_EVENTS.SECTION' | translate }}</h3>
-                <p>{{ registration.subject.section }}</p>
+                <p>{{ registration.selectedSectionName }}</p>
               </ion-label>
             </ion-item>
             <ion-item *ngIf="registration.subject.country">
@@ -165,33 +165,20 @@
             </ion-item>
             <ion-item>
               <ion-label class="ion-text-wrap">
-                <h3>{{ 'ERS_EVENTS.REGISTRATION_DATE' | translate }}</h3>
-                <p>{{ getRegistrationDate() }}</p>
+                <h3>{{ 'ERS_EVENTS.BIRTH_DATE' | translate }}</h3>
+                <p>{{ registration.subject.birthDate || '-' }}</p>
               </ion-label>
             </ion-item>
             <ion-item>
               <ion-label class="ion-text-wrap">
-                <h3>{{ 'ERS_EVENTS.ESNCARD_NUMBER' | translate }}</h3>
-                <p>{{ registration.esnCardNumber || '-' }}</p>
+                <h3>{{ 'ERS_EVENTS.BIRTH_PLACE' | translate }}</h3>
+                <p>{{ registration.subject.birthPlace || '-' }}</p>
               </ion-label>
             </ion-item>
             <ion-item>
               <ion-label class="ion-text-wrap">
-                <h3>{{ 'ERS_EVENTS.HOME_ADDRESS' | translate }}</h3>
-                <p>{{ registration.homeAddress || '-' }}</p>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label class="ion-text-wrap">
-                <h3>{{ 'ERS_EVENTS.FOOD_ALLERGIES' | translate }}</h3>
-                <p>{{ registration.foodAllergies || '-' }}</p>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label class="ion-text-wrap">
-                <h3>{{ 'ERS_EVENTS.PREFERRED_PRONOUNS' | translate }}</h3>
-                <p>{{ registration.subject.preferredPronouns?.length > 0 ? (('ERS_EVENTS.PREFERRED_PRONOUNS_' +
-                  registration.subject.preferredPronouns) | translate) : '-' }}</p>
+                <h3>{{ 'ERS_EVENTS.NATIONALITY' | translate }}</h3>
+                <p>{{ registration.subject.nationality || '-' }}</p>
               </ion-label>
             </ion-item>
             <ion-item>
@@ -203,8 +190,44 @@
             </ion-item>
             <ion-item>
               <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.PHONE' | translate }}</h3>
+                <p>{{ registration.subject.phone || '-' }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.HOME_ADDRESS' | translate }}</h3>
+                <p>{{ registration.homeAddress || '-' }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.ESNCARD_NUMBER' | translate }}</h3>
+                <p>{{ registration.esnCardNumber || '-' }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.PREFERRED_PRONOUNS' | translate }}</h3>
+                <p>{{ formatPreferredPronouns() }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.FOOD_ALLERGIES' | translate }}</h3>
+                <p>{{ registration.foodAllergies || '-' }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label class="ion-text-wrap">
                 <h3>{{ 'ERS_EVENTS.SPECIAL_ASSISTANCE' | translate }}</h3>
                 <p>{{ registration.specialAssistance || '-' }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label class="ion-text-wrap">
+                <h3>{{ 'ERS_EVENTS.REGISTRATION_DATE' | translate }}</h3>
+                <p>{{ getRegistrationDate() }}</p>
               </ion-label>
             </ion-item>
 

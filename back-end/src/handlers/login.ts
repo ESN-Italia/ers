@@ -66,19 +66,32 @@ class Login extends ResourceController {
       const { administratorsIds, opportunitiesManagersIds, dashboardManagersIds, ersManagersIds } =
         await this.loadOrInitConfigurations(userId);
 
-      const extendedSectionCodes = attributes['cas:extended_roles']
+      const additionalSectionCodes = attributes['cas:extended_roles']
         .filter((role: string) => role.startsWith('Local'))
         .map((role: string) => role.split(':')[1])
         .reduce((acc: string[], sectionCode: string) => {
-          if (!acc.includes(sectionCode)) acc.push(sectionCode);
+          if (!acc.includes(sectionCode) && sectionCode !== attributes['cas:sc'][0]) acc.push(sectionCode);
           return acc;
         }, []);
 
+      const convertSectionCodes = async (codes: string[]): Promise<string[]> => {
+        const promises = codes.map(async (code) => {
+          try {
+            const response = await Axios.get(`https://accounts.esn.org/api/v2/sections/${code}`);
+            return response.data?.label || null;
+          } catch (err) {
+            return null;
+          }
+        });
+        const results = await Promise.all(promises);
+        return results.filter((name): name is string => name !== null);
+      };
+
       const convertDate = (d: string) => {
-        // CAS return dates in dd/mm/yyyy format, so we need to convert them to ISO string
+        // CAS return dates in dd/mm/yyyy format, so we need to convert them to ISO string (date part)
         const dateParts = d.split("/");
         const convertedDate = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
-        return convertedDate.toISOString();
+        return convertedDate.toISOString().substring(0, 10);
       }
 
       const convertGender = (g: string) => {
@@ -91,11 +104,14 @@ class Login extends ResourceController {
         }
       }
 
+      const additionalSectionNames = await convertSectionCodes(additionalSectionCodes);
+
       const user = new User({
         userId,
         email: attributes['cas:mail'][0],
         sectionCode: attributes['cas:sc'][0],
-        extendedSectionCodes: extendedSectionCodes,
+        additionalSectionCodes: additionalSectionCodes,
+        additionalSectionNames: additionalSectionNames,
         firstName: attributes['cas:first'][0],
         lastName: attributes['cas:last'][0],
         roles: attributes['cas:roles'],

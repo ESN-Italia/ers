@@ -111,7 +111,20 @@ class ERSRegistrationsRC extends ResourceController {
     this.registration = new ERSRegistration(this.body);
     this.registration.eventId = this.managedEvent.eventId;
     this.registration.userId = this.galaxyUser.userId;
-    this.registration.subject = Subject.fromUser(this.galaxyUser);
+    
+    const userSubject = Subject.fromUser(this.galaxyUser);
+    if (this.body.subject) {
+      const bodySubject = new Subject(this.body.subject);
+      userSubject.birthPlace = bodySubject.birthPlace;
+      userSubject.gender = bodySubject.gender;
+      userSubject.birthDate = bodySubject.birthDate;
+      userSubject.nationality = bodySubject.nationality;
+      userSubject.phone = bodySubject.phone;
+      userSubject.preferredPronouns = bodySubject.preferredPronouns;
+      userSubject.email = bodySubject.email;
+    }
+    this.registration.subject = userSubject;
+
     this.registration.registrationId = await ddb.IUNID(PROJECT);
     this.registration.status = RegistrationStatus.PENDING;
     this.registration.createdAt = new Date().toISOString();

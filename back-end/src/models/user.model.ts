@@ -70,7 +70,11 @@ export class User extends Resource {
   /**
    * Additional section codes in ESN Accounts.
    */
-  extendedSectionCodes?: string[];
+  additionalSectionCodes?: string[];
+  /**
+   * Additional section names in ESN Accounts.
+   */
+  additionalSectionNames?: string[];
   /**
    * ESN Section.
    */
@@ -86,7 +90,7 @@ export class User extends Resource {
   /**
    * Birth date.
    */
-  birthDate: epochISOString;
+  birthDate: string;
   /**
    * Nationality.
    */
@@ -146,11 +150,12 @@ export class User extends Resource {
     this.lastName = this.clean(x.lastName, String);
     this.roles = this.cleanArray(x.roles, String);
     this.sectionCode = this.clean(x.sectionCode, String);
-    this.extendedSectionCodes = this.cleanArray(x.extendedSectionCodes, String);
+    this.additionalSectionCodes = this.cleanArray(x.additionalSectionCodes, String);
+    this.additionalSectionNames = this.cleanArray(x.additionalSectionNames, String);
     this.section = this.clean(x.section, String);
     this.country = this.clean(x.country, String);
     this.avatarURL = this.clean(x.avatarURL, String);
-    this.birthDate = this.clean(x.birthDate, d => new Date(d).toISOString());
+    this.birthDate = this.clean(x.birthDate, d => new Date(d).toISOString().substring(0, 10));
     this.nationality = this.clean(x.nationality, String);
     this.gender = this.clean(x.gender, String);
     this.phone = this.clean(x.phone, String);

@@ -63,6 +63,17 @@
         <h2>{{ 'ERS_EVENTS.PERSONAL_INFORMATION' | translate }}</h2>
       </ion-label>
     </ion-list-header>
+    <ion-item [class.fieldHasError]="hasFieldAnError('selectedSectionName')">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.SECTION' | translate }} <span
+          class="obligatoryDot">*</span></ion-label>
+      <ion-select [(ngModel)]="registration.selectedSectionName"
+        [placeholder]="'ERS_EVENTS.SELECT_SECTION' | translate">
+        <ion-select-option default [value]="registration.subject.section">{{ registration.subject.section
+          }}</ion-select-option>
+        <ion-select-option *ngFor="let name of registration.subject.additionalSectionNames" [value]="name">{{ name
+          }}</ion-select-option>
+      </ion-select>
+    </ion-item>
     <ion-item [class.fieldHasError]="hasFieldAnError('subject.email')">
       <ion-label position="stacked">{{ 'ERS_EVENTS.EMAIL' | translate }} <span
           class="obligatoryDot">*</span></ion-label>
@@ -95,7 +106,7 @@
     <ion-item [class.fieldHasError]="hasFieldAnError('phone')">
       <ion-label position="stacked">{{ 'ERS_EVENTS.PHONE' | translate }} <span
           class="obligatoryDot">*</span></ion-label>
-      <ion-input type="tel" [(ngModel)]="registration.phone"
+      <ion-input type="tel" [(ngModel)]="registration.subject.phone"
         [placeholder]="'ERS_EVENTS.PHONE_PLACEHOLDER' | translate"></ion-input>
     </ion-item>
     <ion-item [class.fieldHasError]="hasFieldAnError('homeAddress')">
@@ -112,7 +123,7 @@
     </ion-item>
     <ion-item>
       <ion-label position="stacked">{{ 'ERS_EVENTS.PREFERRED_PRONOUNS' | translate }}</ion-label>
-      <ion-select [(ngModel)]="registration.preferredPronouns" [multiple]="true"
+      <ion-select [(ngModel)]="registration.subject.preferredPronouns" [multiple]="true"
         [placeholder]="'ERS_EVENTS.PREFERRED_PRONOUNS_PLACEHOLDER' | translate">
         <ion-select-option *ngFor="let option of Pronouns | keyvalue" slot="start" [value]="option.value">
           {{ ('ERS_EVENTS.PREFERRED_PRONOUNS_' + option.key) | translate }}
@@ -271,8 +282,9 @@
     </ion-item>
 
     <div class="ion-padding">
-      <ion-button expand="block" (click)="submit()" class="ion-margin-top">{{ 'COMMON.SUBMIT' | translate
-        }}</ion-button>
+      <ion-button expand="block" (click)="submit()" class="ion-margin-top" [disabled]="!event.isRegistrationOpen()">
+        {{ 'COMMON.SUBMIT' | translate }}
+      </ion-button>
     </div>
   </ion-list>
 </ion-content>

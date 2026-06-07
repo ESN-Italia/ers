@@ -46,6 +46,7 @@ export class ERSRegistration extends Resource {
     spokenLanguages: string;
   };
   spotId: string;
+  selectedSectionName: string;
   selectedOptionalTickets: string[];
   answers: { [questionId: string]: string | string[] };
   status: RegistrationStatus;
@@ -61,8 +62,8 @@ export class ERSRegistration extends Resource {
     this.registrationId = this.clean(x.registrationId, String);
     this.userId = this.clean(x.userId, String);
     this.subject = this.clean(x.subject, s => new Subject(s));
+    this.selectedSectionName = this.clean(x.selectedSectionName, String);
 
-    this.phone = this.clean(x.phone, String);
     this.document = this.clean(x.document, Object, {
       type: '',
       number: '',
@@ -100,7 +101,9 @@ export class ERSRegistration extends Resource {
     this.userId = safeData.userId;
     this.createdAt = safeData.createdAt;
     this.status = safeData.status;
-    this.subject = safeData.subject;
+    this.subject.id = safeData.subject.id;
+    this.subject.type = safeData.subject.type;
+    this.subject.name = safeData.subject.name;
 
     if (safeData.proofOfPayment) this.proofOfPayment = safeData.proofOfPayment;
     if (safeData.invoiceNumber !== undefined) this.invoiceNumber = safeData.invoiceNumber;
@@ -116,7 +119,6 @@ export class ERSRegistration extends Resource {
     if (!this.subject) e.push('subject');
     else e.push(...this.subject.validate());
 
-    if (this.iE(this.phone)) e.push('phone');
     if (this.iE(this.document?.type)) e.push('document.type');
     if (this.iE(this.document?.number)) e.push('document.number');
     if (this.iE(this.document?.issuedDate)) e.push('document.issuedDate');
@@ -133,6 +135,7 @@ export class ERSRegistration extends Resource {
     if (this.iE(this.emergencyContact?.phone)) e.push('emergencyContact.phone');
     if (this.iE(this.emergencyContact?.spokenLanguages)) e.push('emergencyContact.spokenLanguages');
     if (this.iE(this.spotId)) e.push('spotId');
+    if (this.iE(this.selectedSectionName)) e.push('selectedSectionName');
 
     if (event) {
       // Validate Spot

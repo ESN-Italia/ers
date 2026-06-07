@@ -301,6 +301,14 @@ export class RegistrationDetailPage implements OnInit {
     return this.registration.shouldShowQuestion(q, this.event);
   }
 
+  formatPreferredPronouns(): string {
+    const pronouns = this.registration?.subject?.preferredPronouns;
+    if (!pronouns || !pronouns.length) return '-';
+    return pronouns
+      .map(p => this.t._('ERS_EVENTS.PREFERRED_PRONOUNS_' + p))
+      .join(', ');
+  }
+
   async downloadInvoice(): Promise<void> {
     if (!this.registration || !this.registration.invoiceNumber) return;
 

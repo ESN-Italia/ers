@@ -38,6 +38,10 @@ export class Subject extends Resource {
    */
   email: string;
   /**
+   * Phone number.
+   */
+  phone: string;
+  /**
    * Birth date.
    */
   birthDate: string;
@@ -57,6 +61,10 @@ export class Subject extends Resource {
    * Preferred pronouns (e.g. He/Him, She/Her, They/Them).
    */
   preferredPronouns?: string[];
+  /**
+   * Additional section names in ESN Accounts.
+   */
+  additionalSectionNames?: string[];
 
   /**
    * Create a new subject starting from a user.
@@ -70,9 +78,11 @@ export class Subject extends Resource {
       section: user.section,
       country: user.country,
       email: user.email,
+      phone: user.phone,
       birthDate: user.birthDate,
       nationality: user.nationality,
-      gender: user.gender
+      gender: user.gender,
+      additionalSectionNames: user.additionalSectionNames
     });
   }
 
@@ -86,17 +96,23 @@ export class Subject extends Resource {
       this.section = this.clean(x.section, String);
       this.birthDate = this.clean(x.birthDate, String);
       this.nationality = this.clean(x.nationality, String);
+      this.email = this.clean(x.email, String);
+      this.phone = this.clean(x.phone, String);
       this.gender = this.clean(x.gender, String);
       this.birthPlace = this.clean(x.birthPlace, String);
       this.preferredPronouns = this.cleanArray(x.preferredPronouns, String);
+      this.additionalSectionNames = this.cleanArray(x.additionalSectionNames, String);
     } else {
       delete this.avatarURL;
       delete this.section;
       delete this.birthDate;
       delete this.nationality;
+      delete this.email;
+      delete this.phone;
       delete this.gender;
       delete this.birthPlace;
       delete this.preferredPronouns;
+      delete this.additionalSectionNames;
     }
     if (this.type !== SubjectTypes.COUNTRY) {
       this.country = this.clean(x.country, String);
@@ -113,6 +129,12 @@ export class Subject extends Resource {
     if (this.iE(this.name)) e.push('name');
     if (this.type === SubjectTypes.USER) {
       if (this.iE(this.section)) e.push('section');
+      if (this.iE(this.email)) e.push('email');
+      if (this.iE(this.phone)) e.push('phone');
+      if (this.iE(this.birthDate)) e.push('birthDate');
+      if (this.iE(this.birthPlace)) e.push('birthPlace');
+      if (this.iE(this.nationality)) e.push('nationality');
+      if (this.iE(this.gender)) e.push('gender');
     }
     if (this.type !== SubjectTypes.COUNTRY) {
       if (this.iE(this.country)) e.push('country');

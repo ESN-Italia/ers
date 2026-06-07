@@ -107,7 +107,7 @@
             </ion-button>
             <ion-button *ngIf="!myRegistration && !event.isRegistrationOpen() && event?.canUserManage(app.user)"
               expand="block" size="medium" (click)="register()">
-              {{ 'ERS_EVENTS.REGISTER_NOW' | translate }} (admin)
+              {{ 'ERS_EVENTS.REGISTRATION_VIEW_ONLY' | translate }}
             </ion-button>
             <ion-button *ngIf="event.canUserManage(app.user)" expand="block" fill="outline" size="medium"
               (click)="viewRegistrations()" class="ion-margin-top">
