@@ -9,7 +9,7 @@ import { ERSEvent } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { formatInTimeZone } from 'date-fns-tz';
 import { addIcons } from 'ionicons';
-import { arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline } from 'ionicons/icons';
+import { arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline, squareOutline } from 'ionicons/icons';
 
 
 @Component({
@@ -41,7 +41,7 @@ export class RegistrationsListPage implements OnInit {
     private service: ERSEventsService,
     public app: AppService
   ) {
-    addIcons({ arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline });
+    addIcons({ arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline, squareOutline });
   }
 
   async ngOnInit(): Promise<void> {

@@ -5,7 +5,7 @@
         (click)="$event.stopPropagation()"></ion-checkbox>
       <ion-label>
         <h2>{{ getUserName() }}</h2>
-        <h3>{{ getSpotName() }} - {{ registration.subject.section }}</h3>
+        <h3>{{ getSpotName() }} - {{ registration.selectedSectionName }}</h3>
         <p>{{ registration.subject.email }} <span *ngIf="registration.phone">- {{ registration.phone }}</span></p>
         <ion-badge [color]="
              registration.status === RegistrationStatus.PENDING ? 'warning' :

@@ -4,7 +4,7 @@ import { AppService } from '@app/app.service';
 import { ERSEvent, EventType } from '@models/ersEvent.model';
 import { ERSEventsService } from './ers-events.service';
 import { addIcons } from 'ionicons';
-import { add } from 'ionicons/icons';
+import { add, archiveOutline } from 'ionicons/icons';
 
 
 @Component({
@@ -24,7 +24,8 @@ export class ERSEventsPage {
   EventType = EventType;
 
   constructor(public app: AppService, private service: ERSEventsService) {
-    addIcons({ add }); }
+    addIcons({ add, archiveOutline });
+  }
 
   async ionViewWillEnter(): Promise<void> {
     await this.loadList();

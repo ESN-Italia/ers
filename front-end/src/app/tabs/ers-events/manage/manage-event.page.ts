@@ -10,7 +10,7 @@ import { ERSEvent, EventSpot, EventQuestion, EventOptionalTicket, QuestionType, 
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
 import { BulkDeleteComponent } from './bulk-delete/bulk-delete.component';
 import { addIcons } from 'ionicons';
-import { cloudUploadOutline, copy, createOutline, linkOutline, openOutline, trash } from 'ionicons/icons';
+import { archive, cloudUploadOutline, copy, createOutline, linkOutline, openOutline, refresh, trash } from 'ionicons/icons';
 
 
 @Component({
@@ -41,7 +41,7 @@ export class ManageEventPage implements OnInit {
     private _media: MediaService,
     public app: AppService
   ) {
-    addIcons({ cloudUploadOutline, copy, createOutline, linkOutline, openOutline, trash });
+    addIcons({ archive, cloudUploadOutline, copy, createOutline, linkOutline, openOutline, refresh, trash });
   }
 
   async ngOnInit(): Promise<void> {
