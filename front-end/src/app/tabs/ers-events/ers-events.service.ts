@@ -166,6 +166,15 @@ export class ERSEventsService {
   }
 
   /**
+   * Set spot directly (Manager override).
+   */
+  async setSpot(eventId: string, registrationId: string, spotId: string): Promise<void> {
+    await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
+      body: { action: 'SET_SPOT', spotId }
+    });
+  }
+
+  /**
    * Delete proof of payment.
    */
   async deleteProofOfPayment(eventId: string, registrationId: string): Promise<void> {

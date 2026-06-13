@@ -131,6 +131,11 @@
                     <ion-icon name="options-outline" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.EDIT_STATUS' | translate }}
                   </ion-button>
+                  <ion-button *ngIf="event.canUserManage(app.user)" expand="block" fill="outline" color="warning"
+                    class="ion-margin-top" (click)="editSpot()">
+                    <ion-icon name="options-outline" slot="start"></ion-icon>
+                    {{ 'ERS_EVENTS.EDIT_SPOT' | translate }}
+                  </ion-button>
                 </div>
               </div>
             </ion-card-content>

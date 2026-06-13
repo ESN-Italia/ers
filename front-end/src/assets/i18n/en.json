@@ -322,6 +322,8 @@
     "WITHDRAW_REGISTRATION_CONFIRM": "Are you sure you want to withdraw your registration? This action is irreversible.",
     "EDIT_STATUS": "Edit status",
     "EDIT_STATUS_I": "Select the new status for this registration. No email notification will be sent.",
+    "EDIT_SPOT": "Edit spot",
+    "EDIT_SPOT_I": "Select the new spot type for this registration.",
     "DELETE_PROOF_OF_PAYMENT": "Delete proof of payment",
     "PROOF_OF_PAYMENT": "Proof of payment",
     "REQUIRED": "Required",

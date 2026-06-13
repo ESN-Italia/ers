@@ -6,6 +6,7 @@ import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
 import { EditStatusComponent } from './edit-status.component';
+import { EditSpotComponent } from './edit-spot.component';
 import { ERSEvent, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -266,6 +267,17 @@ export class RegistrationDetailPage implements OnInit {
     });
     modal.onDidDismiss().then(async ({ data }) => {
       if (data?.status) await this.loadData(false);
+    });
+    await modal.present();
+  }
+
+  async editSpot(): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: EditSpotComponent,
+      componentProps: { registration: this.registration, event: this.event }
+    });
+    modal.onDidDismiss().then(async ({ data }) => {
+      if (data?.spotId) await this.loadData(false);
     });
     await modal.present();
   }

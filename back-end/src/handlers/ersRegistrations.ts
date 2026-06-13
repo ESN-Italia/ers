@@ -182,6 +182,7 @@ class ERSRegistrationsRC extends ResourceController {
       case 'CONFIRM_PAYMENT': return await this.updateStatus(RegistrationStatus.CONFIRMED, 'PAYMENT_CONFIRMED');
       case 'DELETE_PROOF_OF_PAYMENT': return await this.deleteProofOfPayment();
       case 'SET_STATUS': return await this.setStatus(this.body.status);
+      case 'SET_SPOT': return await this.setSpot(this.body.spotId);
       default: throw new HandledError('Unsupported action');
     }
   }
@@ -256,6 +257,33 @@ class ERSRegistrationsRC extends ResourceController {
   private async setStatus(status: RegistrationStatus): Promise<ERSRegistration> {
     if (!Object.values(RegistrationStatus).includes(status)) throw new HandledError('Invalid status');
     this.registration.status = status;
+    this.registration.updatedAt = new Date().toISOString();
+    await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
+    return this.registration;
+  }
+
+  private async setSpot(spotId: string): Promise<ERSRegistration> {
+    const spot = this.managedEvent.spots.find(s => s.id === spotId);
+    if (!spot) throw new HandledError('Invalid spot');
+
+    // If registration is active (APPROVED, PAID, CONFIRMED), check spot limit
+    if ([RegistrationStatus.APPROVED, RegistrationStatus.PAID, RegistrationStatus.CONFIRMED].includes(this.registration.status)) {
+      if (spot.limit) {
+        const regs = await ddb.query({
+          TableName: DDB_TABLES.registrations,
+          KeyConditionExpression: 'eventId = :eventId',
+          ExpressionAttributeValues: { ':eventId': this.managedEvent.eventId }
+        });
+        const spotCount = regs.filter(r =>
+          r.spotId === spotId &&
+          r.registrationId !== this.registration.registrationId &&
+          [RegistrationStatus.APPROVED, RegistrationStatus.PAID, RegistrationStatus.CONFIRMED].includes(r.status)
+        ).length;
+        if (spotCount >= spot.limit) throw new HandledError('Spot is full');
+      }
+    }
+
+    this.registration.spotId = spotId;
     this.registration.updatedAt = new Date().toISOString();
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
     return this.registration;
