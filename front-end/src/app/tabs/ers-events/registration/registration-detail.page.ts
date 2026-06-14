@@ -11,16 +11,8 @@ import { ERSEvent, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { formatInTimeZone } from 'date-fns-tz';
 
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
-
-// @ts-ignore
-pdfMake.vfs = pdfFonts?.pdfMake?.vfs || pdfFonts;
-
-import htmlToPdfmake from 'html-to-pdfmake';
 import { addIcons } from 'ionicons';
 import { arrowBack, attach, calendarSharp, checkmarkDoneOutline, closeCircleOutline, cloudUpload, createOutline, downloadOutline, informationCircle, locationSharp, optionsOutline, trashOutline } from 'ionicons/icons';
-
 
 @Component({
   selector: 'app-registration-detail',
@@ -30,7 +22,6 @@ import { arrowBack, attach, calendarSharp, checkmarkDoneOutline, closeCircleOutl
 export class RegistrationDetailPage implements OnInit {
   eventId: string;
   registrationId: string;
-  // Actually, I can search for my registration.
 
   event: ERSEvent;
   registration: ERSRegistration;
@@ -324,114 +315,131 @@ export class RegistrationDetailPage implements OnInit {
   async downloadInvoice(): Promise<void> {
     if (!this.registration || !this.registration.invoiceNumber) return;
 
-    let iconImage = null;
-    let isSvg = false;
-    const iconUrl = this.app.getIcon(false);
-    if (iconUrl) {
-      try {
-        const response = await fetch(iconUrl);
-        if (response.ok) {
-          if (iconUrl.toLowerCase().endsWith('.svg') || response.headers.get('content-type')?.includes('svg')) {
-            iconImage = await response.text();
-            isSvg = true;
-          } else {
-            const blob = await response.blob();
-            iconImage = await new Promise((resolve) => {
-              const reader = new FileReader();
-              reader.onloadend = () => resolve(reader.result);
-              reader.readAsDataURL(blob);
-            });
+    try {
+      await this.loading.show();
+
+      // Asynchronously load pdfmake, fonts, and the HTML converter together
+      const pdfMakeModule = (await import('pdfmake/build/pdfmake')).default;
+      const pdfFontsModule = (await import('pdfmake/build/vfs_fonts')).default;
+      const htmlToPdfmakeModule = (await import('html-to-pdfmake')).default;
+
+      // @ts-ignore
+      pdfMakeModule.vfs = pdfFontsModule?.pdfMake?.vfs || pdfFontsModule;
+
+      let iconImage = null;
+      let isSvg = false;
+      const iconUrl = this.app.getIcon(false);
+      if (iconUrl) {
+        try {
+          const response = await fetch(iconUrl);
+          if (response.ok) {
+            if (iconUrl.toLowerCase().endsWith('.svg') || response.headers.get('content-type')?.includes('svg')) {
+              iconImage = await response.text();
+              isSvg = true;
+            } else {
+              const blob = await response.blob();
+              iconImage = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+              });
+            }
           }
+        } catch (e) {
+          console.warn('Could not load icon for PDF', e);
         }
-      } catch (e) {
-        console.warn('Could not load icon for PDF', e);
       }
-    }
 
-    function sanitizeBankReason(reason: string): string {
-      return reason
-        .normalize("NFD")  // Normalize accents (e.g., "à" -> "a")
-        .replace(/[\u0300-\u036f]/g, "") // Remove accents
-        .replace(/[^a-zA-Z0-9\s\-]/g, "") // Keep only letters, numbers, spaces, hyphens
-        .replace(/\s+/g, ' ') // Collapse multiple spaces into one
-        .trim();
-    }
+      const sanitizeBankReason = (reason: string): string => {
+        return reason
+          .normalize("NFD")  // Normalize accents (e.g., "à" -> "a")
+          .replace(/[\u0300-\u036f]/g, "") // Remove accents
+          .replace(/[^a-zA-Z0-9\s\-]/g, "") // Keep only letters, numbers, spaces, hyphens
+          .replace(/\s+/g, ' ') // Collapse multiple spaces into one
+          .trim();
+      };
 
-    function sanitizeFilename(input: string, replacement: string = "-"): string {
-      return input
-        .normalize("NFD") // Normalize accents (e.g., "à" -> "a")
-        .replace(/[\u0300-\u036f]/g, "") // Remove accents
-        .replace(/[\x00-\x1f\x80-\x9f<>:"/\\|?*]/g, replacement) // Remove characters that are illegal in filenames
-        .replace(new RegExp(`\\${replacement}+`, 'g'), replacement) // Clean up consecutive replacement characters
-        .replace(/[\s.]+$/, "") // Collapse multiple spaces into one
-        .trim();
-    }
+      const sanitizeFilename = (input: string, replacement: string = "-"): string => {
+        return input
+          .normalize("NFD") // Normalize accents (e.g., "à" -> "a")
+          .replace(/[\u0300-\u036f]/g, "") // Remove accents
+          .replace(/[\x00-\x1f\x80-\x9f<>:"/\\|?*]/g, replacement) // Remove characters that are illegal in filenames
+          .replace(new RegExp(`\\${replacement}+`, 'g'), replacement) // Clean up consecutive replacement characters
+          .replace(/[\s.]+$/, "") // Collapse multiple spaces into one
+          .trim();
+      };
 
-    const bankTransferReason = `${this.registration.subject.name} - N${this.registration.invoiceNumber} - ${this.event.name}`;
-    const sanitizedBankReason = sanitizeBankReason(bankTransferReason);
+      const bankTransferReason = `${this.registration.subject.name} - N${this.registration.invoiceNumber} - ${this.event.name}`;
+      const sanitizedBankReason = sanitizeBankReason(bankTransferReason);
 
-    const invoiceFilename = `${this.event.name} - Invoice ${this.registration.invoiceNumber}.pdf`
-    const sanitizedInvoiceFilename = sanitizeFilename(invoiceFilename);
+      const invoiceFilename = `${this.event.name} - Invoice ${this.registration.invoiceNumber}.pdf`;
+      const sanitizedInvoiceFilename = sanitizeFilename(invoiceFilename);
 
-    const docDefinition: any = {
-      content: [
-        { text: 'Event invoice', style: 'header', margin: [0, 0, 0, 5] },
-        { text: this.event?.name, style: 'subtitle', margin: [0, 0, 0, 20] },
-        {
-          columns: [
-            {
-              width: '*',
-              text: [
-                { text: `${this.registration.subject.name}\n`, bold: true, fontSize: 13 },
-                { text: `${this.registration.homeAddress}\n`, color: '#555555' },
-                { text: `${this.registration.subject.email}\n`, color: '#555555' },
-                { text: `${this.registration.subject.phone}`, color: '#555555' }
+      const docDefinition: any = {
+        content: [
+          { text: 'Event invoice', style: 'header', margin: [0, 0, 0, 5] },
+          { text: this.event?.name, style: 'subtitle', margin: [0, 0, 0, 20] },
+          {
+            columns: [
+              {
+                width: '*',
+                text: [
+                  { text: `${this.registration.subject.name}\n`, bold: true, fontSize: 13 },
+                  { text: `${this.registration.homeAddress}\n`, color: '#555555' },
+                  { text: `${this.registration.subject.email}\n`, color: '#555555' },
+                  { text: `${this.registration.subject.phone}`, color: '#555555' }
+                ]
+              },
+              {
+                width: 'auto',
+                alignment: 'right',
+                text: [
+                  { text: `Invoice number: ${this.registration.invoiceNumber}\n` },
+                  { text: `Date: ${new Date(this.registration.approvedAt || new Date()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n` }
+                ]
+              }
+            ],
+            margin: [0, 0, 0, 20]
+          },
+          this.createSectionHeader('Details', '#00aeef'),
+          {
+            table: {
+              headerRows: 1,
+              widths: ['*', 'auto'],
+              body: [
+                [{ text: 'Description', bold: true }, { text: 'Price', bold: true }],
+                ...this.getInvoiceTableBody()
               ]
             },
-            {
-              width: 'auto',
-              alignment: 'right',
-              text: [
-                { text: `Invoice number: ${this.registration.invoiceNumber}\n` },
-                { text: `Date: ${new Date(this.registration.approvedAt || new Date()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n` }
-              ]
-            }
-          ],
-          margin: [0, 0, 0, 20]
-        },
-        this.createSectionHeader('Details', '#00aeef'),
-        {
-          table: {
-            headerRows: 1,
-            widths: ['*', 'auto'],
-            body: [
-              [{ text: 'Description', bold: true }, { text: 'Price', bold: true }],
-              ...this.getInvoiceTableBody()
-            ]
+            layout: 'lightHorizontalLines'
           },
-          layout: 'lightHorizontalLines'
-        },
-        { text: `Total: ${this.getTotalPrice().toFixed(2)} €`, style: 'totals' },
-        { text: '\n' },
-        ...(this.event.invoiceDueDate ? [
-          this.createSectionHeader('Due Date', '#ec008c'),
-          { text: `${new Date(this.event.invoiceDueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n`, bold: true, color: 'black', alignment: 'center' },
-          { text: '\n' }
-        ] : []),
-        this.createSectionHeader('Payment Information', '#f47b20'),
-        htmlToPdfmake(this.event?.paymentInfo || ''),
-        { text: '\n' },
-        this.createSectionHeader('Bank Transfer Reason', '#7ac143'),
-        { text: sanitizedBankReason, bold: true, fontSize: 14 }
-      ],
-      styles: {
-        header: { fontSize: 24, bold: true, color: 'black' },
-        subtitle: { fontSize: 16, color: '#555555' },
-        totals: { fontSize: 16, bold: true, alignment: 'right', margin: [0, 20, 0, 0] }
-      }
-    };
+          { text: `Total: ${this.getTotalPrice().toFixed(2)} €`, style: 'totals' },
+          { text: '\n' },
+          ...(this.event.invoiceDueDate ? [
+            this.createSectionHeader('Due Date', '#ec008c'),
+            { text: `${new Date(this.event.invoiceDueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n`, bold: true, color: 'black', alignment: 'center' },
+            { text: '\n' }
+          ] : []),
+          this.createSectionHeader('Payment Information', '#f47b20'),
+          htmlToPdfmakeModule(this.event?.paymentInfo || ''),
+          { text: '\n' },
+          this.createSectionHeader('Bank Transfer Reason', '#7ac143'),
+          { text: sanitizedBankReason, bold: true, fontSize: 14 }
+        ],
+        styles: {
+          header: { fontSize: 24, bold: true, color: 'black' },
+          subtitle: { fontSize: 16, color: '#555555' },
+          totals: { fontSize: 16, bold: true, alignment: 'right', margin: [0, 20, 0, 0] }
+        }
+      };
 
-    pdfMake.createPdf(docDefinition).download(sanitizedInvoiceFilename);
+      pdfMakeModule.createPdf(docDefinition).download(sanitizedInvoiceFilename);
+    } catch (err) {
+      this.message.error('COMMON.OPERATION_FAILED');
+      console.error(err);
+    } finally {
+      await this.loading.hide();
+    }
   }
 
   private createSectionHeader(title: string, color: string): any {
