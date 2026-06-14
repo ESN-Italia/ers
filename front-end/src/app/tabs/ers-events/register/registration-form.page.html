@@ -246,12 +246,12 @@
         <app-datetime-timezone *ngIf="question.type === QuestionType.DATE" [label]="question.text"
           [obligatory]="question.required" [timezone]="event.timezone" presentation="date"
           [class.fieldHasError]="hasFieldAnError('answers[' + question.id + '] required')"
-          [(date)]="registration.answers[question.id]" />
+          [(date)]="$any(registration.answers)[question.id]" />
         <!-- Time -->
         <app-datetime-timezone *ngIf="question.type === QuestionType.TIME" [label]="question.text"
           [obligatory]="question.required" [timezone]="event.timezone" presentation="time"
           [class.fieldHasError]="hasFieldAnError('answers[' + question.id + '] required')"
-          [(date)]="registration.answers[question.id]" />
+          [(date)]="$any(registration.answers)[question.id]" />
       </ng-container>
     </ng-container>
 
