@@ -70,7 +70,7 @@ export class ManageEventPage implements OnInit {
     } catch (error) {
       this.message.error('COMMON.NOT_FOUND');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -97,7 +97,7 @@ export class ManageEventPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -121,7 +121,7 @@ export class ManageEventPage implements OnInit {
       this.message.error(error.message, true);
     } finally {
       if (target) target.value = '';
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -368,7 +368,7 @@ export class ManageEventPage implements OnInit {
       } catch (err) {
         this.message.error(err.message, true);
       } finally {
-        this.loading.hide();
+        await this.loading.hide();
       }
     };
 
@@ -392,7 +392,7 @@ export class ManageEventPage implements OnInit {
     } catch (err) {
       this.message.error(err.message, true);
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -405,7 +405,7 @@ export class ManageEventPage implements OnInit {
     } catch (err) {
       this.message.error(err.message, true);
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -428,7 +428,7 @@ export class ManageEventPage implements OnInit {
       } catch (err) {
         this.message.error(err.message, true);
       } finally {
-        this.loading.hide();
+        await this.loading.hide();
       }
     };
 

@@ -80,7 +80,7 @@ export class EditSpotComponent implements OnInit {
     } catch (err: any) {
       this.message.error(err.message || 'COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 

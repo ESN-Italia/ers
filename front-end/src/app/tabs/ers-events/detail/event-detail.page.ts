@@ -51,7 +51,7 @@ export class EventDetailPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.NOT_FOUND');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 

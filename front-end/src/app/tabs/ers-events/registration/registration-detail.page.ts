@@ -77,7 +77,7 @@ export class RegistrationDetailPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.NOT_FOUND');
     } finally {
-      if (showLoading) this.loading.hide();
+      if (showLoading) await this.loading.hide();
     }
   }
 
@@ -108,7 +108,7 @@ export class RegistrationDetailPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -128,7 +128,7 @@ export class RegistrationDetailPage implements OnInit {
             } catch (err) {
               this.message.error('COMMON.OPERATION_FAILED');
             } finally {
-              this.loading.hide();
+              await this.loading.hide();
             }
           }
         }
@@ -145,7 +145,7 @@ export class RegistrationDetailPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -192,7 +192,7 @@ export class RegistrationDetailPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -212,7 +212,7 @@ export class RegistrationDetailPage implements OnInit {
             } catch (err) {
               this.message.error('COMMON.OPERATION_FAILED');
             } finally {
-              this.loading.hide();
+              await this.loading.hide();
             }
           }
         }
@@ -230,7 +230,7 @@ export class RegistrationDetailPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -251,7 +251,7 @@ export class RegistrationDetailPage implements OnInit {
             } catch (err) {
               this.message.error('COMMON.OPERATION_FAILED');
             } finally {
-              this.loading.hide();
+              await this.loading.hide();
             }
           }
         }

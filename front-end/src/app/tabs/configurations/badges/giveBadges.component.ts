@@ -133,7 +133,7 @@ export class GiveBadgesComponent implements OnInit {
     } catch (error) {
       this.message.error('COMMON.SOMETHING_WENT_WRONG');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -148,7 +148,7 @@ export class GiveBadgesComponent implements OnInit {
       } catch (error) {
         this.message.error('COMMON.OPERATION_FAILED');
       } finally {
-        this.loading.hide();
+        await this.loading.hide();
       }
     };
 
@@ -205,7 +205,7 @@ export class GiveBadgesComponent implements OnInit {
       } catch (error) {
         this.message.error('COMMON.OPERATION_FAILED');
       } finally {
-        this.loading.hide();
+        await this.loading.hide();
       }
     });
     modal.present();

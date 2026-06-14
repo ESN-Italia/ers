@@ -107,7 +107,7 @@ export class ManageBadgesComponent implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -124,7 +124,7 @@ export class ManageBadgesComponent implements OnInit {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
       if (target) target.value = '';
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -138,7 +138,7 @@ export class ManageBadgesComponent implements OnInit {
       } catch (error) {
         this.message.error('COMMON.OPERATION_FAILED');
       } finally {
-        this.loading.hide();
+        await this.loading.hide();
       }
     };
     const header = this.t._('COMMON.ARE_YOU_SURE');

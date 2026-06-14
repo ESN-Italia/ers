@@ -103,7 +103,7 @@ export class RegistrationFormPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.NOT_FOUND');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -129,7 +129,7 @@ export class RegistrationFormPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 

@@ -76,7 +76,7 @@ export class RegistrationsListPage implements OnInit {
       this.message.error('COMMON.NOT_FOUND');
     } finally {
       if (isRefresher) ev.target.complete();
-      else if (showLoading) this.loading.hide();
+      else if (showLoading) await this.loading.hide();
     }
   }
 
@@ -173,7 +173,7 @@ export class RegistrationsListPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -197,7 +197,7 @@ export class RegistrationsListPage implements OnInit {
             } catch (err) {
               this.message.error('COMMON.OPERATION_FAILED');
             } finally {
-              this.loading.hide();
+              await this.loading.hide();
             }
           }
         }
@@ -215,7 +215,7 @@ export class RegistrationsListPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -235,7 +235,7 @@ export class RegistrationsListPage implements OnInit {
             } catch (err) {
               this.message.error('COMMON.OPERATION_FAILED');
             } finally {
-              this.loading.hide();
+              await this.loading.hide();
             }
           }
         }
@@ -253,7 +253,7 @@ export class RegistrationsListPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 

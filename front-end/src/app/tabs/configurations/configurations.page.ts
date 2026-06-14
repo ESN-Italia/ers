@@ -118,7 +118,7 @@ export class ConfigurationsPage implements OnInit {
     } catch (error) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -191,7 +191,7 @@ export class ConfigurationsPage implements OnInit {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
       if (target) target.value = '';
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
   async resetAppLogo(darkMode = false): Promise<void> {

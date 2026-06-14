@@ -69,7 +69,7 @@ export class EmailTemplateComponent implements OnInit {
     } catch (error) {
       this.message.error('COMMON.SOMETHING_WENT_WRONG');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -96,7 +96,7 @@ export class EmailTemplateComponent implements OnInit {
       } catch (error) {
         this.message.error('COMMON.OPERATION_FAILED');
       } finally {
-        this.loading.hide();
+        await this.loading.hide();
       }
     };
 
@@ -120,7 +120,7 @@ export class EmailTemplateComponent implements OnInit {
     } catch (error) {
       this.message.error('COMMON.SOMETHING_WENT_WRONG');
     } finally {
-      this.loading.hide();
+      await this.loading.hide();
     }
   }
 
@@ -133,7 +133,7 @@ export class EmailTemplateComponent implements OnInit {
       } catch (error) {
         this.message.error('EMAIL_TEMPLATE.BAD_TEMPLATE');
       } finally {
-        this.loading.hide();
+        await this.loading.hide();
       }
     };
 
