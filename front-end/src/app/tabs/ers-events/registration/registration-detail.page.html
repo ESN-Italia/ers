@@ -116,7 +116,7 @@
 
                 <div *ngIf="(isMyRegistration() || event.canUserManage(app.user)) && event.isRegistrationOpen()"
                   class="ion-margin-vertical">
-                  <ion-button *ngIf="registration.status !== RegistrationStatus.CONFIRMED && isMyRegistration()"
+                  <ion-button *ngIf="isMyRegistration() && registration.status === RegistrationStatus.PENDING"
                     expand="block" fill="outline" (click)="modify()">
                     <ion-icon name="create-outline" slot="start"></ion-icon>
                     {{ 'COMMON.EDIT' | translate }}
