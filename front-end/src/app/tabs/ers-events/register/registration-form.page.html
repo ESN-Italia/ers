@@ -213,7 +213,8 @@
     <ng-container *ngFor="let question of event.questions">
       <ng-container *ngIf="shouldShowQuestion(question)">
         <!-- Text -->
-        <ion-item *ngIf="question.type === QuestionType.TEXT">
+        <ion-item *ngIf="question.type === QuestionType.TEXT"
+          [class.fieldHasError]="hasFieldAnError('answers[' + question.id + '] required')">
           <ion-label position="stacked">{{ question.text }} <span *ngIf="question.required"
               class="obligatoryDot">*</span></ion-label>
           <ion-textarea [(ngModel)]="registration.answers[question.id]"></ion-textarea>
@@ -222,7 +223,7 @@
         <!-- Radiobox -->
         <ion-radio-group *ngIf="question.type === QuestionType.RADIOBOX"
           [(ngModel)]="registration.answers[question.id]">
-          <ion-list-header>
+          <ion-list-header [class.fieldHasError]="hasFieldAnError('answers[' + question.id + '] required')">
             <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
           </ion-list-header>
           <ion-item *ngFor="let option of question.options">
@@ -233,7 +234,7 @@
 
         <!-- Checkbox -->
         <ng-container *ngIf="question.type === QuestionType.CHECKBOX">
-          <ion-list-header>
+          <ion-list-header [class.fieldHasError]="hasFieldAnError('answers[' + question.id + '] required')">
             <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
           </ion-list-header>
           <ion-item *ngFor="let option of question.options">

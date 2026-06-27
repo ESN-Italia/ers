@@ -108,8 +108,7 @@ export class ERSRegistration extends Resource {
 
     if (safeData.proofOfPayment) this.proofOfPayment = safeData.proofOfPayment;
     if (safeData.invoiceNumber !== undefined) this.invoiceNumber = safeData.invoiceNumber;
-    if (safeData.approvedAt) this.approvedAt = safeData.approvedAt;
-    if (safeData.selectedOptionalTickets) this.selectedOptionalTickets = safeData.selectedOptionalTickets;
+    if (safeData.approvedAt) this.approvedAt = safeData.approvedAt
     if (safeData.updatedAt) this.updatedAt = safeData.updatedAt;
   }
 
