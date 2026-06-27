@@ -16,61 +16,23 @@ export const handler = async (ev: any): Promise<void> => await new ScheduledOps(
 class ScheduledOps extends GenericController {
   async handleRequest(): Promise<void> {
     try {
-      await Promise.all([this.closeTopicsWithPastDeadline(), this.closeOpportunitiesWithPastDeadline(), this.deleteExpiredReceipts()]);
+      await Promise.all([
+        // this.deleteExpiredReceipts(),
+      ]);
       this.done(null);
     } catch (error) {
       this.logger.error('Failed scheduled ops', error);
       this.done(new HandledError('ERROR IN SCHEDULED OPS'));
     }
   }
-  private async closeTopicsWithPastDeadline(): Promise<void> {
-    const now = new Date().toISOString();
-    const topics = await ddb.scan({ TableName: DDB_TABLES.topics, IndexName: 'topicId-willCloseAt-index' });
-    const topicsToClose = topics.filter(t => t.willCloseAt < now);
-
-    for (const topic of topicsToClose) {
-      try {
-        await ddb.update({
-          TableName: DDB_TABLES.topics,
-          Key: { topicId: topic.topicId },
-          UpdateExpression: 'SET closedAt = :deadline REMOVE willCloseAt',
-          ExpressionAttributeValues: { ':deadline': topic.willCloseAt }
-        });
-      } catch (error) {
-        this.logger.warn('Topic NOT closed', error, { topic });
-      }
-    }
-  }
-  private async closeOpportunitiesWithPastDeadline(): Promise<void> {
-    const now = new Date().toISOString();
-    const opportunities = await ddb.scan({
-      TableName: DDB_TABLES.opportunities,
-      IndexName: 'opportunityId-willCloseAt-index'
-    });
-    const opportunitiesToClose = opportunities.filter(x => x.willCloseAt < now);
-
-    for (const opportunity of opportunitiesToClose) {
-      try {
-        await ddb.update({
-          TableName: DDB_TABLES.opportunities,
-          Key: { opportunityId: opportunity.opportunityId },
-          UpdateExpression: 'SET closedAt = :deadline REMOVE willCloseAt',
-          ExpressionAttributeValues: { ':deadline': opportunity.willCloseAt }
-        });
-      } catch (error) {
-        this.logger.warn('Opportunity NOT closed', error, { opportunity });
-      }
-    }
-  }
 
   private async deleteExpiredReceipts(): Promise<void> {
     const now = new Date();
-    const retentionPeriodDays = 90;
+    const retentionPeriodDays = 365 * 10;
     const cutoffDate = new Date(now.setDate(now.getDate() - retentionPeriodDays)).toISOString();
 
-    // Scan events that ended more than 90 days ago and haven't had receipts deleted yet
-    // Note: This scan might be expensive if many events. Ideally we'd use an index or a different approach,
-    // but for the scale of this app (ESN Event Registration System), full scan of events is likely acceptable.
+    // Scan events that ended more than retentionPeriodDays ago and haven't had receipts deleted yet
+    // Note: This scan might be expensive if there are many events. Ideally we'd use an index or a different approach, but for the scale of this app full scan of events is likely acceptable.
     // Events table is not expected to be huge.
     // Also, we don't have an index on endAt.
     const events = await ddb.scan({ TableName: process.env.DDB_TABLE_events });
