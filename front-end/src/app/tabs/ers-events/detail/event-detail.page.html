@@ -123,8 +123,8 @@
               expand="block" size="medium" (click)="register()">
               {{ 'ERS_EVENTS.REGISTRATION_VIEW_ONLY' | translate }}
             </ion-button>
-            <ion-button *ngIf="event.canUserManage(app.user)" expand="block" fill="outline" size="medium"
-              (click)="viewRegistrations()" class="ion-margin-top">
+            <ion-button *ngIf="event.canUserManage(app.user) && !event.isRegistrationNotOpenYet()" expand="block"
+              fill="outline" size="medium" (click)="viewRegistrations()" class="ion-margin-top">
               <ion-icon name="list-outline" slot="start"></ion-icon>
               {{ 'ERS_EVENTS.VIEW_REGISTRATIONS' | translate }}
             </ion-button>

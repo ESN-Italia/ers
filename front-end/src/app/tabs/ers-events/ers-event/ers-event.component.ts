@@ -20,5 +20,6 @@ export class ERSEventComponent {
   now = new Date().toISOString();
 
   constructor(public app: AppService) {
-    addIcons({ listOutline }); }
+    addIcons({ listOutline });
+  }
 }

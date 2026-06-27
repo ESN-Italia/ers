@@ -23,7 +23,7 @@
         {{ 'ERS_EVENTS.REGISTRATION_CLOSED' | translate }}
       </ion-badge>
 
-      <div *ngIf="event.canUserManage(app.user)" class="ion-text-right">
+      <div *ngIf="event.canUserManage(app.user) && !event.isRegistrationNotOpenYet()" class="ion-text-right">
         <ion-button fill="clear" size="small" (click)="viewRegs.emit($event)">
           <ion-icon name="list-outline" slot="start"></ion-icon>
           {{ 'ERS_EVENTS.VIEW_REGISTRATIONS' | translate }}
@@ -47,15 +47,16 @@
 <!-- row -->
 <ng-container *ngIf="row">
   <ion-row class="ion-align-items-center headerRow" *ngIf="header">
-    <ion-col [sizeLg]="4" [sizeXl]="4">{{ 'ERS_EVENTS.EVENT' | translate }}</ion-col>
+    <ion-col [sizeLg]="3" [sizeXl]="3">{{ 'ERS_EVENTS.EVENT' | translate }}</ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.TYPE' | translate }}</ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.START_AT' | translate }}</ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.END_AT' | translate }}</ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2">{{ 'ERS_EVENTS.STATUS' | translate }}</ion-col>
+    <ion-col size="1"></ion-col>
   </ion-row>
 
   <ion-row class="ion-align-items-center row tappable" *ngIf="!header && event" (click)="select.emit()">
-    <ion-col [sizeLg]="4" [sizeXl]="4">
+    <ion-col [sizeLg]="3" [sizeXl]="3">
       <b>{{ event.name }}</b>
     </ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2">
@@ -72,23 +73,28 @@
       <ion-badge *ngIf="event.isRegistrationOpen()" color="success">
         {{ 'ERS_EVENTS.REGISTRATION_OPEN' | translate }}
       </ion-badge>
-      <ion-badge *ngIf="!event.isRegistrationOpen() && event.registrationOpenAt && event.registrationOpenAt > now"
-        color="warning">
+      <ion-badge *ngIf="event.isRegistrationNotOpenYet()" color="warning">
         {{ 'ERS_EVENTS.REGISTRATION_NOT_OPEN_YET' | translate }}
       </ion-badge>
-      <ion-badge *ngIf="!event.isRegistrationOpen() && event.registrationCloseAt && event.registrationCloseAt < now"
-        color="medium">
+      <ion-badge *ngIf="event.isRegistrationEnded()" color="medium">
         {{ 'ERS_EVENTS.REGISTRATION_ENDED' | translate }}
       </ion-badge>
+    </ion-col>
+    <ion-col size="1">
+      <ion-button *ngIf="event.canUserManage(app.user) && !event.isRegistrationNotOpenYet()" fill="clear" size="small"
+        color="blue" (click)="viewRegs.emit($event)">
+        <ion-icon name="list-outline" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-col>
   </ion-row>
 
   <!-- skeleton -->
   <ion-row class="ion-align-items-center row" *ngIf="!header && !event">
-    <ion-col [sizeLg]="4" [sizeXl]="4"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col [sizeLg]="3" [sizeXl]="3"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
     <ion-col [sizeLg]="2" [sizeXl]="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+    <ion-col size="1"></ion-col>
   </ion-row>
 </ng-container>

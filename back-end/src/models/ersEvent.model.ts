@@ -111,6 +111,16 @@ export class ERSEvent extends Resource {
     return this.registrationOpenAt && this.registrationCloseAt && now >= this.registrationOpenAt && now <= this.registrationCloseAt;
   }
 
+  isRegistrationNotOpenYet(): boolean {
+    const now = new Date().toISOString();
+    return now < this.registrationOpenAt;
+  }
+
+  isRegistrationEnded(): boolean {
+    const now = new Date().toISOString();
+    return now > this.registrationCloseAt;
+  }
+
   isEnded(): boolean {
     return this.endAt && new Date().toISOString() > this.endAt;
   }
