@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
@@ -35,6 +35,7 @@ export class RegistrationsListPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
+    private loadingCtrl: LoadingController,
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
     private t: IDEATranslationsService,
@@ -76,7 +77,7 @@ export class RegistrationsListPage implements OnInit {
       this.message.error('COMMON.NOT_FOUND');
     } finally {
       if (isRefresher) ev.target.complete();
-      else if (showLoading) await this.loading.hide();
+      else if (showLoading) await this.dismissLoader();
     }
   }
 
@@ -163,41 +164,77 @@ export class RegistrationsListPage implements OnInit {
   async approveSelected(): Promise<void> {
     if (!this.selectedIds.size) return;
 
-    try {
-      await this.loading.show();
-      for (const id of Array.from(this.selectedIds)) {
-        await this.service.approveSpot(this.eventId, id);
-      }
-      await this.loadData(false);
-      this.message.success('COMMON.OPERATION_COMPLETED');
-    } catch (err) {
-      this.message.error('COMMON.OPERATION_FAILED');
-    } finally {
-      await this.loading.hide();
-    }
+    let errorsMap = new Map<string, string>();
+
+    const alert = await this.alertCtrl.create({
+      header: this.t._('COMMON.ARE_YOU_SURE'),
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.t._('COMMON.CONFIRM'),
+          handler: async () => {
+            try {
+              await this.loading.show();
+              for (const id of Array.from(this.selectedIds)) {
+                try {
+                  await this.service.approveSpot(this.eventId, id);
+                } catch (err: any) {
+                  const registration = await this.service.getRegistration(this.eventId, id);
+                  errorsMap.set(registration.subject.name, err.message);
+                }
+              }
+              await this.loadData(false);
+              if (errorsMap.size === 0) {
+                this.message.success('COMMON.OPERATION_COMPLETED');
+              } else {
+                console.error(errorsMap);
+                this.message.error('COMMON.OPERATION_FAILED');
+              }
+            } catch (err) {
+              this.message.error('COMMON.OPERATION_FAILED');
+            } finally {
+              await this.dismissLoader();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async rejectSelected(): Promise<void> {
     if (!this.selectedIds.size) return;
 
+    let errorsMap = new Map<string, string>();
+
     const alert = await this.alertCtrl.create({
-      header: 'COMMON.ARE_YOU_SURE',
+      header: this.t._('COMMON.ARE_YOU_SURE'),
       buttons: [
-        { text: 'COMMON.CANCEL', role: 'cancel' },
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'COMMON.CONFIRM',
+          text: this.t._('COMMON.CONFIRM'),
           handler: async () => {
             try {
               await this.loading.show();
               for (const id of Array.from(this.selectedIds)) {
-                await this.service.rejectSpot(this.eventId, id);
+                try {
+                  await this.service.rejectSpot(this.eventId, id);
+                } catch (err) {
+                  const registration = await this.service.getRegistration(this.eventId, id);
+                  errorsMap.set(registration.subject.name, err.message);
+                }
               }
               await this.loadData(false);
-              this.message.success('COMMON.OPERATION_COMPLETED');
+              if (errorsMap.size === 0) {
+                this.message.success('COMMON.OPERATION_COMPLETED');
+              } else {
+                console.error(errorsMap);
+                this.message.error('COMMON.OPERATION_FAILED');
+              }
             } catch (err) {
               this.message.error('COMMON.OPERATION_FAILED');
             } finally {
-              await this.loading.hide();
+              await this.dismissLoader();
             }
           }
         }
@@ -207,25 +244,38 @@ export class RegistrationsListPage implements OnInit {
   }
 
   async approve(reg: ERSRegistration): Promise<void> {
-    try {
-      await this.loading.show();
-      await this.service.approveSpot(this.eventId, reg.registrationId);
-      await this.loadData(false);
-      this.message.success('COMMON.OPERATION_COMPLETED');
-    } catch (err) {
-      this.message.error('COMMON.OPERATION_FAILED');
-    } finally {
-      await this.loading.hide();
-    }
+    const alert = await this.alertCtrl.create({
+      header: this.t._('COMMON.ARE_YOU_SURE'),
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.t._('COMMON.CONFIRM'),
+          handler: async () => {
+            try {
+              await this.loading.show();
+              await this.service.approveSpot(this.eventId, reg.registrationId);
+              await this.loadData(false);
+              this.message.success('COMMON.OPERATION_COMPLETED');
+            } catch (err) {
+              console.error(err);
+              this.message.error('COMMON.OPERATION_FAILED');
+            } finally {
+              await this.dismissLoader();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async reject(reg: ERSRegistration): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'COMMON.ARE_YOU_SURE',
+      header: this.t._('COMMON.ARE_YOU_SURE'),
       buttons: [
-        { text: 'COMMON.CANCEL', role: 'cancel' },
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
         {
-          text: 'COMMON.CONFIRM',
+          text: this.t._('COMMON.CONFIRM'),
           handler: async () => {
             try {
               await this.loading.show();
@@ -233,6 +283,7 @@ export class RegistrationsListPage implements OnInit {
               await this.loadData(false);
               this.message.success('COMMON.OPERATION_COMPLETED');
             } catch (err) {
+              console.error(err);
               this.message.error('COMMON.OPERATION_FAILED');
             } finally {
               await this.loading.hide();
@@ -245,15 +296,48 @@ export class RegistrationsListPage implements OnInit {
   }
 
   async confirmPayment(reg: ERSRegistration): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.t._('COMMON.ARE_YOU_SURE'),
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.t._('COMMON.CONFIRM'),
+          handler: async () => {
+            try {
+              await this.loading.show();
+              await this.service.confirmPayment(this.eventId, reg.registrationId);
+              await this.loadData(false);
+              this.message.success('COMMON.OPERATION_COMPLETED');
+            } catch (err) {
+              console.error(err);
+              this.message.error('COMMON.OPERATION_FAILED');
+            } finally {
+              await this.loading.hide();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  private async dismissLoader(): Promise<void> {
     try {
-      await this.loading.show();
-      await this.service.confirmPayment(this.eventId, reg.registrationId);
-      await this.loadData(false);
-      this.message.success('COMMON.OPERATION_COMPLETED');
-    } catch (err) {
-      this.message.error('COMMON.OPERATION_FAILED');
-    } finally {
       await this.loading.hide();
+    } catch (e) {
+      console.error('Error hiding IDEA loader:', e);
+    }
+
+    try {
+      // Dismiss any orphaned loader overlays, with a safety cap to prevent infinite loops
+      const MAX_DISMISS = 5;
+      for (let i = 0; i < MAX_DISMISS; i++) {
+        const topLoader = await this.loadingCtrl.getTop();
+        if (!topLoader) break;
+        await topLoader.dismiss();
+      }
+    } catch (e) {
+      console.error('Error dismissing fallback loaders:', e);
     }
   }
 

@@ -1,6 +1,6 @@
 import { Resource } from 'idea-toolbox';
 
-import { cleanESNAccountsIdForURL } from './utils';
+import { cleanESNAccountsIdForURL, isValidPhone } from './utils';
 
 import { User, getUserOrigin } from './user.model';
 import { UsersOriginDisplayOptions } from './configurations.model';
@@ -130,7 +130,7 @@ export class Subject extends Resource {
     if (this.type === SubjectTypes.USER) {
       if (this.iE(this.section)) e.push('section');
       if (this.iE(this.email)) e.push('email');
-      if (this.iE(this.phone)) e.push('phone');
+      if (this.iE(this.phone) || !isValidPhone(this.phone)) e.push('phone');
       if (this.iE(this.birthDate)) e.push('birthDate');
       if (this.iE(this.birthPlace)) e.push('birthPlace');
       if (this.iE(this.nationality)) e.push('nationality');

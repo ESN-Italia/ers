@@ -49,9 +49,20 @@ export class RegistrationFormPage implements OnInit {
   }
 
   async ionViewWillEnter(): Promise<void> {
+    try {
+      await this.loading.show();
+      this.event = await this.service.getById(this.eventId);
+
+      if (!this.event.isRegistrationOpen() && !this.event.canUserManage(this.app.user)) {
+        return this.app.closePage('COMMON.UNAUTHORIZED');
+      }
+    } catch (error) {
+      this.message.error('COMMON.NOT_FOUND');
+    } finally {
+      await this.loading.hide();
+    }
     await this.loadData();
   }
-
   async loadData(): Promise<void> {
     try {
       await this.loading.show();

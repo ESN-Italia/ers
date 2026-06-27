@@ -33,6 +33,15 @@ const SES_SENDER = {
   replyToAddresses: [process.env.SES_SOURCE_ADDRESS] // Default reply-to
 };
 
+// Define the allowed registration state changes
+const ALLOWED_STATUS_TRANSITIONS: Record<RegistrationStatus, RegistrationStatus[]> = {
+  [RegistrationStatus.PENDING]: [RegistrationStatus.APPROVED, RegistrationStatus.REJECTED],
+  [RegistrationStatus.APPROVED]: [RegistrationStatus.PAID, RegistrationStatus.REJECTED],
+  [RegistrationStatus.PAID]: [RegistrationStatus.APPROVED, RegistrationStatus.CONFIRMED, RegistrationStatus.REJECTED],
+  [RegistrationStatus.CONFIRMED]: [RegistrationStatus.REJECTED], // Cancellations allowed
+  [RegistrationStatus.REJECTED]: [] // Terminal state
+};
+
 export const handler = (ev: any): Promise<any> => new ERSRegistrationsRC(ev).handleRequest();
 
 ///
@@ -111,7 +120,7 @@ class ERSRegistrationsRC extends ResourceController {
     this.registration = new ERSRegistration(this.body);
     this.registration.eventId = this.managedEvent.eventId;
     this.registration.userId = this.galaxyUser.userId;
-    
+
     const userSubject = Subject.fromUser(this.galaxyUser);
     if (this.body.subject) {
       const bodySubject = new Subject(this.body.subject);
@@ -215,10 +224,30 @@ class ERSRegistrationsRC extends ResourceController {
     // We don't return anything for delete
   }
 
+  private validateStatusTransition(nextStatus: RegistrationStatus): void {
+    const currentStatus = this.registration.status;
+
+    // No-op if they are assigning the exact same status
+    if (currentStatus === nextStatus) return;
+
+    let allowedNext = ALLOWED_STATUS_TRANSITIONS[currentStatus];
+
+    // PAID -> APPROVED transition is allowed only if there is no proof of payment uploaded
+    if (currentStatus === RegistrationStatus.PAID && nextStatus === RegistrationStatus.APPROVED) {
+      if (this.registration.proofOfPayment) allowedNext = [];
+    }
+
+    if (!allowedNext || !allowedNext.includes(nextStatus)) {
+      throw new HandledError(`Forbidden status change: Cannot transition from ${currentStatus} to ${nextStatus}`);
+    }
+  }
+
   private async updateStatus(status: RegistrationStatus, emailType: string): Promise<ERSRegistration> {
     if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
       throw new HandledError('Unauthorized');
     }
+
+    this.validateStatusTransition(status);
 
     // Spot Limit Check
     if (status === RegistrationStatus.APPROVED || status === RegistrationStatus.CONFIRMED) {
@@ -234,7 +263,7 @@ class ERSRegistrationsRC extends ResourceController {
           r.registrationId !== this.registration.registrationId &&
           [RegistrationStatus.APPROVED, RegistrationStatus.PAID, RegistrationStatus.CONFIRMED].includes(r.status)
         ).length;
-        if (spotCount >= spot.limit) throw new HandledError('Spot is full');
+        if (spotCount >= spot.limit) throw new HandledError(`Spot limit exceeded: ${spot.name}`);
       }
     }
 
@@ -256,6 +285,9 @@ class ERSRegistrationsRC extends ResourceController {
 
   private async setStatus(status: RegistrationStatus): Promise<ERSRegistration> {
     if (!Object.values(RegistrationStatus).includes(status)) throw new HandledError('Invalid status');
+
+    this.validateStatusTransition(status);
+
     this.registration.status = status;
     this.registration.updatedAt = new Date().toISOString();
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
@@ -279,7 +311,7 @@ class ERSRegistrationsRC extends ResourceController {
           r.registrationId !== this.registration.registrationId &&
           [RegistrationStatus.APPROVED, RegistrationStatus.PAID, RegistrationStatus.CONFIRMED].includes(r.status)
         ).length;
-        if (spotCount >= spot.limit) throw new HandledError('Spot is full');
+        if (spotCount >= spot.limit) throw new HandledError(`Spot limit exceeded: ${spot.name}`);
       }
     }
 
@@ -316,6 +348,8 @@ class ERSRegistrationsRC extends ResourceController {
     if (this.registration.userId !== this.galaxyUser.userId) throw new HandledError('Unauthorized');
     if (!this.body.proofOfPaymentKey) throw new HandledError('Missing proof of payment key');
 
+    this.validateStatusTransition(RegistrationStatus.PAID);
+
     const key = this.body.proofOfPaymentKey;
 
     // Verify existence in S3
@@ -343,6 +377,7 @@ class ERSRegistrationsRC extends ResourceController {
 
     if (!this.registration.proofOfPayment?.key) throw new HandledError('No proof of payment to delete');
 
+
     // Delete from S3
     try {
       await s3.deleteObject({
@@ -356,7 +391,7 @@ class ERSRegistrationsRC extends ResourceController {
 
     // Reset registration state
     delete this.registration.proofOfPayment;
-    this.registration.status = RegistrationStatus.APPROVED;
+    this.validateStatusTransition(RegistrationStatus.APPROVED);
     this.registration.updatedAt = new Date().toISOString();
 
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });

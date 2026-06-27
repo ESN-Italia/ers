@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, LoadingController, ModalController } from '@ionic/angular';
 import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
@@ -31,6 +31,7 @@ export class RegistrationDetailPage implements OnInit {
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
     private modalCtrl: ModalController,
+    private loadingCtrl: LoadingController,
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
     private t: IDEATranslationsService,
@@ -99,33 +100,39 @@ export class RegistrationDetailPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      await this.loading.hide();
+      await this.dismissLoader();
     }
   }
 
   async deleteProofOfPayment(): Promise<void> {
+    let confirmed = false;
     const alert = await this.alertCtrl.create({
       header: this.t._('COMMON.ARE_YOU_SURE'),
       buttons: [
         { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
         {
           text: this.t._('COMMON.DELETE'), role: 'destructive',
-          handler: async () => {
-            try {
-              await this.loading.show();
-              await this.service.deleteProofOfPayment(this.eventId, this.registration.registrationId);
-              await this.loadData(false);
-              this.message.success('COMMON.OPERATION_COMPLETED');
-            } catch (err) {
-              this.message.error('COMMON.OPERATION_FAILED');
-            } finally {
-              await this.loading.hide();
-            }
+          handler: () => {
+            confirmed = true;
           }
         }
       ]
     });
     await alert.present();
+    await alert.onDidDismiss();
+
+    if (!confirmed) return;
+
+    try {
+      await this.loading.show();
+      await this.service.deleteProofOfPayment(this.eventId, this.registration.registrationId);
+      await this.loadData(false);
+      this.message.success('COMMON.OPERATION_COMPLETED');
+    } catch (err) {
+      this.message.error('COMMON.OPERATION_FAILED');
+    } finally {
+      await this.dismissLoader();
+    }
   }
 
   async viewProofOfPayment(): Promise<void> {
@@ -136,7 +143,7 @@ export class RegistrationDetailPage implements OnInit {
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
-      await this.loading.hide();
+      await this.dismissLoader();
     }
   }
 
@@ -175,16 +182,35 @@ export class RegistrationDetailPage implements OnInit {
   }
 
   async approve(): Promise<void> {
-    try {
-      await this.loading.show();
-      await this.service.approveSpot(this.eventId, this.registration.registrationId);
-      await this.loadData(false);
-      this.message.success('COMMON.OPERATION_COMPLETED');
-    } catch (err) {
-      this.message.error('COMMON.OPERATION_FAILED');
-    } finally {
-      await this.loading.hide();
-    }
+    const alert = await this.alertCtrl.create({
+      header: this.t._('COMMON.ARE_YOU_SURE'),
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.t._('COMMON.CONFIRM'),
+          handler: async () => {
+            try {
+              await this.loading.show();
+              await this.service.approveSpot(this.eventId, this.registration.registrationId);
+              await this.loadData(false);
+              this.message.success('COMMON.OPERATION_COMPLETED');
+            } catch (err: any) {
+              if (err?.message?.startsWith('Spot limit exceeded')) {
+                const spotName = err.message.split(': ')[1];
+                const msg = spotName ? `${this.t._('ERS_EVENTS.SPOT_LIMIT_EXCEEDED')}: ${spotName}` : this.t._('ERS_EVENTS.SPOT_LIMIT_EXCEEDED');
+                this.message.error(msg, true);
+              } else {
+                console.error(err);
+                this.message.error(`${this.t._('ERS_EVENTS.APPROVE_ERROR')}: ${err.message}`, true);
+              }
+            } finally {
+              await this.dismissLoader();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async reject(): Promise<void> {
@@ -201,7 +227,7 @@ export class RegistrationDetailPage implements OnInit {
               await this.loadData(false);
               this.message.success('COMMON.OPERATION_COMPLETED');
             } catch (err) {
-              this.message.error('COMMON.OPERATION_FAILED');
+              this.message.error(`${this.t._('ERS_EVENTS.REJECT_ERROR')}: ${err.message}`, true);
             } finally {
               await this.loading.hide();
             }
@@ -213,16 +239,28 @@ export class RegistrationDetailPage implements OnInit {
   }
 
   async confirmPayment(): Promise<void> {
-    try {
-      await this.loading.show();
-      await this.service.confirmPayment(this.eventId, this.registration.registrationId);
-      await this.loadData(false);
-      this.message.success('COMMON.OPERATION_COMPLETED');
-    } catch (err) {
-      this.message.error('COMMON.OPERATION_FAILED');
-    } finally {
-      await this.loading.hide();
-    }
+    const alert = await this.alertCtrl.create({
+      header: this.t._('COMMON.ARE_YOU_SURE'),
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.t._('COMMON.CONFIRM'),
+          handler: async () => {
+            try {
+              await this.loading.show();
+              await this.service.confirmPayment(this.eventId, this.registration.registrationId);
+              await this.loadData(false);
+              this.message.success('COMMON.OPERATION_COMPLETED');
+            } catch (err) {
+              this.message.error(`${this.t._('ERS_EVENTS.CONFIRM_ERROR')}: ${err.message}`, true);
+            } finally {
+              await this.dismissLoader();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async withdraw(): Promise<void> {
@@ -438,7 +476,7 @@ export class RegistrationDetailPage implements OnInit {
       this.message.error('COMMON.OPERATION_FAILED');
       console.error(err);
     } finally {
-      await this.loading.hide();
+      await this.dismissLoader();
     }
   }
 
@@ -480,5 +518,17 @@ export class RegistrationDetailPage implements OnInit {
       }
     }
     return tableBody;
+  }
+
+  private async dismissLoader(): Promise<void> {
+    await this.loading.hide();
+    try {
+      const topLoader = await this.loadingCtrl.getTop();
+      if (topLoader) {
+        await topLoader.dismiss();
+      }
+    } catch (e) {
+      console.error('Error dismissing fallback loader:', e);
+    }
   }
 }

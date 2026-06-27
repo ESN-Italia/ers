@@ -2,6 +2,7 @@ import { epochISOString, Resource } from 'idea-toolbox';
 
 import { ERSEvent } from './ersEvent.model';
 import { Subject } from './subject.model';
+import { isValidPhone } from './utils';
 
 export enum RegistrationStatus {
   PENDING = "PENDING",
@@ -117,7 +118,7 @@ export class ERSRegistration extends Resource {
     if (this.iE(this.eventId)) e.push('eventId');
     if (this.iE(this.userId)) e.push('userId');
     if (!this.subject) e.push('subject');
-    else e.push(...this.subject.validate());
+    else e.push(...this.subject.validate().map(f => `subject.${f}`));
 
     if (this.iE(this.document?.type)) e.push('document.type');
     if (this.iE(this.document?.number)) e.push('document.number');
@@ -132,7 +133,7 @@ export class ERSRegistration extends Resource {
     if (this.iE(this.homeAddress)) e.push('homeAddress');
     if (this.iE(this.emergencyContact?.name)) e.push('emergencyContact.name');
     if (this.iE(this.emergencyContact?.relationship)) e.push('emergencyContact.relationship');
-    if (this.iE(this.emergencyContact?.phone)) e.push('emergencyContact.phone');
+    if (this.iE(this.emergencyContact?.phone) || !isValidPhone(this.emergencyContact?.phone)) e.push('emergencyContact.phone');
     if (this.iE(this.emergencyContact?.spokenLanguages)) e.push('emergencyContact.spokenLanguages');
     if (this.iE(this.spotId)) e.push('spotId');
     if (this.iE(this.selectedSectionName)) e.push('selectedSectionName');
