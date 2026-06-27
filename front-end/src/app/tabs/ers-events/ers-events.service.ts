@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { IDEAApiService } from '@idea-ionic/common';
 
 import { ERSEvent } from '@models/ersEvent.model';
-import { ERSRegistration } from '@models/ersRegistration.model';
+import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { SignedURL } from 'idea-toolbox';
 
 @Injectable({ providedIn: 'root' })
@@ -112,21 +112,21 @@ export class ERSEventsService {
    * Approve a spot (Manager).
    */
   async approveSpot(eventId: string, registrationId: string): Promise<void> {
-    await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], { body: { action: 'APPROVE' } });
+    await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], { body: { action: 'SET_STATUS', status: RegistrationStatus.APPROVED } });
   }
 
   /**
    * Reject a spot (Manager).
    */
   async rejectSpot(eventId: string, registrationId: string): Promise<void> {
-    await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], { body: { action: 'REJECT' } });
+    await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], { body: { action: 'SET_STATUS', status: RegistrationStatus.REJECTED } });
   }
 
   /**
    * Confirm payment (Manager).
    */
   async confirmPayment(eventId: string, registrationId: string): Promise<void> {
-    await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], { body: { action: 'CONFIRM_PAYMENT' } });
+    await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], { body: { action: 'SET_STATUS', status: RegistrationStatus.CONFIRMED } });
   }
 
   /**

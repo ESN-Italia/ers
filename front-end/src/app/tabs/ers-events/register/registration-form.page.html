@@ -22,14 +22,13 @@
         </ion-label>
       </ion-list-header>
       <ion-item *ngFor="let spot of event.spots">
-        <ion-label>
-          <h3>{{ spot.name }}</h3>
-          <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ spot.price | currency:'EUR' }} | {{ 'ERS_EVENTS.SPOT_LIMIT' |
-            translate }}:
-            {{
-            spot.limit }}</p>
-        </ion-label>
-        <ion-radio slot="start" [value]="spot.id"></ion-radio>
+        <ion-radio slot="start" labelPlacement="end" [value]="spot.id">
+          <ion-label>
+            <h3>{{ spot.name }}</h3>
+            <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ spot.price | currency:'EUR' }} | {{ 'ERS_EVENTS.SPOT_LIMIT' |
+              translate }}: {{ spot.limit }}</p>
+          </ion-label>
+        </ion-radio>
       </ion-item>
     </ion-radio-group>
     <div *ngIf="event.spots?.length === 1">
@@ -48,13 +47,14 @@
         </ion-label>
       </ion-list-header>
       <ion-item *ngFor="let ticket of event.optionalTickets">
-        <ion-label class="ion-text-wrap">
-          <h3>{{ ticket.name }}</h3>
-          <p *ngIf="ticket.description">{{ ticket.description }}</p>
-          <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price | currency:'EUR' }}</p>
-        </ion-label>
-        <ion-checkbox slot="start" [checked]="isOptionalTicketSelected(ticket.id)"
-          (ionChange)="toggleOptionalTicket(ticket.id)"></ion-checkbox>
+        <ion-checkbox slot="start" labelPlacement="end" [checked]="isOptionalTicketSelected(ticket.id)"
+          (ionChange)="toggleOptionalTicket(ticket.id)">
+          <ion-label class="ion-text-wrap">
+            <h3>{{ ticket.name }}</h3>
+            <p *ngIf="ticket.description">{{ ticket.description }}</p>
+            <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price | currency:'EUR' }}</p>
+          </ion-label>
+        </ion-checkbox>
       </ion-item>
     </ng-container>
 
@@ -227,8 +227,7 @@
             <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
           </ion-list-header>
           <ion-item *ngFor="let option of question.options">
-            <ion-label>{{ option }}</ion-label>
-            <ion-radio slot="start" [value]="option"></ion-radio>
+            <ion-radio slot="start" labelPlacement="end" [value]="option">{{ option }}</ion-radio>
           </ion-item>
         </ion-radio-group>
 
@@ -238,9 +237,8 @@
             <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
           </ion-list-header>
           <ion-item *ngFor="let option of question.options">
-            <ion-label>{{ option }}</ion-label>
-            <ion-checkbox slot="start" [checked]="isCheckboxChecked(question.id, option)"
-              (ionChange)="toggleCheckbox(question.id, option)"></ion-checkbox>
+            <ion-checkbox slot="start" labelPlacement="end" [checked]="isCheckboxChecked(question.id, option)"
+              (ionChange)="toggleCheckbox(question.id, option)">{{ option }}</ion-checkbox>
           </ion-item>
         </ng-container>
         <!-- Date -->
@@ -262,12 +260,13 @@
       </ion-label>
     </ion-list-header>
     <ion-item [class.fieldHasError]="hasFieldAnError('privacyPolicyAccepted')">
-      <ion-checkbox slot="start" [(ngModel)]="privacyPolicyAccepted"></ion-checkbox>
-      <ion-label class="ion-text-wrap">
-        {{ 'ERS_EVENTS.PRIVACY_POLICY_ACCEPT' | translate }}
-        <a (click)="openPrivacyPolicy()">{{ 'ERS_EVENTS.PRIVACY_POLICY_LINK' | translate }}</a> <span
-          class="obligatoryDot"> *</span>
-      </ion-label>
+      <ion-checkbox slot="start" labelPlacement="end" [(ngModel)]="privacyPolicyAccepted">
+        <ion-label class="ion-text-wrap">
+          {{ 'ERS_EVENTS.PRIVACY_POLICY_ACCEPT' | translate }}
+          <a (click)="$event.stopPropagation(); openPrivacyPolicy()">{{ 'ERS_EVENTS.PRIVACY_POLICY_LINK' | translate }}</a> <span
+            class="obligatoryDot"> *</span>
+        </ion-label>
+      </ion-checkbox>
     </ion-item>
 
     <ion-list-header>
@@ -276,12 +275,12 @@
       </ion-label>
     </ion-list-header>
     <ion-item lines="none" [class.fieldHasError]="hasFieldAnError('codeOfConductAccepted')">
-      <ion-checkbox slot="start" [(ngModel)]="codeOfConductAccepted"></ion-checkbox>
-      <ion-label class="ion-text-wrap">
-        {{ 'ERS_EVENTS.CODE_OF_CONDUCT_ACCEPT' | translate }}
-        <a (click)="app.openURL('https://wiki.esn.it/doku.php?id=documenti:codice-di-condotta')">{{
-          'ERS_EVENTS.CODE_OF_CONDUCT_LINK' | translate }}</a> <span class="obligatoryDot"> *</span>
-      </ion-label>
+      <ion-checkbox slot="start" labelPlacement="end" [(ngModel)]="codeOfConductAccepted">
+        <ion-label class="ion-text-wrap">
+          {{ 'ERS_EVENTS.CODE_OF_CONDUCT_ACCEPT' | translate }}
+          <a (click)="$event.stopPropagation(); app.openURL('https://wiki.esn.it/doku.php?id=documenti:codice-di-condotta')">{{ 'ERS_EVENTS.CODE_OF_CONDUCT_LINK' | translate }}</a> <span class="obligatoryDot"> *</span>
+        </ion-label>
+      </ion-checkbox>
     </ion-item>
 
     <div class="ion-padding">

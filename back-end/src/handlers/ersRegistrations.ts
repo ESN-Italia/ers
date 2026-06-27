@@ -186,11 +186,8 @@ class ERSRegistrationsRC extends ResourceController {
     if (!this.managedEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
 
     switch (this.body.action) {
-      case 'APPROVE': return await this.updateStatus(RegistrationStatus.APPROVED, 'REGISTRATION_APPROVED');
-      case 'REJECT': return await this.updateStatus(RegistrationStatus.REJECTED, 'REGISTRATION_REJECTED');
-      case 'CONFIRM_PAYMENT': return await this.updateStatus(RegistrationStatus.CONFIRMED, 'PAYMENT_CONFIRMED');
-      case 'DELETE_PROOF_OF_PAYMENT': return await this.deleteProofOfPayment();
       case 'SET_STATUS': return await this.setStatus(this.body.status);
+      case 'DELETE_PROOF_OF_PAYMENT': return await this.deleteProofOfPayment();
       case 'SET_SPOT': return await this.setSpot(this.body.spotId);
       default: throw new HandledError('Unsupported action');
     }
@@ -242,7 +239,7 @@ class ERSRegistrationsRC extends ResourceController {
     }
   }
 
-  private async updateStatus(status: RegistrationStatus, emailType: string): Promise<ERSRegistration> {
+  private async setStatus(status: RegistrationStatus): Promise<ERSRegistration> {
     if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
       throw new HandledError('Unauthorized');
     }
@@ -278,19 +275,23 @@ class ERSRegistrationsRC extends ResourceController {
     this.registration.updatedAt = new Date().toISOString();
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
 
-    await this.sendEmail(emailType);
+    let emailType;
+    switch (status) {
+      case RegistrationStatus.APPROVED:
+        emailType = 'REGISTRATION_APPROVED';
+        break;
+      case RegistrationStatus.REJECTED:
+        emailType = 'REGISTRATION_REJECTED';
+        break;
+      case RegistrationStatus.CONFIRMED:
+        emailType = 'PAYMENT_CONFIRMED';
+        break;
+    }
 
-    return this.registration;
-  }
+    if (emailType != null) {
+      await this.sendEmail(emailType);
+    }
 
-  private async setStatus(status: RegistrationStatus): Promise<ERSRegistration> {
-    if (!Object.values(RegistrationStatus).includes(status)) throw new HandledError('Invalid status');
-
-    this.validateStatusTransition(status);
-
-    this.registration.status = status;
-    this.registration.updatedAt = new Date().toISOString();
-    await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
     return this.registration;
   }
 

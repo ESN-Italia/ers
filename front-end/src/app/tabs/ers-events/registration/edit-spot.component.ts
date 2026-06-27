@@ -40,11 +40,12 @@ import { checkmarkCircle, closeCircle } from 'ionicons/icons';
         </ion-list-header>
         <ion-radio-group [(ngModel)]="selectedSpotId">
           <ion-item *ngFor="let s of event?.spots">
-            <ion-radio slot="start" [value]="s.id"></ion-radio>
-            <ion-label>
-              <h2>{{ s.name }}</h2>
-              <p *ngIf="s.price">{{ s.price | currency:'EUR' }}</p>
-            </ion-label>
+            <ion-radio slot="start" labelPlacement="end" [value]="s.id">
+              <ion-label>
+                <h2>{{ s.name }}</h2>
+                <p *ngIf="s.price">{{ s.price | currency:'EUR' }}</p>
+              </ion-label>
+            </ion-radio>
           </ion-item>
         </ion-radio-group>
       </ion-list>
@@ -63,7 +64,8 @@ export class EditSpotComponent implements OnInit {
     private message: IDEAMessageService,
     private service: ERSEventsService
   ) {
-    addIcons({ checkmarkCircle, closeCircle }); }
+    addIcons({ checkmarkCircle, closeCircle });
+  }
 
   ngOnInit(): void {
     this.selectedSpotId = this.registration.spotId;
@@ -78,7 +80,11 @@ export class EditSpotComponent implements OnInit {
       this.message.success('COMMON.OPERATION_COMPLETED');
       this.modalCtrl.dismiss({ spotId: this.selectedSpotId });
     } catch (err: any) {
-      this.message.error(err.message || 'COMMON.OPERATION_FAILED');
+      if (err.message) {
+        this.message.error(err.message, true);
+      } else {
+        this.message.error('COMMON.OPERATION_FAILED');
+      }
     } finally {
       await this.loading.hide();
     }

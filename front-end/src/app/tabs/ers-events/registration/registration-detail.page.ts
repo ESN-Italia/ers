@@ -68,6 +68,7 @@ export class RegistrationDetailPage implements OnInit {
       }
     } catch (err) {
       this.message.error('COMMON.NOT_FOUND');
+      this.app.closePage(); // Go back
     } finally {
       if (showLoading) await this.loading.hide();
     }

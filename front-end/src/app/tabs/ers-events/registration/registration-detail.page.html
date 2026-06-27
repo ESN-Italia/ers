@@ -36,11 +36,7 @@
                                        registration.status === RegistrationStatus.REJECTED ? 'danger' : 'warning'">
                     <ion-icon name="information-circle"></ion-icon>
                     <ion-label>
-                      {{ (registration.status === RegistrationStatus.PENDING ? 'ERS_EVENTS.STATUS_PENDING' :
-                      registration.status === RegistrationStatus.APPROVED ? 'ERS_EVENTS.STATUS_APPROVED' :
-                      registration.status === RegistrationStatus.PAID ? 'ERS_EVENTS.STATUS_PAID' :
-                      registration.status === RegistrationStatus.CONFIRMED ? 'ERS_EVENTS.STATUS_CONFIRMED' :
-                      'ERS_EVENTS.STATUS_REJECTED') | translate }}
+                      {{ 'ERS_EVENTS.STATUS_' + registration.status | translate }}
                     </ion-label>
                   </ion-chip>
                 </div>

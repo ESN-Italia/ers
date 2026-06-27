@@ -38,9 +38,8 @@ import { checkmarkCircle, closeCircle } from 'ionicons/icons';
           </ion-label>
         </ion-list-header>
         <ion-radio-group [(ngModel)]="selectedStatus">
-          <ion-item *ngFor="let s of statuses">
-            <ion-radio slot="start" [value]="s.value"></ion-radio>
-            <ion-label>{{ s.label | translate }}</ion-label>
+          <ion-item *ngFor="let s of RegistrationStatus | keyvalue">
+            <ion-radio slot="start" labelPlacement="end" [value]="s.value">{{ 'ERS_EVENTS.STATUS_' + s.key | translate }}</ion-radio>
           </ion-item>
         </ion-radio-group>
       </ion-list>
@@ -51,14 +50,7 @@ export class EditStatusComponent implements OnInit {
   @Input() registration: ERSRegistration;
 
   selectedStatus: RegistrationStatus;
-
-  statuses = [
-    { value: RegistrationStatus.PENDING, label: 'ERS_EVENTS.STATUS_PENDING' },
-    { value: RegistrationStatus.APPROVED, label: 'ERS_EVENTS.STATUS_APPROVED' },
-    { value: RegistrationStatus.PAID, label: 'ERS_EVENTS.STATUS_PAID' },
-    { value: RegistrationStatus.CONFIRMED, label: 'ERS_EVENTS.STATUS_CONFIRMED' },
-    { value: RegistrationStatus.REJECTED, label: 'ERS_EVENTS.STATUS_REJECTED' }
-  ];
+  RegistrationStatus = RegistrationStatus;
 
   constructor(
     private modalCtrl: ModalController,
@@ -66,7 +58,8 @@ export class EditStatusComponent implements OnInit {
     private message: IDEAMessageService,
     private service: ERSEventsService
   ) {
-    addIcons({ checkmarkCircle, closeCircle }); }
+    addIcons({ checkmarkCircle, closeCircle });
+  }
 
   ngOnInit(): void {
     this.selectedStatus = this.registration.status;
@@ -81,7 +74,11 @@ export class EditStatusComponent implements OnInit {
       this.message.success('COMMON.OPERATION_COMPLETED');
       this.modalCtrl.dismiss({ status: this.selectedStatus });
     } catch (err) {
-      this.message.error('COMMON.OPERATION_FAILED');
+      if (err.message) {
+        this.message.error(err.message, true);
+      } else {
+        this.message.error('COMMON.OPERATION_FAILED');
+      }
     } finally {
       await this.loading.hide();
     }
