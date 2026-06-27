@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # project specific parameters
-DOMAIN_PROD='ers-esnitalia.click'
+DOMAIN_PROD='ers.esn.it'
 DOMAIN_DEV='dev.ers-esnitalia.click'
 
 # other parameters
