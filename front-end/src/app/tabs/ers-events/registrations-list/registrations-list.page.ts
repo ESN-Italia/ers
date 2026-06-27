@@ -74,7 +74,7 @@ export class RegistrationsListPage implements OnInit {
       this.filter();
       this.selectedIds.clear();
     } catch (err) {
-      this.message.error('COMMON.NOT_FOUND');
+      return this.app.closePage('COMMON.NOT_FOUND');
     } finally {
       if (isRefresher) ev.target.complete();
       else if (showLoading) await this.dismissLoader();

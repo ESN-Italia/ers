@@ -10,7 +10,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-list class="aList maxWidthContainer" *ngIf="event">
+  <ion-list class="aList maxWidthContainer" *ngIf="event && registration">
     <div class="ion-padding">
       <h2>{{ event.name }}</h2>
       <!-- <div class="medium-color ion-margin-top" *ngIf="event.description" [innerHTML]="event.description"></div> -->

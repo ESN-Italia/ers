@@ -49,6 +49,10 @@ export class ManageEventPage implements OnInit {
   }
 
   async ionViewWillEnter(): Promise<void> {
+    await this.loadData();
+  }
+
+  async loadData(): Promise<void> {
     try {
       await this.loading.show();
 

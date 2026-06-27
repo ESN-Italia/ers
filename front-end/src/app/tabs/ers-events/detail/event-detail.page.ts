@@ -30,7 +30,8 @@ export class EventDetailPage implements OnInit {
     private service: ERSEventsService,
     public app: AppService
   ) {
-    addIcons({ arrowBack, calendarSharp, create, listOutline, locationSharp }); }
+    addIcons({ arrowBack, calendarSharp, create, listOutline, locationSharp });
+  }
 
   async ngOnInit(): Promise<void> {
     this.eventId = this.route.snapshot.paramMap.get('eventId');
@@ -49,7 +50,7 @@ export class EventDetailPage implements OnInit {
       this.myRegistration = regs.find(r => r.userId === this.app.user.userId);
 
     } catch (err) {
-      this.message.error('COMMON.NOT_FOUND');
+      return this.app.closePage('COMMON.NOT_FOUND');
     } finally {
       await this.loading.hide();
     }

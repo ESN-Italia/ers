@@ -49,6 +49,9 @@ export class RegistrationFormPage implements OnInit {
   }
 
   async ionViewWillEnter(): Promise<void> {
+    await this.loadData();
+  }
+  async loadData(): Promise<void> {
     try {
       await this.loading.show();
       this.event = await this.service.getById(this.eventId);
@@ -56,17 +59,6 @@ export class RegistrationFormPage implements OnInit {
       if (!this.event.isRegistrationOpen() && !this.event.canUserManage(this.app.user)) {
         return this.app.closePage('COMMON.UNAUTHORIZED');
       }
-    } catch (error) {
-      this.message.error('COMMON.NOT_FOUND');
-    } finally {
-      await this.loading.hide();
-    }
-    await this.loadData();
-  }
-  async loadData(): Promise<void> {
-    try {
-      await this.loading.show();
-      this.event = await this.service.getById(this.eventId);
 
       const regs = await this.service.getRegistrations(this.eventId);
       const existing = regs.find(r => r.userId === this.app.user.userId);
@@ -112,7 +104,7 @@ export class RegistrationFormPage implements OnInit {
       });
 
     } catch (err) {
-      this.message.error('COMMON.NOT_FOUND');
+      return this.app.closePage('COMMON.NOT_FOUND');
     } finally {
       await this.loading.hide();
     }

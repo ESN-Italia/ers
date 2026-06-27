@@ -63,12 +63,14 @@ export class RegistrationDetailPage implements OnInit {
       }
 
       if (!this.registration) {
-        this.message.error('COMMON.NOT_FOUND');
-        this.app.closePage(); // Go back
+        return this.app.closePage('COMMON.NOT_FOUND');
+      }
+
+      if (!this.event.canUserManage(this.app.user) && !this.isMyRegistration()) {
+        return this.app.closePage('COMMON.UNAUTHORIZED');
       }
     } catch (err) {
-      this.message.error('COMMON.NOT_FOUND');
-      this.app.closePage(); // Go back
+      return this.app.closePage('COMMON.OPERATION_FAILED');
     } finally {
       if (showLoading) await this.loading.hide();
     }
