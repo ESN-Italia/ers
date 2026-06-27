@@ -98,7 +98,8 @@
                   </ion-button>
                 </div>
 
-                <div *ngIf="registration.invoiceNumber" class="ion-margin-top">
+                <div *ngIf="registration.invoiceNumber && registration.status === RegistrationStatus.APPROVED"
+                  class="ion-margin-top">
                   <ion-button expand="block" fill="outline" color="ESNorange" (click)="downloadInvoice()">
                     <ion-icon name="download-outline" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.DOWNLOAD_INVOICE' | translate }}
