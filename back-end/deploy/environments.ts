@@ -5,11 +5,11 @@ export const PROJECT = 'ers-esn-italia';
 /**
  * The purchased domain to use.
  */
-export const DOMAIN = 'ers.esn.it';
+export const DOMAIN = 'ers-esnitalia.click';
 /**
  * An additional custom domain to use.
  */
-export const PROD_CUSTOM_DOMAIN: any = null;
+export const PROD_CUSTOM_DOMAIN: any = "ers.esn.it";
 
 export const parameters: Parameters = {
   project: PROJECT,

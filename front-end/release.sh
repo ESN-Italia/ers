@@ -2,7 +2,7 @@
 
 # project specific parameters
 AWS_PROFILE='ers-esn-italia'
-DOMAIN_PROD='ers.esn.it'
+DOMAIN_PROD='ers-esnitalia.click'
 DOMAIN_DEV='dev.ers-esnitalia.click'
 
 # other parameters
