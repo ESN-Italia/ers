@@ -441,7 +441,7 @@ export class RegistrationsListPage implements OnInit {
     }
 
     const csvData = csvRows.join('\n');
-    const blob = new Blob([csvData], { type: 'text/csv' });
+    const blob = new Blob(['\ufeff', csvData], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
