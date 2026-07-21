@@ -38,17 +38,17 @@ export class EmailTemplateComponent implements OnInit {
     private _configurations: ConfigurationsService,
     private app: AppService
   ) {
-    addIcons({ checkmarkCircleOutline, closeCircleOutline, cloudDownload, folder, send, trash });}
+    addIcons({ checkmarkCircleOutline, closeCircleOutline, cloudDownload, folder, send, trash });
+  }
   async ngOnInit(): Promise<void> {
     const { subject, content } = await this.getTemplate();
     this.subject = subject;
     this.content = content;
     this.variables = [
       { code: 'user', description: this.t._('EMAIL_TEMPLATE.VARIABLES.USER') },
-      { code: 'title', description: this.t._('EMAIL_TEMPLATE.VARIABLES.TITLE') },
-      { code: 'detail', description: this.t._('EMAIL_TEMPLATE.VARIABLES.DETAIL') },
-      { code: 'url', description: this.t._('EMAIL_TEMPLATE.VARIABLES.URL') },
-      { code: 'message', description: this.t._('EMAIL_TEMPLATE.VARIABLES.MESSAGE') }
+      { code: 'eventName', description: this.t._('EMAIL_TEMPLATE.VARIABLES.EVENT_NAME') },
+      { code: 'spotName', description: this.t._('EMAIL_TEMPLATE.VARIABLES.SPOT_NAME') },
+      { code: 'paymentInfo', description: this.t._('EMAIL_TEMPLATE.VARIABLES.PAYMENT_INFO') }
     ];
   }
 

@@ -187,6 +187,11 @@
           {{ 'CONFIGURATIONS.EMAIL_TEMPLATES_TYPES.ERS_PAYMENT_CONFIRMED' | translate }}
         </ion-label>
       </ion-item>
+      <ion-item button detail (click)="openTemplateEmailModal(EmailTemplates.ERS_SPOT_CHANGED)">
+        <ion-label class="ion-text-wrap">
+          {{ 'CONFIGURATIONS.EMAIL_TEMPLATES_TYPES.ERS_SPOT_CHANGED' | translate }}
+        </ion-label>
+      </ion-item>
     </ion-list>
 
     <ion-list class="aList" *ngIf="pageSection === PageSections.USERS_BADGES">

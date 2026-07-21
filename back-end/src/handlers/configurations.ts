@@ -4,7 +4,7 @@
 
 import { DynamoDB, HandledError, ResourceController, S3, SES } from 'idea-aws';
 
-import { Configurations, EmailTemplates } from '../models/configurations.model';
+import { Configurations, EMAIL_TEMPLATE_DETAILS, EmailTemplates } from '../models/configurations.model';
 import { User } from '../models/user.model';
 
 ///
@@ -93,16 +93,9 @@ class ConfigurationsRC extends ResourceController {
     }
   }
   private getSESTemplateName(emailTemplate: EmailTemplates): string {
-    switch (emailTemplate) {
-      case EmailTemplates.ERS_REGISTRATION_APPROVED:
-        return 'ers-registration-approved';
-      case EmailTemplates.ERS_REGISTRATION_REJECTED:
-        return 'ers-registration-rejected';
-      case EmailTemplates.ERS_PAYMENT_CONFIRMED:
-        return 'ers-payment-confirmed';
-      default:
-        throw new HandledError("Template doesn't exist");
-    }
+    const details = EMAIL_TEMPLATE_DETAILS[emailTemplate];
+    if (!details) throw new HandledError("Template doesn't exist");
+    return details.templateName;
   }
   private async getEmailTemplate(emailTemplate: EmailTemplates): Promise<{ subject: string; content: string }> {
     const templateName = this.getSESTemplateName(emailTemplate);
@@ -148,11 +141,12 @@ class ConfigurationsRC extends ResourceController {
     }
   }
   private async resetEmailTemplate(emailTemplate: EmailTemplates): Promise<void> {
-    const templateName = this.getSESTemplateName(emailTemplate);
+    const details = EMAIL_TEMPLATE_DETAILS[emailTemplate];
+    if (!details) throw new HandledError("Template doesn't exist");
     const content = await s3.getObjectAsText({
       bucket: S3_BUCKET_MEDIA,
-      key: S3_ASSETS_FOLDER.concat('/', templateName, '.hbs')
+      key: S3_ASSETS_FOLDER.concat('/', details.templateName, '.hbs')
     });
-    await ses.setTemplate(`${templateName}-${STAGE}`, templateName, content, true);
+    await ses.setTemplate(`${details.templateName}-${STAGE}`, details.defaultSubject, content, true);
   }
 }
