@@ -119,8 +119,28 @@ export class Configurations extends Resource {
 export enum EmailTemplates {
   ERS_REGISTRATION_APPROVED = 'ERS_REGISTRATION_APPROVED',
   ERS_REGISTRATION_REJECTED = 'ERS_REGISTRATION_REJECTED',
-  ERS_PAYMENT_CONFIRMED = 'ERS_PAYMENT_CONFIRMED'
+  ERS_PAYMENT_CONFIRMED = 'ERS_PAYMENT_CONFIRMED',
+  ERS_SPOT_CHANGED = 'ERS_SPOT_CHANGED'
 }
+
+export const EMAIL_TEMPLATE_DETAILS: Record<EmailTemplates, { templateName: string; defaultSubject: string }> = {
+  [EmailTemplates.ERS_REGISTRATION_APPROVED]: {
+    templateName: 'ers-registration-approved',
+    defaultSubject: '{{eventName}} - Registration approved'
+  },
+  [EmailTemplates.ERS_REGISTRATION_REJECTED]: {
+    templateName: 'ers-registration-rejected',
+    defaultSubject: '{{eventName}} - Registration rejected'
+  },
+  [EmailTemplates.ERS_PAYMENT_CONFIRMED]: {
+    templateName: 'ers-payment-confirmed',
+    defaultSubject: '{{eventName}} - Payment confirmed'
+  },
+  [EmailTemplates.ERS_SPOT_CHANGED]: {
+    templateName: 'ers-spot-changed',
+    defaultSubject: '{{eventName}} - Spot assignment updated'
+  }
+};
 
 /**
  * The possible options in displaying information about a user.

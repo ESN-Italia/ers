@@ -4,6 +4,7 @@
 
 import { DynamoDB, HandledError, ResourceController, S3, SES } from 'idea-aws';
 
+import { EMAIL_TEMPLATE_DETAILS, EmailTemplates } from '../models/configurations.model';
 import { ERSEvent } from '../models/ersEvent.model';
 import { ERSRegistration, ProofOfPayment, RegistrationStatus } from '../models/ersRegistration.model';
 import { Subject } from '../models/subject.model';
@@ -316,9 +317,15 @@ class ERSRegistrationsRC extends ResourceController {
       }
     }
 
+    const oldSpotId = this.registration.spotId;
     this.registration.spotId = spotId;
     this.registration.updatedAt = new Date().toISOString();
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
+
+    if (oldSpotId !== spotId) {
+      await this.sendEmail('SPOT_CHANGED');
+    }
+
     return this.registration;
   }
 
@@ -399,38 +406,61 @@ class ERSRegistrationsRC extends ResourceController {
     return this.registration;
   }
 
-  private async getSESTemplateName(emailType: string): Promise<string> {
-    switch (emailType) {
-      case 'REGISTRATION_APPROVED': return 'ers-registration-approved';
-      case 'REGISTRATION_REJECTED': return 'ers-registration-rejected';
-      case 'PAYMENT_CONFIRMED': return 'ers-payment-confirmed';
+  private getEmailTemplateEnum(type: string): EmailTemplates {
+    switch (type) {
+      case 'REGISTRATION_APPROVED': return EmailTemplates.ERS_REGISTRATION_APPROVED;
+      case 'REGISTRATION_REJECTED': return EmailTemplates.ERS_REGISTRATION_REJECTED;
+      case 'PAYMENT_CONFIRMED': return EmailTemplates.ERS_PAYMENT_CONFIRMED;
+      case 'SPOT_CHANGED': return EmailTemplates.ERS_SPOT_CHANGED;
       default: throw new HandledError('Template not found');
     }
+  }
+
+  private async ensureSESTemplate(emailEnum: EmailTemplates): Promise<void> {
+    const details = EMAIL_TEMPLATE_DETAILS[emailEnum];
+    if (!details) throw new HandledError('Template details not found');
+    const content = await s3.getObjectAsText({
+      bucket: S3_BUCKET_MEDIA,
+      key: `assets/${details.templateName}.hbs`
+    });
+    await ses.setTemplate(`${details.templateName}-${process.env.STAGE}`, details.defaultSubject, content, true);
   }
 
   private async sendEmail(type: string): Promise<void> {
     if (!this.registration.subject?.email) return;
 
-    const templateName = await this.getSESTemplateName(type);
+    const emailEnum = this.getEmailTemplateEnum(type);
+    const details = EMAIL_TEMPLATE_DETAILS[emailEnum];
+    const currentSpot = this.managedEvent.spots?.find(s => s.id === this.registration.spotId);
     const templateData = {
       user: this.registration.subject.name,
       eventName: this.managedEvent.name,
+      spotName: currentSpot?.name || '',
       paymentInfo: this.managedEvent.name + ' ' + (this.managedEvent.paymentInfo || 'No payment info available')
     };
 
+    const sesParams = {
+      toAddresses: [this.registration.subject.email],
+      template: `${details.templateName}-${process.env.STAGE}`,
+      templateData
+    };
+    const sesConfig = {
+      source: process.env.SES_SOURCE_ADDRESS,
+      sourceArn: process.env.SES_IDENTITY_ARN,
+      region: process.env.SES_REGION
+    };
+
     try {
-      await ses.sendTemplatedEmail({
-        toAddresses: [this.registration.subject.email],
-        template: `${templateName}-${process.env.STAGE}`,
-        templateData
-      }, {
-        source: process.env.SES_SOURCE_ADDRESS,
-        sourceArn: process.env.SES_IDENTITY_ARN,
-        region: process.env.SES_REGION
-      });
+      await ses.sendTemplatedEmail(sesParams, sesConfig);
     } catch (e) {
-      console.error('Failed to send email', e);
-      // Don't fail the request if email fails, just log it.
+      // If template does not exist, provision it with default subject and retry
+      try {
+        await this.ensureSESTemplate(emailEnum);
+        await ses.sendTemplatedEmail(sesParams, sesConfig);
+      } catch (retryError) {
+        console.error('Failed to send email', retryError);
+        // Don't fail the request if email fails, just log it.
+      }
     }
   }
 }
