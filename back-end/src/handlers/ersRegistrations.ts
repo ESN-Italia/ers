@@ -356,8 +356,6 @@ class ERSRegistrationsRC extends ResourceController {
     if (this.registration.userId !== this.galaxyUser.userId) throw new HandledError('Unauthorized');
     if (!this.body.proofOfPaymentKey) throw new HandledError('Missing proof of payment key');
 
-    this.validateStatusTransition(RegistrationStatus.PAID);
-
     const key = this.body.proofOfPaymentKey;
 
     // Verify existence in S3
@@ -367,7 +365,7 @@ class ERSRegistrationsRC extends ResourceController {
     });
     if (!exists) throw new HandledError('Proof of payment file not found in storage');
 
-    this.registration.status = RegistrationStatus.PAID;
+    this.setStatus(RegistrationStatus.PAID);
     this.registration.updatedAt = new Date().toISOString();
     this.registration.proofOfPayment = new ProofOfPayment({
       key,
@@ -399,7 +397,7 @@ class ERSRegistrationsRC extends ResourceController {
 
     // Reset registration state
     delete this.registration.proofOfPayment;
-    this.validateStatusTransition(RegistrationStatus.APPROVED);
+    this.setStatus(RegistrationStatus.APPROVED);
     this.registration.updatedAt = new Date().toISOString();
 
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
