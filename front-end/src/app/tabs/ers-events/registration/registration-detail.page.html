@@ -78,12 +78,12 @@
 
                 <div *ngIf="event.canUserManage(app.user)">
                   <ion-button *ngIf="registration.status === RegistrationStatus.PENDING" expand="block" color="success"
-                    class="ion-margin-top" (click)="approve()">
+                    class="ion-margin-bottom" (click)="approve()">
                     <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.APPROVE' | translate }}
                   </ion-button>
                   <ion-button *ngIf="registration.status === RegistrationStatus.PENDING" expand="block" color="danger"
-                    class="ion-margin-top" (click)="reject()">
+                    class="ion-margin-bottom" (click)="reject()">
                     <ion-icon name="close-circle-outline" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.REJECT' | translate }}
                   </ion-button>
@@ -96,13 +96,13 @@
 
                 <div *ngIf="registration.status === RegistrationStatus.APPROVED">
                   <div *ngIf="registration.invoiceNumber">
-                    <ion-button expand="block" fill="outline" color="ESNorange" class="ion-margin-top"
+                    <ion-button expand="block" fill="outline" color="ESNorange" class="ion-margin-bottom"
                       (click)="downloadInvoice()">
                       <ion-icon name="download-outline" slot="start"></ion-icon>
                       {{ 'ERS_EVENTS.DOWNLOAD_INVOICE' | translate }}
                     </ion-button>
                   </div>
-                  <ion-button expand="block" class="ion-margin-top" (click)="fileInput.click()">
+                  <ion-button expand="block" class="ion-margin-bottom" (click)="fileInput.click()">
                     <ion-icon name="cloud-upload" slot="start"></ion-icon>
                     {{ 'ERS_EVENTS.UPLOAD_PAYMENT_PROOF' | translate }}
                   </ion-button>
@@ -112,23 +112,23 @@
 
                 <div *ngIf="registration.status === RegistrationStatus.PENDING">
                   <div *ngIf="event.isRegistrationOpen() && isMyRegistration()">
-                    <ion-button expand="block" fill="outline" class="ion-margin-top" (click)="modify()">
+                    <ion-button expand="block" fill="outline" class="ion-margin-bottom" (click)="modify()">
                       <ion-icon name="create-outline" slot="start"></ion-icon>
                       {{ 'COMMON.EDIT' | translate }}
                     </ion-button>
-                    <ion-button expand="block" fill="outline" color="danger" class="ion-margin-top"
+                    <ion-button expand="block" fill="outline" color="danger" class="ion-margin-bottom"
                       (click)="withdraw()">
                       <ion-icon name="trash-outline" slot="start"></ion-icon>
                       {{ 'ERS_EVENTS.WITHDRAW_REGISTRATION' | translate }}
                     </ion-button>
                   </div>
                   <div *ngIf="event.canUserManage(app.user)">
-                    <ion-button expand="block" fill="outline" color="warning" class="ion-margin-top"
+                    <ion-button expand="block" fill="outline" color="warning" class="ion-margin-bottom"
                       (click)="editStatus()">
                       <ion-icon name="options-outline" slot="start"></ion-icon>
                       {{ 'ERS_EVENTS.EDIT_STATUS' | translate }}
                     </ion-button>
-                    <ion-button expand="block" fill="outline" color="warning" class="ion-margin-top"
+                    <ion-button expand="block" fill="outline" color="warning" class="ion-margin-bottom"
                       (click)="editSpot()">
                       <ion-icon name="options-outline" slot="start"></ion-icon>
                       {{ 'ERS_EVENTS.EDIT_SPOT' | translate }}

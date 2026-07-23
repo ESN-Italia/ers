@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AlertController, LoadingController } from '@ionic/angular';
+import { AlertController, LoadingController, ModalController } from '@ionic/angular';
 import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
+import { EditStatusComponent } from '../registration/edit-status.component';
 import { ERSEvent } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { formatInTimeZone } from 'date-fns-tz';
 import { addIcons } from 'ionicons';
-import { arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline, squareOutline } from 'ionicons/icons';
+import { arrowBack, createOutline, downloadOutline, squareOutline } from 'ionicons/icons';
 
 
 @Component({
@@ -35,6 +36,7 @@ export class RegistrationsListPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private alertCtrl: AlertController,
+    private modalCtrl: ModalController,
     private loadingCtrl: LoadingController,
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
@@ -42,7 +44,7 @@ export class RegistrationsListPage implements OnInit {
     private service: ERSEventsService,
     public app: AppService
   ) {
-    addIcons({ arrowBack, checkmarkDoneOutline, closeCircleOutline, downloadOutline, squareOutline });
+    addIcons({ arrowBack, createOutline, downloadOutline, squareOutline });
   }
 
   async ngOnInit(): Promise<void> {
@@ -161,86 +163,42 @@ export class RegistrationsListPage implements OnInit {
     this.selectedIds = new Set(this.selectedIds);
   }
 
-  async approveSelected(): Promise<void> {
+  async changeStatusSelected(): Promise<void> {
     if (!this.selectedIds.size) return;
 
+    const modal = await this.modalCtrl.create({
+      component: EditStatusComponent
+    });
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+    if (!data?.status) return;
+
+    const newStatus: RegistrationStatus = data.status;
     let errorsMap = new Map<string, string>();
 
-    const alert = await this.alertCtrl.create({
-      header: this.t._('COMMON.ARE_YOU_SURE'),
-      buttons: [
-        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-        {
-          text: this.t._('COMMON.CONFIRM'),
-          handler: async () => {
-            try {
-              await this.loading.show();
-              for (const id of Array.from(this.selectedIds)) {
-                try {
-                  await this.service.approveSpot(this.eventId, id);
-                } catch (err: any) {
-                  const registration = await this.service.getRegistration(this.eventId, id);
-                  errorsMap.set(registration.subject.name, err.message);
-                }
-              }
-              await this.loadData(false);
-              if (errorsMap.size === 0) {
-                this.message.success('COMMON.OPERATION_COMPLETED');
-              } else {
-                console.error(errorsMap);
-                this.message.error('COMMON.OPERATION_FAILED');
-              }
-            } catch (err) {
-              this.message.error('COMMON.OPERATION_FAILED');
-            } finally {
-              await this.dismissLoader();
-            }
-          }
+    try {
+      await this.loading.show();
+      for (const id of Array.from(this.selectedIds)) {
+        try {
+          await this.service.setStatus(this.eventId, id, newStatus);
+        } catch (err: any) {
+          const registration = this.registrations?.find(r => r.registrationId === id) || await this.service.getRegistration(this.eventId, id);
+          errorsMap.set(registration?.subject?.name || id, err.message);
         }
-      ]
-    });
-    await alert.present();
-  }
-
-  async rejectSelected(): Promise<void> {
-    if (!this.selectedIds.size) return;
-
-    let errorsMap = new Map<string, string>();
-
-    const alert = await this.alertCtrl.create({
-      header: this.t._('COMMON.ARE_YOU_SURE'),
-      buttons: [
-        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-        {
-          text: this.t._('COMMON.CONFIRM'),
-          handler: async () => {
-            try {
-              await this.loading.show();
-              for (const id of Array.from(this.selectedIds)) {
-                try {
-                  await this.service.rejectSpot(this.eventId, id);
-                } catch (err) {
-                  const registration = await this.service.getRegistration(this.eventId, id);
-                  errorsMap.set(registration.subject.name, err.message);
-                }
-              }
-              await this.loadData(false);
-              if (errorsMap.size === 0) {
-                this.message.success('COMMON.OPERATION_COMPLETED');
-              } else {
-                console.error(errorsMap);
-                this.message.error('COMMON.OPERATION_FAILED');
-              }
-            } catch (err) {
-              this.message.error('COMMON.OPERATION_FAILED');
-            } finally {
-              await this.dismissLoader();
-            }
-          }
-        }
-      ]
-    });
-    await alert.present();
+      }
+      await this.loadData(false);
+      if (errorsMap.size === 0) {
+        this.message.success('COMMON.OPERATION_COMPLETED');
+      } else {
+        console.error(errorsMap);
+        this.message.error('COMMON.OPERATION_FAILED');
+      }
+    } catch (err) {
+      this.message.error('COMMON.OPERATION_FAILED');
+    } finally {
+      await this.dismissLoader();
+    }
   }
 
   async approve(reg: ERSRegistration): Promise<void> {

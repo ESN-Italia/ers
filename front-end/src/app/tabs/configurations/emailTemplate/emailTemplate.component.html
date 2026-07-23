@@ -42,13 +42,8 @@
         </ion-button>
       </ion-col>
       <ion-col class="ion-text-center" [size]="12" [sizeSm]="6">
-        <input
-          id="htmlFileInput"
-          type="file"
-          accept=".html"
-          style="display: none"
-          (change)="loadTemplateFromFile($event?.target)"
-        />
+        <input id="htmlFileInput" type="file" accept=".html" style="display: none"
+          (change)="loadTemplateFromFile($event?.target)" />
         <ion-button size="small" expand="block" (click)="browseHTMLFile()">
           {{ 'EMAIL_TEMPLATE.CONTENT_FROM_FILE' | translate }}
           <ion-icon icon="folder" slot="end"></ion-icon>

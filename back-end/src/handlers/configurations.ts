@@ -123,6 +123,7 @@ class ConfigurationsRC extends ResourceController {
       title: TEST_EMAIL_EXAMPLE_TITLE,
       detail: TEST_EMAIL_EXAMPLE_DETAIL,
       url: TEST_EMAIL_EXAMPLE_URL,
+      registrationUrl: TEST_EMAIL_EXAMPLE_URL,
       message: TEST_EMAIL_EXAMPLE_MESSAGE
     };
 

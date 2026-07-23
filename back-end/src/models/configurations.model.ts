@@ -120,7 +120,8 @@ export enum EmailTemplates {
   ERS_REGISTRATION_APPROVED = 'ERS_REGISTRATION_APPROVED',
   ERS_REGISTRATION_REJECTED = 'ERS_REGISTRATION_REJECTED',
   ERS_PAYMENT_CONFIRMED = 'ERS_PAYMENT_CONFIRMED',
-  ERS_SPOT_CHANGED = 'ERS_SPOT_CHANGED'
+  ERS_SPOT_CHANGED = 'ERS_SPOT_CHANGED',
+  ERS_STATUS_CHANGED = 'ERS_STATUS_CHANGED'
 }
 
 export const EMAIL_TEMPLATE_DETAILS: Record<EmailTemplates, { templateName: string; defaultSubject: string }> = {
@@ -139,6 +140,10 @@ export const EMAIL_TEMPLATE_DETAILS: Record<EmailTemplates, { templateName: stri
   [EmailTemplates.ERS_SPOT_CHANGED]: {
     templateName: 'ers-spot-changed',
     defaultSubject: '{{eventName}} - Spot assignment updated'
+  },
+  [EmailTemplates.ERS_STATUS_CHANGED]: {
+    templateName: 'ers-status-changed',
+    defaultSubject: '{{eventName}} - Registration status updated'
   }
 };
 

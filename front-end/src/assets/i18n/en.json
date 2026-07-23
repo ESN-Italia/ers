@@ -122,7 +122,8 @@
       "ERS_REGISTRATION_APPROVED": "ERS registration approved",
       "ERS_REGISTRATION_REJECTED": "ERS registration rejected",
       "ERS_PAYMENT_CONFIRMED": "ERS payment confirmed",
-      "ERS_SPOT_CHANGED": "ERS spot changed"
+      "ERS_SPOT_CHANGED": "ERS spot changed",
+      "ERS_STATUS_CHANGED": "ERS status changed"
     },
     "USER_ID": "User ID (ESN Accounts)",
     "DISPLAY_OPTIONS": "Display options",
@@ -274,7 +275,7 @@
       "USER": "The full name of the user target of the notification",
       "EVENT_NAME": "The name of the event",
       "SPOT_NAME": "The name of the spot type assigned to the user",
-      "PAYMENT_INFO": "Payment information and instructions"
+      "REGISTRATION_URL": "The link to the user registration"
     }
   },
   "ERS_EVENTS": {
@@ -313,8 +314,6 @@
     "APPROVE_SPOTS_CONFIRM": "Are you sure you want to approve all pending spots?",
     "REJECT_SPOTS": "Reject spots",
     "REJECT_SPOTS_CONFIRM": "Are you sure you want to reject all pending spots?",
-    "APPROVE_SELECTED": "Approve selected",
-    "REJECT_SELECTED": "Reject selected",
     "APPROVE": "Approve",
     "APPROVE_ERROR": "Failed to approve registration",
     "REJECT": "Reject",
@@ -324,7 +323,7 @@
     "WITHDRAW_REGISTRATION": "Withdraw registration",
     "WITHDRAW_REGISTRATION_CONFIRM": "Are you sure you want to withdraw your registration? This action is irreversible.",
     "EDIT_STATUS": "Edit status",
-    "EDIT_STATUS_I": "Select the new status for this registration. No email notification will be sent.",
+    "EDIT_STATUS_I": "Select the new status for this registration. An email notification will be sent.",
     "EDIT_SPOT": "Edit spot",
     "EDIT_SPOT_I": "Select the new spot type for this registration.",
     "DELETE_PROOF_OF_PAYMENT": "Delete proof of payment",
