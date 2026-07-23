@@ -47,7 +47,7 @@ import { checkmarkCircle, closeCircle } from 'ionicons/icons';
   `
 })
 export class EditStatusComponent implements OnInit {
-  @Input() registration: ERSRegistration;
+  @Input() registration?: ERSRegistration;
 
   selectedStatus: RegistrationStatus;
   RegistrationStatus = RegistrationStatus;
@@ -62,25 +62,32 @@ export class EditStatusComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.selectedStatus = this.registration.status;
+    if (this.registration) {
+      this.selectedStatus = this.registration.status;
+    }
   }
 
   async save(): Promise<void> {
-    if (this.selectedStatus === this.registration.status) return this.close();
+    if (!this.selectedStatus) return;
+    if (this.registration && this.selectedStatus === this.registration.status) return this.close();
 
     try {
-      await this.loading.show();
-      await this.service.setStatus(this.registration.eventId, this.registration.registrationId, this.selectedStatus);
-      this.message.success('COMMON.OPERATION_COMPLETED');
+      if (this.registration) {
+        await this.loading.show();
+        await this.service.setStatus(this.registration.eventId, this.registration.registrationId, this.selectedStatus);
+        this.message.success('COMMON.OPERATION_COMPLETED');
+      }
       this.modalCtrl.dismiss({ status: this.selectedStatus });
-    } catch (err) {
-      if (err.message) {
+    } catch (err: any) {
+      if (err?.message) {
         this.message.error(err.message, true);
       } else {
         this.message.error('COMMON.OPERATION_FAILED');
       }
     } finally {
-      await this.loading.hide();
+      if (this.registration) {
+        await this.loading.hide();
+      }
     }
   }
 

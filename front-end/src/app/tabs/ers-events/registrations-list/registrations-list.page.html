@@ -52,13 +52,9 @@
         <ion-icon icon="download-outline" slot="icon-only" *ngIf="app.isInMobileMode()"></ion-icon>
         <ion-text *ngIf="!app.isInMobileMode()">{{ 'ERS_EVENTS.DOWNLOAD_REGISTRATIONS' | translate }}</ion-text>
       </ion-button>
-      <ion-button *ngIf="selectedIds.size > 0" color="success" (click)="approveSelected()">
-        <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-        {{ 'ERS_EVENTS.APPROVE_SELECTED' | translate }} ({{ selectedIds.size }})
-      </ion-button>
-      <ion-button *ngIf="selectedIds.size > 0" color="danger" (click)="rejectSelected()">
-        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
-        {{ 'ERS_EVENTS.REJECT_SELECTED' | translate }} ({{ selectedIds.size }})
+      <ion-button *ngIf="selectedIds.size > 0" fill="solid" color="ESNorange" (click)="changeStatusSelected()">
+        <ion-icon name="create-outline" slot="start"></ion-icon>
+        {{ 'ERS_EVENTS.EDIT_STATUS' | translate }} ({{ selectedIds.size }})
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

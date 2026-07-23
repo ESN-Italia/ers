@@ -272,25 +272,31 @@ class ERSRegistrationsRC extends ResourceController {
       await ddb.put({ TableName: DDB_TABLES.events, Item: this.managedEvent });
     }
 
+    const oldStatus = this.registration.status;
     this.registration.status = status;
     this.registration.updatedAt = new Date().toISOString();
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
 
-    let emailType;
-    switch (status) {
-      case RegistrationStatus.APPROVED:
-        emailType = 'REGISTRATION_APPROVED';
-        break;
-      case RegistrationStatus.REJECTED:
-        emailType = 'REGISTRATION_REJECTED';
-        break;
-      case RegistrationStatus.CONFIRMED:
-        emailType = 'PAYMENT_CONFIRMED';
-        break;
-    }
+    if (oldStatus !== status) {
+      let emailType: string;
+      switch (status) {
+        case RegistrationStatus.APPROVED:
+          emailType = 'REGISTRATION_APPROVED';
+          break;
+        case RegistrationStatus.REJECTED:
+          emailType = 'REGISTRATION_REJECTED';
+          break;
+        case RegistrationStatus.CONFIRMED:
+          emailType = 'PAYMENT_CONFIRMED';
+          break;
+        default:
+          emailType = 'STATUS_CHANGED';
+          break;
+      }
 
-    if (emailType != null) {
-      await this.sendEmail(emailType);
+      if (emailType != null) {
+        await this.sendEmail(emailType);
+      }
     }
 
     return this.registration;
@@ -410,6 +416,7 @@ class ERSRegistrationsRC extends ResourceController {
       case 'REGISTRATION_REJECTED': return EmailTemplates.ERS_REGISTRATION_REJECTED;
       case 'PAYMENT_CONFIRMED': return EmailTemplates.ERS_PAYMENT_CONFIRMED;
       case 'SPOT_CHANGED': return EmailTemplates.ERS_SPOT_CHANGED;
+      case 'STATUS_CHANGED': return EmailTemplates.ERS_STATUS_CHANGED;
       default: throw new HandledError('Template not found');
     }
   }
@@ -434,6 +441,7 @@ class ERSRegistrationsRC extends ResourceController {
       user: this.registration.subject.name,
       eventName: this.managedEvent.name,
       spotName: currentSpot?.name || '',
+      status: this.registration.status,
       paymentInfo: this.managedEvent.name + ' ' + (this.managedEvent.paymentInfo || 'No payment info available')
     };
 
