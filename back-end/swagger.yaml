@@ -2,7 +2,7 @@ openapi: 3.0.3
 
 info:
   title: ESN Event Registration System app
-  version: 4.0.0
+  version: 4.0.1
   contact:
     name: Commissione Informatica
     email: commit_development@esn.it
