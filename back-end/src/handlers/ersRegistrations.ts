@@ -15,6 +15,7 @@ import { User } from '../models/user.model';
 ///
 
 const PROJECT = process.env.PROJECT;
+const APP_DOMAIN = process.env.APP_DOMAIN;
 const DDB_TABLES = {
   events: process.env.DDB_TABLE_ersEvents,
   registrations: process.env.DDB_TABLE_ersRegistrations
@@ -442,7 +443,7 @@ class ERSRegistrationsRC extends ResourceController {
       eventName: this.managedEvent.name,
       spotName: currentSpot?.name || '',
       status: this.registration.status,
-      paymentInfo: this.managedEvent.name + ' ' + (this.managedEvent.paymentInfo || 'No payment info available')
+      registrationUrl: `https://${APP_DOMAIN}/t/ers-events/${this.registration.eventId}/registration`
     };
 
     const sesParams = {

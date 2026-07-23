@@ -48,7 +48,7 @@ export class EmailTemplateComponent implements OnInit {
       { code: 'user', description: this.t._('EMAIL_TEMPLATE.VARIABLES.USER') },
       { code: 'eventName', description: this.t._('EMAIL_TEMPLATE.VARIABLES.EVENT_NAME') },
       { code: 'spotName', description: this.t._('EMAIL_TEMPLATE.VARIABLES.SPOT_NAME') },
-      { code: 'paymentInfo', description: this.t._('EMAIL_TEMPLATE.VARIABLES.PAYMENT_INFO') }
+      { code: 'registrationUrl', description: this.t._('EMAIL_TEMPLATE.VARIABLES.REGISTRATION_URL') }
     ];
   }
 

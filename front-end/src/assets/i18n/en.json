@@ -122,7 +122,8 @@
       "ERS_REGISTRATION_APPROVED": "ERS registration approved",
       "ERS_REGISTRATION_REJECTED": "ERS registration rejected",
       "ERS_PAYMENT_CONFIRMED": "ERS payment confirmed",
-      "ERS_SPOT_CHANGED": "ERS spot changed"
+      "ERS_SPOT_CHANGED": "ERS spot changed",
+      "ERS_STATUS_CHANGED": "ERS status changed"
     },
     "USER_ID": "User ID (ESN Accounts)",
     "DISPLAY_OPTIONS": "Display options",
@@ -274,7 +275,7 @@
       "USER": "The full name of the user target of the notification",
       "EVENT_NAME": "The name of the event",
       "SPOT_NAME": "The name of the spot type assigned to the user",
-      "PAYMENT_INFO": "Payment information and instructions"
+      "REGISTRATION_URL": "The link to the user registration"
     }
   },
   "ERS_EVENTS": {
