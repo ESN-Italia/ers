@@ -187,7 +187,7 @@ export class RegistrationsListPage implements OnInit {
           errorsMap.set(registration?.subject?.name || id, err.message);
         }
       }
-      await this.loadData(false);
+      await this.loadData(null, false);
       if (errorsMap.size === 0) {
         this.message.success('COMMON.OPERATION_COMPLETED');
       } else {
@@ -212,7 +212,7 @@ export class RegistrationsListPage implements OnInit {
             try {
               await this.loading.show();
               await this.service.approveSpot(this.eventId, reg.registrationId);
-              await this.loadData(false);
+              await this.loadData(null, false);
               this.message.success('COMMON.OPERATION_COMPLETED');
             } catch (err) {
               console.error(err);
@@ -238,7 +238,7 @@ export class RegistrationsListPage implements OnInit {
             try {
               await this.loading.show();
               await this.service.rejectSpot(this.eventId, reg.registrationId);
-              await this.loadData(false);
+              await this.loadData(null, false);
               this.message.success('COMMON.OPERATION_COMPLETED');
             } catch (err) {
               console.error(err);
@@ -264,7 +264,7 @@ export class RegistrationsListPage implements OnInit {
             try {
               await this.loading.show();
               await this.service.confirmPayment(this.eventId, reg.registrationId);
-              await this.loadData(false);
+              await this.loadData(null, false);
               this.message.success('COMMON.OPERATION_COMPLETED');
             } catch (err) {
               console.error(err);
