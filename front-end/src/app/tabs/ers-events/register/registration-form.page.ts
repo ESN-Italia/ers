@@ -111,6 +111,9 @@ export class RegistrationFormPage implements OnInit {
   }
 
   async submit(): Promise<void> {
+    // Drop answers belonging to currently-hidden questions before validating/submitting.
+    this.pruneHiddenAnswers();
+
     // Validate
     this.errors = new Set(this.registration.validate(this.event));
     if (!this.privacyPolicyAccepted) this.errors.add('privacyPolicyAccepted');
@@ -153,6 +156,7 @@ export class RegistrationFormPage implements OnInit {
     const index = answers.indexOf(option);
     if (index === -1) answers.push(option);
     else answers.splice(index, 1);
+    this.pruneHiddenAnswers();
   }
 
   isOptionalTicketSelected(ticketId: string): boolean {
@@ -166,6 +170,7 @@ export class RegistrationFormPage implements OnInit {
     const index = this.registration.selectedOptionalTickets.indexOf(ticketId);
     if (index === -1) this.registration.selectedOptionalTickets.push(ticketId);
     else this.registration.selectedOptionalTickets.splice(index, 1);
+    this.pruneHiddenAnswers();
   }
 
   getTotalPrice(): number {
@@ -195,11 +200,21 @@ export class RegistrationFormPage implements OnInit {
   }
 
   shouldShowQuestion(q: EventQuestion): boolean {
-    const show = this.registration.shouldShowQuestion(q, this.event);
-    if (!show && this.registration.answers[q.id] !== undefined) {
-      delete this.registration.answers[q.id];
-    }
-    return show;
+    // Pure predicate: it is called from template bindings, so it must not mutate state
+    // (deleting answers here caused side effects during Angular change detection).
+    return this.registration.shouldShowQuestion(q, this.event);
+  }
+
+  /**
+   * Remove stored answers for questions that are currently hidden, so conditionally-hidden answers
+   * are never submitted. Called from the (de)select handlers and once more before submit.
+   */
+  private pruneHiddenAnswers(): void {
+    this.event?.questions?.forEach(q => {
+      if (!this.registration.shouldShowQuestion(q, this.event) && this.registration.answers[q.id] !== undefined) {
+        delete this.registration.answers[q.id];
+      }
+    });
   }
 
   get hasVisibleQuestions(): boolean {
