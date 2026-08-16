@@ -22,6 +22,7 @@ const DDB_TABLES = {
 };
 const S3_BUCKET_MEDIA = process.env.S3_BUCKET_MEDIA;
 const S3_ATTACHMENTS_FOLDER = process.env.S3_ATTACHMENTS_FOLDER;
+const S3_ASSETS_FOLDER = process.env.S3_ASSETS_FOLDER;
 
 const ddb = new DynamoDB();
 const s3 = new S3();
@@ -420,7 +421,7 @@ class ERSRegistrationsRC extends ResourceController {
     if (!details) throw new HandledError('Template details not found');
     const content = await s3.getObjectAsText({
       bucket: S3_BUCKET_MEDIA,
-      key: `assets/${details.templateName}.hbs`
+      key: `${S3_ASSETS_FOLDER}/${details.templateName}.hbs`
     });
     await ses.setTemplate(`${details.templateName}-${process.env.STAGE}`, details.defaultSubject, content, true);
   }
