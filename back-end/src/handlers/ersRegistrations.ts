@@ -340,17 +340,36 @@ class ERSRegistrationsRC extends ResourceController {
     return this.registration;
   }
 
+  /**
+   * The S3 key prefix under which this registration's proof-of-payment files must live.
+   * Any key outside this prefix belongs to another registration/event (or is an arbitrary
+   * object in the bucket) and must never be signed, stored or deleted on this registration's behalf.
+   */
+  private getProofOfPaymentKeyPrefix(): string {
+    return `${S3_ATTACHMENTS_FOLDER}/events/${this.managedEvent.eventId}/proof-of-payments/${this.registration.registrationId}/`;
+  }
+
+  /**
+   * Whether the given S3 key legitimately belongs to the current registration's proof-of-payment folder.
+   */
+  private isOwnProofOfPaymentKey(key: string): boolean {
+    if (!key || typeof key !== 'string') return false;
+    if (key.includes('..')) return false;
+    return key.startsWith(this.getProofOfPaymentKeyPrefix());
+  }
+
   private async getProofOfPaymentUploadUrl(): Promise<any> {
     if (this.registration.status !== RegistrationStatus.APPROVED) throw new HandledError('Cannot upload proof of payment in this status');
 
     const extension = this.body.extension ? `.${this.body.extension}` : '';
-    const key = `${S3_ATTACHMENTS_FOLDER}/events/${this.managedEvent.eventId}/proof-of-payments/${this.registration.registrationId}/${Date.now()}_proof_of_payment${extension}`;
+    const key = `${this.getProofOfPaymentKeyPrefix()}${Date.now()}_proof_of_payment${extension}`;
     const url = await s3.signedURLPut(S3_BUCKET_MEDIA, key);
     return { url: url.url, key };
   }
 
   private async getProofOfPaymentDownloadUrl(): Promise<any> {
     if (!this.registration.proofOfPayment?.key) throw new HandledError('No proof of payment found');
+    if (!this.isOwnProofOfPaymentKey(this.registration.proofOfPayment.key)) throw new HandledError('Invalid proof of payment key');
 
     const extensionMatch = this.registration.proofOfPayment.key.match(/\.[0-9a-z]+$/i);
     const extension = extensionMatch ? extensionMatch[0] : '';
@@ -362,6 +381,10 @@ class ERSRegistrationsRC extends ResourceController {
     if (!this.body.proofOfPaymentKey) throw new HandledError('Missing proof of payment key');
 
     const key = this.body.proofOfPaymentKey;
+
+    // The client only ever receives upload URLs scoped to its own registration folder, so any key
+    // outside that prefix is a forged reference to another registration's (or an arbitrary) object.
+    if (!this.isOwnProofOfPaymentKey(key)) throw new HandledError('Invalid proof of payment key');
 
     // Verify existence in S3
     const exists = await s3.doesObjectExist({
@@ -383,6 +406,7 @@ class ERSRegistrationsRC extends ResourceController {
 
   private async deleteProofOfPayment(): Promise<ERSRegistration> {
     if (!this.registration.proofOfPayment?.key) throw new HandledError('No proof of payment to delete');
+    if (!this.isOwnProofOfPaymentKey(this.registration.proofOfPayment.key)) throw new HandledError('Invalid proof of payment key');
 
     // Delete from S3
     try {
