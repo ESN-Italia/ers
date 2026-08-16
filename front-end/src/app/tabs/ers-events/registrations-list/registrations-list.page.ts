@@ -336,13 +336,13 @@ export class RegistrationsListPage implements OnInit {
       'Emergency contact spoken languages'
     ];
 
-    // Add dynamic optional tickets to headers
+    // Add dynamic optional tickets to headers (escaped: names may contain commas/quotes/newlines)
     const dynamicOptionalTickets = this.event?.optionalTickets || [];
-    dynamicOptionalTickets.forEach(t => headers.push(t.name));
+    dynamicOptionalTickets.forEach(t => headers.push(this.escapeCSV(t.name)));
 
-    // Add dynamic questions to headers
+    // Add dynamic questions to headers (escaped: texts may contain commas/quotes/newlines)
     const dynamicQuestions = this.event?.questions || [];
-    dynamicQuestions.forEach(q => headers.push(q.text));
+    dynamicQuestions.forEach(q => headers.push(this.escapeCSV(q.text)));
 
     const csvRows = [];
     csvRows.push(headers.join(','));
@@ -413,6 +413,10 @@ export class RegistrationsListPage implements OnInit {
   private escapeCSV(val: any): string {
     if (val === undefined || val === null) return '';
     let str = String(val);
+    // Neutralize spreadsheet formula injection: a value starting with = + - @ (or a leading tab/CR)
+    // is executed as a formula by Excel/Sheets. Prefix such values with a single quote so the
+    // registrant-controlled content is always treated as text.
+    if (/^[=+\-@\t\r]/.test(str)) str = `'${str}`;
     str = str.replace(/"/g, '""');
     if (str.search(/("|,|\n)/g) >= 0) {
       str = `"${str}"`;
