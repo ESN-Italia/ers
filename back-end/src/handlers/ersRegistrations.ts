@@ -181,16 +181,24 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   protected async patchResource(): Promise<ERSRegistration> {
-    if (this.body.action === 'GET_PROOF_OF_PAYMENT_UPLOAD_URL') return await this.getProofOfPaymentUploadUrl();
-    if (this.body.action === 'GET_PROOF_OF_PAYMENT_DOWNLOAD_URL') return await this.getProofOfPaymentDownloadUrl();
-    if (this.body.action === 'SUBMIT_PROOF_OF_PAYMENT') return await this.submitProofOfPayment();
+    const isOwner = this.registration.userId === this.galaxyUser.userId;
+    const canManage = this.managedEvent.canUserManage(this.galaxyUser);
 
-    if (!this.managedEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
+    if (!isOwner && !canManage) {
+      throw new HandledError('Unauthorized');
+    }
 
     switch (this.body.action) {
-      case 'SET_STATUS': return await this.setStatus(this.body.status);
+      case 'GET_PROOF_OF_PAYMENT_UPLOAD_URL': return await this.getProofOfPaymentUploadUrl();
+      case 'GET_PROOF_OF_PAYMENT_DOWNLOAD_URL': return await this.getProofOfPaymentDownloadUrl();
+      case 'SUBMIT_PROOF_OF_PAYMENT': return await this.submitProofOfPayment();
       case 'DELETE_PROOF_OF_PAYMENT': return await this.deleteProofOfPayment();
-      case 'SET_SPOT': return await this.setSpot(this.body.spotId);
+      case 'SET_STATUS':
+        if (!canManage) throw new HandledError('Unauthorized');
+        return await this.setStatus(this.body.status);
+      case 'SET_SPOT':
+        if (!canManage) throw new HandledError('Unauthorized');
+        return await this.setSpot(this.body.spotId);
       default: throw new HandledError('Unsupported action');
     }
   }
@@ -242,10 +250,6 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   private async setStatus(status: RegistrationStatus): Promise<ERSRegistration> {
-    if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
-      throw new HandledError('Unauthorized');
-    }
-
     this.validateStatusTransition(status);
 
     // Spot Limit Check
@@ -337,7 +341,6 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   private async getProofOfPaymentUploadUrl(): Promise<any> {
-    if (this.registration.userId !== this.galaxyUser.userId) throw new HandledError('Unauthorized');
     if (this.registration.status !== RegistrationStatus.APPROVED) throw new HandledError('Cannot upload proof of payment in this status');
 
     const extension = this.body.extension ? `.${this.body.extension}` : '';
@@ -347,10 +350,6 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   private async getProofOfPaymentDownloadUrl(): Promise<any> {
-    if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
-      throw new HandledError('Unauthorized');
-    }
-
     if (!this.registration.proofOfPayment?.key) throw new HandledError('No proof of payment found');
 
     const extensionMatch = this.registration.proofOfPayment.key.match(/\.[0-9a-z]+$/i);
@@ -360,7 +359,6 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   private async submitProofOfPayment(): Promise<ERSRegistration> {
-    if (this.registration.userId !== this.galaxyUser.userId) throw new HandledError('Unauthorized');
     if (!this.body.proofOfPaymentKey) throw new HandledError('Missing proof of payment key');
 
     const key = this.body.proofOfPaymentKey;
@@ -372,24 +370,19 @@ class ERSRegistrationsRC extends ResourceController {
     });
     if (!exists) throw new HandledError('Proof of payment file not found in storage');
 
-    this.setStatus(RegistrationStatus.PAID);
-    this.registration.updatedAt = new Date().toISOString();
+    await this.setStatus(RegistrationStatus.PAID);
     this.registration.proofOfPayment = new ProofOfPayment({
       key,
       uploadedAt: new Date().toISOString()
     });
+    this.registration.updatedAt = new Date().toISOString();
 
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
     return this.registration;
   }
 
   private async deleteProofOfPayment(): Promise<ERSRegistration> {
-    if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
-      throw new HandledError('Unauthorized');
-    }
-
     if (!this.registration.proofOfPayment?.key) throw new HandledError('No proof of payment to delete');
-
 
     // Delete from S3
     try {
@@ -404,7 +397,7 @@ class ERSRegistrationsRC extends ResourceController {
 
     // Reset registration state
     delete this.registration.proofOfPayment;
-    this.setStatus(RegistrationStatus.APPROVED);
+    await this.setStatus(RegistrationStatus.APPROVED);
     this.registration.updatedAt = new Date().toISOString();
 
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });

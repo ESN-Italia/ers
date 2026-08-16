@@ -88,6 +88,8 @@ class ERSEventsRC extends ResourceController {
   }
 
   protected async patchResource(): Promise<ERSEvent> {
+    if (!this.npEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
+
     switch (this.body.action) {
       case 'ARCHIVE':
         return await this.manageArchive(true);
@@ -99,8 +101,6 @@ class ERSEventsRC extends ResourceController {
   }
 
   private async manageArchive(archive: boolean): Promise<ERSEvent> {
-    if (!this.npEvent.canUserManage(this.galaxyUser)) throw new HandledError('Unauthorized');
-
     if (archive) this.npEvent.archivedAt = new Date().toISOString();
     else delete this.npEvent.archivedAt;
 
