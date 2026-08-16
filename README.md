@@ -1,37 +1,50 @@
-# ESN Assembly app
+# ESN Italia - ERS (Event Registration System)
 
-If you are a **National Organization (NO) of [Erasmus Student Network (ESN)](https://esn.org/)** and you want to implement this tool, please get in touch with _[ITcom](https://wiki.esn.org/x/AgGl)_ and the _[General Assembly (GA) team](https://wiki.esn.org/x/BwBuG)_ at the following email addresses:
+ERS is a web and mobile-ready platform developed for **[ESN Italia](https://esn.it)** to manage registrations, spot allocations, and attendee lists for national and local events.
 
-- it-chair@esn.org
-- ga-team@esn.org
+For inquiries, support, or onboarding, contact the **Commissione Informatica (CommIT) of ESN Italia** at `commit_development@esn.it`
 
-## Documents
+---
 
-- **[How to contribute / developers guide](/CONTRIBUTING.md)**.
-- **[How to init (deploy) the project](/HOW-TO-DEPLOY.md)**.
+## Features
 
-## Videos
+- **Event management**: Create and configure events, set registration windows, deadlines, and requirements.
+- **Custom registration forms**: Design dynamic custom forms with flexible fields tailored to specific event needs.
+- **Custom ESN roles & permissions**: Granular role configuration for Administrators, Event Managers, and Participants.
+- **Quota & spot allocation**: Distribute and manage spots across ESN sections with customizable limits.
+- **Registration workflow**: Handle participant submissions, spot validation, statuses, and waiting lists.
+- **Export & reporting**: Generate attendee lists and exports in CSV format for event managers.
 
-- **[Discover features and configurations](https://youtu.be/37Zfpyia79s)**.
-- **[Deploy/install](https://youtu.be/dukY5KEHW7s)**.
-- **[Develop and maintain (playlist)](https://www.youtube.com/playlist?list=PLsRwal5yO5i7R6sI8ClqMIbIfvVIKNRHo)**.
+---
+
+## Tech Stack
+
+- **Frontend**: [Ionic](https://ionicframework.com/) / [Angular](https://angular.dev/)
+- **Backend**: Serverless infrastructure on AWS with [AWS CDK](https://aws.amazon.com/cdk/) (API Gateway, Lambda, DynamoDB, S3)
+
+---
+
+## Documentation
+
+- **[Developer Setup & Contribution Guide](./CONTRIBUTING.md)**
+- **[Deployment & Infrastructure Guide](./HOW-TO-DEPLOY.md)**
+
+---
 
 ## Dictionary
 
-- Assembly: the body of ESN for which this platform was designed.
-- User: an ESNer (a volunteer from ESN).
-- Administrator: User able to manage all lists, contents and configurations of the platform.
-- Topic: a matter over which a Q&A will be developed (live or standard).
-- Subject: an ESNer or an ESN section/country target of another entity.
-- Communication: news related to the Assembly.
-- Deadline: a date and time indicating some actions that have to be done by someone before it.
-- Useful link: a valuable URL to quickly access important information regarding the Assembly.
-- Badge: achievements of a User for specific interactions within the platform.
-- Opportunity: open calls to which Users can apply.
-- Voting: sessions in which Users can vote (publicly or secretly).
+- **Event**: A national or local ESN initiative requiring registration management.
+- **Registration**: An application submitted by a user to attend an Event.
+- **Spot**: A participation ticket category available for an event, which can include specific conditions, fees, and roles (e.g., Section Delegate, International Guest, Board Member).
+- **Optional Ticket**: An extra activity that a user can optionally select during registration (e.g., merchandise, side events).
+- **Manager**: A user authorized to manage spot allocations and registrations for an event.
+- **Administrator**: A user with full access to configure the platform, events, and roles.
 
-## License
+---
+
+## License & Credits
 
 ![CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)
 
-**[Assembly app](https://github.com/uatisdeproblem/esn-assembly)** was created in 2023 by [Matteo Carbone](https://matteocarbone.com) for [Erasmus Student Network](https://esn.org); the latter is free to use it, develop it and maintan it at free will, forever. The work is licensed under [CC BY-NC-SA 4.0](/LICENSE).
+- **ERS (Event Registration System)** is developed and maintained by the **Commissione Informatica of [ESN Italia](https://esn.it)** under the [CC BY-NC-SA 4.0](./LICENSE) license.
+- **Original Base**: Built upon the architecture of **[Assembly app](https://github.com/uatisdeproblem/esn-assembly)**, created in 2023 by [Matteo Carbone](https://matteocarbone.com) for [Erasmus Student Network](https://esn.org), licensed under [CC BY-NC-SA 4.0](./LICENSE).
