@@ -160,12 +160,24 @@ class ERSRegistrationsRC extends ResourceController {
       throw new HandledError('Cannot edit registration after it has been already processed');
     }
 
+    // Owners can only edit while registration is open (matching POST); managers can edit anytime.
+    if (!canManage && !this.managedEvent.isRegistrationOpen()) {
+      throw new HandledError('Registration is closed');
+    }
+
     const oldRegistration = new ERSRegistration(this.registration);
     this.registration.safeLoad(this.body, oldRegistration);
     this.registration.updatedAt = new Date().toISOString();
 
     const errors = this.registration.validate(this.managedEvent);
     if (errors.length) throw new HandledError(`Invalid fields: ${errors.join(', ')}`);
+
+    // If the spot of an already-active registration is reassigned via PUT, enforce the same capacity
+    // check that SET_SPOT applies, so PUT cannot be used to oversell a limited spot.
+    const activeStatuses = [RegistrationStatus.APPROVED, RegistrationStatus.PAID, RegistrationStatus.CONFIRMED];
+    if (this.registration.spotId !== oldRegistration.spotId && activeStatuses.includes(this.registration.status)) {
+      await this.assertSpotWithinLimit(this.registration.spotId);
+    }
 
     await ddb.put({ TableName: DDB_TABLES.registrations, Item: this.registration });
 
@@ -204,8 +216,16 @@ class ERSRegistrationsRC extends ResourceController {
   }
 
   protected async deleteResource(): Promise<void> {
-    if (this.registration.userId !== this.galaxyUser.userId && !this.managedEvent.canUserManage(this.galaxyUser)) {
+    const canManage = this.managedEvent.canUserManage(this.galaxyUser);
+    if (this.registration.userId !== this.galaxyUser.userId && !canManage) {
       throw new HandledError('Unauthorized');
+    }
+
+    // Owners may withdraw only before a payment has been submitted or confirmed; afterwards the
+    // financial trail (invoice, proof of payment) must be preserved and only a manager can delete.
+    const lockedStatuses = [RegistrationStatus.PAID, RegistrationStatus.CONFIRMED];
+    if (!canManage && lockedStatuses.includes(this.registration.status)) {
+      throw new HandledError('Cannot withdraw a registration after payment; please contact a manager');
     }
 
     // Optional: Delete proof of payment from S3 if it exists
@@ -338,6 +358,28 @@ class ERSRegistrationsRC extends ResourceController {
     }
 
     return this.registration;
+  }
+
+  /**
+   * Ensure the given spot still has capacity for one more active registration (excluding this one),
+   * mirroring the check enforced by SET_SPOT so it cannot be bypassed via PUT.
+   */
+  private async assertSpotWithinLimit(spotId: string): Promise<void> {
+    const spot = this.managedEvent.spots.find(s => s.id === spotId);
+    if (!spot) throw new HandledError('Invalid spot');
+    if (!spot.limit) return;
+
+    const regs = await ddb.query({
+      TableName: DDB_TABLES.registrations,
+      KeyConditionExpression: 'eventId = :eventId',
+      ExpressionAttributeValues: { ':eventId': this.managedEvent.eventId }
+    });
+    const spotCount = regs.filter(r =>
+      r.spotId === spotId &&
+      r.registrationId !== this.registration.registrationId &&
+      [RegistrationStatus.APPROVED, RegistrationStatus.PAID, RegistrationStatus.CONFIRMED].includes(r.status)
+    ).length;
+    if (spotCount >= spot.limit) throw new HandledError(`Spot limit exceeded: ${spot.name}`);
   }
 
   private async getProofOfPaymentUploadUrl(): Promise<any> {
