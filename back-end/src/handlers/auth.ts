@@ -35,7 +35,7 @@ const authorizeHTTPApi = async (
   const user = await verifyTokenAndGetESNAccountsUser(authorization);
 
   if (user) {
-    if (user.isAdministrator || user.canManageOpportunities || user.canManageDashboard)
+    if (user.isAdministrator || user.canManageOpportunities || user.canManageDashboard || user.canManageERSEvents)
       await verifyUserPermissions(user);
     result.context = { principalId: user.userId, user };
     result.isAuthorized = true;
@@ -51,7 +51,7 @@ const authorizeWebSocketApi = async (event: any): Promise<WebSocketAuthResult> =
   const result: WebSocketAuthResult = {};
 
   if (user) {
-    if (user.isAdministrator || user.canManageOpportunities || user.canManageDashboard)
+    if (user.isAdministrator || user.canManageOpportunities || user.canManageDashboard || user.canManageERSEvents)
       await verifyUserPermissions(user);
     result.principalId = user.userId;
   }
