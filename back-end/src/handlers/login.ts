@@ -47,8 +47,13 @@ class Login extends ResourceController {
 
   protected async getResources(): Promise<any> {
     try {
+      // Only accept a plain numeric port for the localhost development exception. Any other value
+      // (e.g. `8100@evil.com`) would turn the post-login redirect below into an open redirect that
+      // leaks the freshly issued JWT to an attacker-controlled host.
+      const localhostPort = /^\d{2,5}$/.test(String(this.queryParams.localhost ?? '')) ? this.queryParams.localhost : null;
+
       // build a URL to valid the ticket received (consider also the localhost exception)
-      const localhost = this.queryParams.localhost ? `?localhost=${this.queryParams.localhost}` : '';
+      const localhost = localhostPort ? `?localhost=${localhostPort}` : '';
       const serviceURL = `https://${this.host}/${this.stage}/login${localhost}`;
       const validationURL = `${CAS_URL}/serviceValidate?service=${serviceURL}&ticket=${this.queryParams.ticket}`;
 
@@ -134,7 +139,7 @@ class Login extends ResourceController {
       const token = sign(userData, secret, { expiresIn: JWT_EXPIRE_TIME });
 
       // redirect to the front-end with the fresh new token (instead of resolving)
-      const appURL = this.queryParams.localhost ? `http://localhost:${this.queryParams.localhost}` : APP_URL;
+      const appURL = localhostPort ? `http://localhost:${localhostPort}` : APP_URL;
       this.returnStatusCode = 302;
       this.returnHeaders = { Location: `${appURL}/auth?token=${token}` };
       return {};
