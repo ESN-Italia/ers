@@ -58,6 +58,26 @@
       </ion-item>
     </ng-container>
 
+    <!-- Cost breakdown: what the participant will pay, split by invoice -->
+    <ng-container *ngIf="getApplicableInvoices().length">
+      <ion-list-header>
+        <ion-label>
+          <h2>{{ 'ERS_EVENTS.PAYMENT_INFO' | translate }}</h2>
+        </ion-label>
+      </ion-list-header>
+      <ion-item *ngFor="let inv of getApplicableInvoices()">
+        <ion-label class="ion-text-wrap">
+          <h3>{{ inv.name }}</h3>
+          <p *ngIf="inv.description">{{ inv.description }}</p>
+        </ion-label>
+        <ion-note slot="end">{{ getInvoiceAmount(inv) | currency:'EUR' }}</ion-note>
+      </ion-item>
+      <ion-item>
+        <ion-label class="ion-text-wrap"><h3>{{ 'ERS_EVENTS.TOTAL_PRICE' | translate }}</h3></ion-label>
+        <ion-note slot="end" color="dark"><strong>{{ getTotalPrice() | currency:'EUR' }}</strong></ion-note>
+      </ion-item>
+    </ng-container>
+
     <ion-list-header>
       <ion-label>
         <h2>{{ 'ERS_EVENTS.PERSONAL_INFORMATION' | translate }}</h2>

@@ -130,29 +130,38 @@ export class ERSEventsService {
   }
 
   /**
-   * Get proof of payment upload URL.
+   * Get proof of payment upload URL for a specific invoice.
    */
-  async getProofOfPaymentUploadUrl(eventId: string, registrationId: string, extension?: string): Promise<SignedURL> {
+  async getProofOfPaymentUploadUrl(eventId: string, registrationId: string, invoiceId: string, extension?: string): Promise<SignedURL> {
     return await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
-      body: { action: 'GET_PROOF_OF_PAYMENT_UPLOAD_URL', extension }
+      body: { action: 'GET_PROOF_OF_PAYMENT_UPLOAD_URL', invoiceId, extension }
     });
   }
 
   /**
-   * Submit proof of payment (notify backend after upload).
+   * Submit proof of payment for a specific invoice (notify backend after upload).
    */
-  async submitProofOfPayment(eventId: string, registrationId: string, proofOfPaymentKey: string): Promise<void> {
+  async submitProofOfPayment(eventId: string, registrationId: string, invoiceId: string, proofOfPaymentKey: string): Promise<void> {
     await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
-      body: { action: 'SUBMIT_PROOF_OF_PAYMENT', proofOfPaymentKey }
+      body: { action: 'SUBMIT_PROOF_OF_PAYMENT', invoiceId, proofOfPaymentKey }
     });
   }
 
   /**
-   * Get proof of payment download URL.
+   * Get proof of payment download URL for a specific invoice.
    */
-  async getProofOfPaymentDownloadUrl(eventId: string, registrationId: string): Promise<SignedURL> {
+  async getProofOfPaymentDownloadUrl(eventId: string, registrationId: string, invoiceId: string): Promise<SignedURL> {
     return await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
-      body: { action: 'GET_PROOF_OF_PAYMENT_DOWNLOAD_URL' }
+      body: { action: 'GET_PROOF_OF_PAYMENT_DOWNLOAD_URL', invoiceId }
+    });
+  }
+
+  /**
+   * Confirm (or revert the confirmation of) a single invoice's payment (Manager).
+   */
+  async confirmInvoicePayment(eventId: string, registrationId: string, invoiceId: string, confirmed = true): Promise<void> {
+    await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
+      body: { action: confirmed ? 'CONFIRM_INVOICE_PAYMENT' : 'UNCONFIRM_INVOICE_PAYMENT', invoiceId }
     });
   }
 
@@ -175,11 +184,11 @@ export class ERSEventsService {
   }
 
   /**
-   * Delete proof of payment.
+   * Delete proof of payment for a specific invoice.
    */
-  async deleteProofOfPayment(eventId: string, registrationId: string): Promise<void> {
+  async deleteProofOfPayment(eventId: string, registrationId: string, invoiceId: string): Promise<void> {
     await this.api.patchResource(['ers-events', eventId, 'registrations', registrationId], {
-      body: { action: 'DELETE_PROOF_OF_PAYMENT' }
+      body: { action: 'DELETE_PROOF_OF_PAYMENT', invoiceId }
     });
   }
 

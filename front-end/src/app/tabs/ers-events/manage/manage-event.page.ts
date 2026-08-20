@@ -6,9 +6,11 @@ import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from 
 import { AppService } from '@app/app.service';
 import { MediaService } from '@app/common/media.service';
 import { ERSEventsService } from '../ers-events.service';
-import { ERSEvent, EventSpot, EventQuestion, EventOptionalTicket, QuestionType, EventType } from '@models/ersEvent.model';
+import { ERSEvent, EventSpot, EventQuestion, EventOptionalTicket, EventInvoice, QuestionType, EventType } from '@models/ersEvent.model';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
 import { BulkDeleteComponent } from './bulk-delete/bulk-delete.component';
+import { InvoiceEditorComponent } from './invoice-editor/invoice-editor.component';
+import { OptionalTicketEditorComponent } from './optional-ticket-editor/optional-ticket-editor.component';
 import { addIcons } from 'ionicons';
 import { archive, cloudUploadOutline, copy, createOutline, linkOutline, openOutline, refresh, trash } from 'ionicons/icons';
 
@@ -150,6 +152,69 @@ export class ManageEventPage implements OnInit {
   trackByQuestionId(_: number, q: EventQuestion): string { return q.id; }
   trackBySpotId(_: number, s: EventSpot): string { return s.id; }
   trackByTicketId(_: number, t: EventOptionalTicket): string { return t.id; }
+  trackByInvoiceId(_: number, i: EventInvoice): string { return i.id; }
+
+  async addInvoice(): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: InvoiceEditorComponent,
+      componentProps: { event: this.event }
+    });
+    modal.onDidDismiss().then(({ data }) => {
+      if (data) this.upsertInvoice(data);
+    });
+    await modal.present();
+  }
+
+  async editInvoice(invoice: EventInvoice): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: InvoiceEditorComponent,
+      componentProps: { invoice, event: this.event }
+    });
+    modal.onDidDismiss().then(({ data }) => {
+      if (data) this.upsertInvoice(data);
+    });
+    await modal.present();
+  }
+
+  private upsertInvoice(invoice: EventInvoice): void {
+    if (!this.event.invoices) this.event.invoices = [];
+    const index = this.event.invoices.findIndex(i => i.id === invoice.id);
+    if (index !== -1) this.event.invoices[index] = invoice;
+    else this.event.invoices.push(invoice);
+    this.normalizeInvoices(invoice);
+  }
+
+  /**
+   * Keep exactly one primary invoice: the just-saved one wins if it is primary; otherwise fall back
+   * to the first invoice so an event is never left without a primary.
+   */
+  private normalizeInvoices(justSaved?: EventInvoice): void {
+    if (!this.event.invoices?.length) return;
+    if (justSaved?.isPrimary) {
+      this.event.invoices.forEach(i => {
+        if (i.id !== justSaved.id) i.isPrimary = false;
+      });
+    }
+    if (!this.event.invoices.some(i => i.isPrimary)) this.event.invoices[0].isPrimary = true;
+  }
+
+  async bulkRemoveInvoices(): Promise<void> {
+    const items = this.event.invoices.map(invoice => ({ id: invoice.id, label: invoice.name }));
+    const modal = await this.modalCtrl.create({
+      component: BulkDeleteComponent,
+      componentProps: { items }
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data?.length) {
+      this.event.invoices = this.event.invoices.filter(invoice => !data.includes(invoice.id));
+      // Unassign optional tickets that pointed to a removed invoice (they fall back to the primary).
+      this.event.optionalTickets?.forEach(t => {
+        if (t.invoiceId && !this.event.invoices.find(i => i.id === t.invoiceId)) t.invoiceId = null;
+      });
+      this.normalizeInvoices();
+    }
+  }
 
   async addSpot(): Promise<void> {
     const doAdd = async ({ name, price, limit }): Promise<void> => {
@@ -215,54 +280,36 @@ export class ManageEventPage implements OnInit {
   }
 
   async addOptionalTicket(): Promise<void> {
-    const doAdd = async ({ name, description, price }): Promise<void> => {
-      if (!name || price === undefined) return;
-      const ticket = new EventOptionalTicket({
-        id: Date.now().toString(),
-        name,
-        description: description || '',
-        price: Number(price)
-      });
-      if (!this.event.optionalTickets) this.event.optionalTickets = [];
-      this.event.optionalTickets.push(ticket);
-    };
-
-    const header = this.t._('ERS_EVENTS.ADD_OPTIONAL_TICKET');
-    const inputs: any = [
-      { name: 'name', type: 'text', placeholder: this.t._('ERS_EVENTS.NAME') },
-      { name: 'description', type: 'text', placeholder: `${this.t._('ERS_EVENTS.DESCRIPTION')}` },
-      { name: 'price', type: 'number', placeholder: this.t._('ERS_EVENTS.PRICE') }
-    ];
-    const buttons = [
-      { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-      { text: this.t._('COMMON.ADD'), handler: doAdd }
-    ];
-
-    const alert = await this.alertCtrl.create({ header, inputs, buttons });
-    await alert.present();
+    const modal = await this.modalCtrl.create({
+      component: OptionalTicketEditorComponent,
+      componentProps: { event: this.event }
+    });
+    modal.onDidDismiss().then(({ data }) => {
+      if (data) {
+        if (!this.event.optionalTickets) this.event.optionalTickets = [];
+        this.event.optionalTickets.push(data);
+      }
+    });
+    await modal.present();
   }
 
   async editOptionalTicket(ticket: EventOptionalTicket): Promise<void> {
-    const doEdit = async ({ name, description, price }): Promise<void> => {
-      if (!name || price === undefined) return;
-      ticket.name = name;
-      ticket.description = description || '';
-      ticket.price = Number(price);
-    };
+    const modal = await this.modalCtrl.create({
+      component: OptionalTicketEditorComponent,
+      componentProps: { ticket, event: this.event }
+    });
+    modal.onDidDismiss().then(({ data }) => {
+      if (data) {
+        const index = this.event.optionalTickets.findIndex(t => t.id === data.id);
+        if (index !== -1) this.event.optionalTickets[index] = data;
+      }
+    });
+    await modal.present();
+  }
 
-    const header = this.t._('ERS_EVENTS.EDIT_OPTIONAL_TICKET');
-    const inputs: any = [
-      { name: 'name', type: 'text', placeholder: this.t._('ERS_EVENTS.NAME'), value: ticket.name },
-      { name: 'description', type: 'text', placeholder: `${this.t._('ERS_EVENTS.DESCRIPTION')}`, value: ticket.description },
-      { name: 'price', type: 'number', placeholder: this.t._('ERS_EVENTS.PRICE'), value: ticket.price }
-    ];
-    const buttons = [
-      { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-      { text: this.t._('COMMON.SAVE'), handler: doEdit }
-    ];
-
-    const alert = await this.alertCtrl.create({ header, inputs, buttons });
-    await alert.present();
+  getInvoiceName(invoiceId?: string): string {
+    const id = invoiceId || this.event.getPrimaryInvoice()?.id;
+    return this.event.invoices?.find(i => i.id === id)?.name || '';
   }
 
   async bulkRemoveOptionalTickets(): Promise<void> {
@@ -423,6 +470,7 @@ export class ManageEventPage implements OnInit {
         clone.updatedAt = undefined;
         clone.archivedAt = undefined;
         clone.receiptsCounter = 0;
+        clone.invoiceCounters = {};
         clone.proofsOfPaymentDeleted = false;
         clone.name = `${clone.name} - Copy`;
 
