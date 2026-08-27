@@ -163,6 +163,7 @@ export class RegistrationDetailPage implements OnInit {
   hasPayments(): boolean {
     return (
       (this.registration?.status === RegistrationStatus.APPROVED ||
+        this.registration?.status === RegistrationStatus.PAID ||
         this.registration?.status === RegistrationStatus.CONFIRMED) &&
       this.getApplicableInvoices().length > 0
     );
