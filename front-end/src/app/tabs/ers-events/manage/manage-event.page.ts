@@ -195,7 +195,13 @@ export class ManageEventPage implements OnInit {
         if (i.id !== justSaved.id) i.isPrimary = false;
       });
     }
-    if (!this.event.invoices.some(i => i.isPrimary)) this.event.invoices[0].isPrimary = true;
+    // An event must always have exactly one primary invoice. If none is left primary (the sole primary
+    // was unset, or the primary was bulk-removed), fall back to the first invoice — and tell the manager
+    // it was reassigned rather than silently snapping the toggle back.
+    if (!this.event.invoices.some(i => i.isPrimary)) {
+      this.event.invoices[0].isPrimary = true;
+      this.message.info('ERS_EVENTS.PRIMARY_INVOICE_REASSIGNED');
+    }
   }
 
   async bulkRemoveInvoices(): Promise<void> {

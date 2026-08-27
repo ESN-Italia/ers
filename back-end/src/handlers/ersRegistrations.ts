@@ -231,18 +231,24 @@ class ERSRegistrationsRC extends ResourceController {
     }
 
     // Delete every uploaded proof-of-payment file from S3 (per-invoice, plus any legacy single proof).
+    const deletedKeys = new Set<string>();
     for (const payment of Object.values(this.registration.payments || {})) {
-      if (payment.proofOfPayment?.key) {
+      const key = payment.proofOfPayment?.key;
+      if (key && !deletedKeys.has(key)) {
+        deletedKeys.add(key);
         try {
-          await s3.deleteObject({ bucket: S3_BUCKET_MEDIA, key: payment.proofOfPayment.key });
+          await s3.deleteObject({ bucket: S3_BUCKET_MEDIA, key });
         } catch (err) {
           console.error('Failed to delete S3 resource on registration delete', err);
         }
       }
     }
-    if (this.registration.proofOfPayment?.key) {
+    // A legacy single proof is normally migrated into (and deleted via) the payments map above; only
+    // delete it here if it points at a key that wasn't already handled.
+    const legacyKey = this.registration.proofOfPayment?.key;
+    if (legacyKey && !deletedKeys.has(legacyKey)) {
       try {
-        await s3.deleteObject({ bucket: S3_BUCKET_MEDIA, key: this.registration.proofOfPayment.key });
+        await s3.deleteObject({ bucket: S3_BUCKET_MEDIA, key: legacyKey });
       } catch (err) {
         console.error('Failed to delete legacy S3 proof on registration delete', err);
       }

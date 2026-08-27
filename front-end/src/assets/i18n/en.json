@@ -294,6 +294,7 @@
     "INVOICE_NAME": "Invoice name",
     "INVOICE_DESCRIPTION": "Invoice description",
     "PRIMARY_INVOICE": "Primary",
+    "PRIMARY_INVOICE_REASSIGNED": "An invoice must be primary: the first one was set as primary.",
     "STANDARD_PRODUCTS": "Standard products",
     "ADD_PRODUCT": "Add product",
     "EDIT_PRODUCT": "Edit product",

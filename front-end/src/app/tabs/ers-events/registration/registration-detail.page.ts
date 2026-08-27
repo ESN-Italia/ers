@@ -161,6 +161,9 @@ export class RegistrationDetailPage implements OnInit {
     return this.event.getApplicableInvoices(this.registration);
   }
   hasPayments(): boolean {
+    // APPROVED/CONFIRMED are the states where per-invoice payments exist. PAID is included so that
+    // registrations migrated from the legacy single-invoice model (whose overall status is still PAID)
+    // keep rendering their invoice/proof section instead of hiding it.
     return (
       (this.registration?.status === RegistrationStatus.APPROVED ||
         this.registration?.status === RegistrationStatus.PAID ||
