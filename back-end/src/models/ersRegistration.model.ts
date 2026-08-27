@@ -1,6 +1,6 @@
 import { epochISOString, Resource } from 'idea-toolbox';
 
-import { ERSEvent } from './ersEvent.model';
+import { ERSEvent, DEFAULT_INVOICE_ID } from './ersEvent.model';
 import { Subject } from './subject.model';
 import { isValidPhone } from './utils';
 
@@ -20,6 +20,37 @@ export class ProofOfPayment extends Resource {
     super.load(x);
     this.key = this.clean(x.key, String);
     this.uploadedAt = this.clean(x.uploadedAt, d => new Date(d).toISOString());
+  }
+}
+
+/**
+ * The payment status of a single invoice within a registration.
+ */
+export enum InvoicePaymentStatus {
+  PENDING = 'PENDING', // awaiting the participant's proof of payment
+  PAID = 'PAID', // proof uploaded, awaiting a manager's confirmation
+  CONFIRMED = 'CONFIRMED' // a manager confirmed the payment for this invoice
+}
+
+/**
+ * A registration's payment state for one event invoice. Each applicable invoice gets its own entry
+ * (with its own invoice number, proof of payment and confirmation), so different administrators can
+ * confirm different invoices independently.
+ */
+export class InvoicePayment extends Resource {
+  invoiceId: string;
+  invoiceNumber?: number;
+  status: InvoicePaymentStatus;
+  proofOfPayment?: ProofOfPayment;
+  confirmedAt?: epochISOString;
+
+  load(x: any): void {
+    super.load(x);
+    this.invoiceId = this.clean(x.invoiceId, String);
+    if (x.invoiceNumber !== undefined) this.invoiceNumber = this.clean(x.invoiceNumber, Number);
+    this.status = this.clean(x.status, String, InvoicePaymentStatus.PENDING) as InvoicePaymentStatus;
+    this.proofOfPayment = this.clean(x.proofOfPayment, r => new ProofOfPayment(r));
+    if (x.confirmedAt) this.confirmedAt = this.clean(x.confirmedAt, d => new Date(d).toISOString());
   }
 }
 
@@ -51,8 +82,19 @@ export class ERSRegistration extends Resource {
   selectedOptionalTickets: string[];
   answers: { [questionId: string]: string | string[] };
   status: RegistrationStatus;
+  /**
+   * @deprecated Superseded by the per-invoice `payments` map; kept for backward compatibility and to
+   * synthesize the default-invoice payment for registrations created before the multi-invoice feature.
+   */
   proofOfPayment?: ProofOfPayment;
+  /**
+   * @deprecated Superseded by `payments[invoiceId].invoiceNumber`.
+   */
   invoiceNumber?: number;
+  /**
+   * Per-invoice payment state, keyed by invoiceId. Populated on approval; server-owned (locked in safeLoad).
+   */
+  payments: { [invoiceId: string]: InvoicePayment };
   approvedAt?: epochISOString;
   createdAt: epochISOString;
   updatedAt?: epochISOString;
@@ -90,6 +132,26 @@ export class ERSRegistration extends Resource {
     this.proofOfPayment = this.clean(x.proofOfPayment || x.receipt, r => new ProofOfPayment(r));
     if (x.invoiceNumber !== undefined) this.invoiceNumber = this.clean(x.invoiceNumber, Number);
     if (x.approvedAt) this.approvedAt = this.clean(x.approvedAt, d => new Date(d).toISOString());
+
+    // Multi-invoice payments map; cast each entry to InvoicePayment.
+    this.payments = {};
+    const rawPayments = this.clean(x.payments, Object, {});
+    for (const invoiceId of Object.keys(rawPayments)) {
+      this.payments[invoiceId] = new InvoicePayment(rawPayments[invoiceId]);
+    }
+    // Backward compatibility: map a legacy single proof/invoiceNumber onto the synthesized default invoice.
+    if (!Object.keys(this.payments).length && (this.proofOfPayment || this.invoiceNumber !== undefined)) {
+      let legacyStatus = InvoicePaymentStatus.PENDING;
+      if (this.status === RegistrationStatus.CONFIRMED) legacyStatus = InvoicePaymentStatus.CONFIRMED;
+      else if (this.status === RegistrationStatus.PAID || this.proofOfPayment) legacyStatus = InvoicePaymentStatus.PAID;
+      this.payments[DEFAULT_INVOICE_ID] = new InvoicePayment({
+        invoiceId: DEFAULT_INVOICE_ID,
+        invoiceNumber: this.invoiceNumber,
+        status: legacyStatus,
+        proofOfPayment: this.proofOfPayment,
+        confirmedAt: this.status === RegistrationStatus.CONFIRMED ? this.approvedAt : undefined
+      });
+    }
     this.createdAt = this.clean(x.createdAt, d => new Date(d).toISOString(), new Date().toISOString());
     if (x.updatedAt) this.updatedAt = this.clean(x.updatedAt, d => new Date(d).toISOString());
     if (!this.selectedOptionalTickets) this.selectedOptionalTickets = [];
@@ -108,6 +170,8 @@ export class ERSRegistration extends Resource {
 
     if (safeData.proofOfPayment) this.proofOfPayment = safeData.proofOfPayment;
     if (safeData.invoiceNumber !== undefined) this.invoiceNumber = safeData.invoiceNumber;
+    // Payments are server-owned (invoice numbers, proofs, confirmations): a client PUT can never set them.
+    if (safeData.payments) this.payments = safeData.payments;
     if (safeData.approvedAt) this.approvedAt = safeData.approvedAt
     if (safeData.updatedAt) this.updatedAt = safeData.updatedAt;
   }

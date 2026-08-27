@@ -38,8 +38,8 @@ import { checkmarkCircle, closeCircle } from 'ionicons/icons';
           </ion-label>
         </ion-list-header>
         <ion-radio-group [(ngModel)]="selectedStatus">
-          <ion-item *ngFor="let s of RegistrationStatus | keyvalue">
-            <ion-radio slot="start" labelPlacement="end" [value]="s.value">{{ 'ERS_EVENTS.STATUS_' + s.key | translate }}</ion-radio>
+          <ion-item *ngFor="let s of selectableStatuses">
+            <ion-radio slot="start" labelPlacement="end" [value]="s">{{ 'ERS_EVENTS.STATUS_' + s | translate }}</ion-radio>
           </ion-item>
         </ion-radio-group>
       </ion-list>
@@ -51,6 +51,8 @@ export class EditStatusComponent implements OnInit {
 
   selectedStatus: RegistrationStatus;
   RegistrationStatus = RegistrationStatus;
+  // PAID is a per-invoice/legacy state, not a manager-settable overall status.
+  selectableStatuses = Object.values(RegistrationStatus).filter(s => s !== RegistrationStatus.PAID);
 
   constructor(
     private modalCtrl: ModalController,

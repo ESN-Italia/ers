@@ -5,7 +5,7 @@ import { IDEALoadingService, IDEAMessageService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
-import { ERSEvent, EventQuestion, QuestionType } from '@models/ersEvent.model';
+import { ERSEvent, EventInvoice, EventQuestion, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration } from '@models/ersRegistration.model';
 import { Subject } from '@models/subject.model';
 import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
@@ -168,19 +168,20 @@ export class RegistrationFormPage implements OnInit {
     else this.registration.selectedOptionalTickets.splice(index, 1);
   }
 
+  getApplicableInvoices(): EventInvoice[] {
+    if (!this.event || !this.registration) return [];
+    return this.event.getApplicableInvoices(this.registration);
+  }
+
+  getInvoiceAmount(invoice: EventInvoice): number {
+    return this.event.getInvoiceAmountForRegistration(invoice, this.registration);
+  }
+
   getTotalPrice(): number {
-    let total = 0;
-    if (this.registration.spotId) {
-      const spot = this.event.spots?.find(s => s.id === this.registration.spotId);
-      if (spot && spot.price) total += spot.price;
-    }
-    if (this.registration.selectedOptionalTickets && this.registration.selectedOptionalTickets.length) {
-      for (const ticketId of this.registration.selectedOptionalTickets) {
-        const ticket = this.event.optionalTickets?.find(t => t.id === ticketId);
-        if (ticket && ticket.price) total += ticket.price;
-      }
-    }
-    return total;
+    if (!this.event || !this.registration) return 0;
+    return this.event
+      .getInvoices()
+      .reduce((sum, inv) => sum + this.event.getInvoiceAmountForRegistration(inv, this.registration), 0);
   }
 
   async openPrivacyPolicy(): Promise<void> {

@@ -7,8 +7,8 @@ import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
 import { EditStatusComponent } from './edit-status.component';
 import { EditSpotComponent } from './edit-spot.component';
-import { ERSEvent, QuestionType } from '@models/ersEvent.model';
-import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
+import { ERSEvent, EventInvoice, QuestionType } from '@models/ersEvent.model';
+import { ERSRegistration, InvoicePayment, InvoicePaymentStatus, RegistrationStatus } from '@models/ersRegistration.model';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import { addIcons } from 'ionicons';
@@ -26,6 +26,7 @@ export class RegistrationDetailPage implements OnInit {
   event: ERSEvent;
   registration: ERSRegistration;
   RegistrationStatus = RegistrationStatus;
+  InvoicePaymentStatus = InvoicePaymentStatus;
 
   constructor(
     private route: ActivatedRoute,
@@ -76,15 +77,15 @@ export class RegistrationDetailPage implements OnInit {
     }
   }
 
-  async uploadProofOfPayment(event: any): Promise<void> {
+  async uploadProofOfPayment(event: any, invoiceId: string): Promise<void> {
     const file = event.target.files[0];
     if (!file) return;
 
     try {
       await this.loading.show();
-      // Get presigned URL
+      // Get presigned URL scoped to this invoice
       const extension = file.name.split('.').pop();
-      const signedUrl: any = await this.service.getProofOfPaymentUploadUrl(this.eventId, this.registration.registrationId, extension);
+      const signedUrl: any = await this.service.getProofOfPaymentUploadUrl(this.eventId, this.registration.registrationId, invoiceId, extension);
 
       // Upload
       const response = await fetch(signedUrl.url, {
@@ -96,18 +97,19 @@ export class RegistrationDetailPage implements OnInit {
       if (!response.ok) throw new Error('Upload failed');
 
       // Notify backend
-      await this.service.submitProofOfPayment(this.eventId, this.registration.registrationId, signedUrl.key);
+      await this.service.submitProofOfPayment(this.eventId, this.registration.registrationId, invoiceId, signedUrl.key);
 
       this.message.success('COMMON.OPERATION_COMPLETED');
       await this.loadData(false); // reload status
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
+      if (event?.target) event.target.value = '';
       await this.dismissLoader();
     }
   }
 
-  async deleteProofOfPayment(): Promise<void> {
+  async deleteProofOfPayment(invoiceId: string): Promise<void> {
     let confirmed = false;
     const alert = await this.alertCtrl.create({
       header: this.t._('COMMON.ARE_YOU_SURE'),
@@ -128,7 +130,7 @@ export class RegistrationDetailPage implements OnInit {
 
     try {
       await this.loading.show();
-      await this.service.deleteProofOfPayment(this.eventId, this.registration.registrationId);
+      await this.service.deleteProofOfPayment(this.eventId, this.registration.registrationId, invoiceId);
       await this.loadData(false);
       this.message.success('COMMON.OPERATION_COMPLETED');
     } catch (err) {
@@ -138,16 +140,88 @@ export class RegistrationDetailPage implements OnInit {
     }
   }
 
-  async viewProofOfPayment(): Promise<void> {
+  async viewProofOfPayment(invoiceId: string): Promise<void> {
     try {
       await this.loading.show();
-      const signedUrl = await this.service.getProofOfPaymentDownloadUrl(this.eventId, this.registration.registrationId);
+      const signedUrl = await this.service.getProofOfPaymentDownloadUrl(this.eventId, this.registration.registrationId, invoiceId);
       await this.app.openURL(signedUrl.url);
     } catch (err) {
       this.message.error('COMMON.OPERATION_FAILED');
     } finally {
       await this.dismissLoader();
     }
+  }
+
+  //
+  // PER-INVOICE HELPERS
+  //
+
+  getApplicableInvoices(): EventInvoice[] {
+    if (!this.event || !this.registration) return [];
+    return this.event.getApplicableInvoices(this.registration);
+  }
+  hasPayments(): boolean {
+    // APPROVED/CONFIRMED are the states where per-invoice payments exist. PAID is included so that
+    // registrations migrated from the legacy single-invoice model (whose overall status is still PAID)
+    // keep rendering their invoice/proof section instead of hiding it.
+    return (
+      (this.registration?.status === RegistrationStatus.APPROVED ||
+        this.registration?.status === RegistrationStatus.PAID ||
+        this.registration?.status === RegistrationStatus.CONFIRMED) &&
+      this.getApplicableInvoices().length > 0
+    );
+  }
+  getPayment(invoiceId: string): InvoicePayment | undefined {
+    return this.registration?.payments?.[invoiceId];
+  }
+  getPaymentStatus(invoice: EventInvoice): InvoicePaymentStatus {
+    return this.getPayment(invoice.id)?.status ?? InvoicePaymentStatus.PENDING;
+  }
+  paymentStatusColor(invoice: EventInvoice): string {
+    switch (this.getPaymentStatus(invoice)) {
+      case InvoicePaymentStatus.CONFIRMED: return 'success';
+      case InvoicePaymentStatus.PAID: return 'warning';
+      default: return 'medium';
+    }
+  }
+  getInvoiceAmount(invoice: EventInvoice): number {
+    return this.event.getInvoiceAmountForRegistration(invoice, this.registration);
+  }
+  canUploadProof(invoice: EventInvoice): boolean {
+    return (
+      (this.isMyRegistration() || this.event.canUserManage(this.app.user)) &&
+      this.registration.status === RegistrationStatus.APPROVED &&
+      this.getPaymentStatus(invoice) !== InvoicePaymentStatus.CONFIRMED
+    );
+  }
+  canDeleteProof(invoice: EventInvoice): boolean {
+    if (this.event.canUserManage(this.app.user)) return true;
+    return this.isMyRegistration() && this.getPaymentStatus(invoice) !== InvoicePaymentStatus.CONFIRMED;
+  }
+
+  async confirmInvoice(invoiceId: string, confirmed = true): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.t._('COMMON.ARE_YOU_SURE'),
+      buttons: [
+        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
+        {
+          text: this.t._('COMMON.CONFIRM'),
+          handler: async () => {
+            try {
+              await this.loading.show();
+              await this.service.confirmInvoicePayment(this.eventId, this.registration.registrationId, invoiceId, confirmed);
+              await this.loadData(false);
+              this.message.success('COMMON.OPERATION_COMPLETED');
+            } catch (err: any) {
+              this.message.error(err?.message || this.t._('COMMON.OPERATION_FAILED'), true);
+            } finally {
+              await this.dismissLoader();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   getSpotName(): string {
@@ -162,18 +236,10 @@ export class RegistrationDetailPage implements OnInit {
   }
 
   getTotalPrice(): number {
-    let total = 0;
-    if (this.registration?.spotId) {
-      const spot = this.event?.spots?.find(s => s.id === this.registration.spotId);
-      if (spot && spot.price) total += spot.price;
-    }
-    if (this.registration?.selectedOptionalTickets?.length) {
-      for (const ticketId of this.registration.selectedOptionalTickets) {
-        const ticket = this.event?.optionalTickets?.find(t => t.id === ticketId);
-        if (ticket && ticket.price) total += ticket.price;
-      }
-    }
-    return total;
+    if (!this.event || !this.registration) return 0;
+    return this.event
+      .getInvoices()
+      .reduce((sum, inv) => sum + this.event.getInvoiceAmountForRegistration(inv, this.registration), 0);
   }
 
   isMyRegistration(): boolean {
@@ -233,31 +299,6 @@ export class RegistrationDetailPage implements OnInit {
               this.message.error(`${this.t._('ERS_EVENTS.REJECT_ERROR')}: ${err.message}`, true);
             } finally {
               await this.loading.hide();
-            }
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  async confirmPayment(): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header: this.t._('COMMON.ARE_YOU_SURE'),
-      buttons: [
-        { text: this.t._('COMMON.CANCEL'), role: 'cancel' },
-        {
-          text: this.t._('COMMON.CONFIRM'),
-          handler: async () => {
-            try {
-              await this.loading.show();
-              await this.service.confirmPayment(this.eventId, this.registration.registrationId);
-              await this.loadData(false);
-              this.message.success('COMMON.OPERATION_COMPLETED');
-            } catch (err) {
-              this.message.error(`${this.t._('ERS_EVENTS.CONFIRM_ERROR')}: ${err.message}`, true);
-            } finally {
-              await this.dismissLoader();
             }
           }
         }
@@ -353,8 +394,9 @@ export class RegistrationDetailPage implements OnInit {
       .join(', ');
   }
 
-  async downloadInvoice(): Promise<void> {
-    if (!this.registration || !this.registration.invoiceNumber) return;
+  async downloadInvoice(invoice: EventInvoice): Promise<void> {
+    const payment = this.getPayment(invoice.id);
+    if (!this.registration || !payment?.invoiceNumber) return;
 
     try {
       await this.loading.show();
@@ -410,16 +452,16 @@ export class RegistrationDetailPage implements OnInit {
           .trim();
       };
 
-      const bankTransferReason = `${this.registration.subject.name} - N${this.registration.invoiceNumber} - ${this.event.name}`;
+      const bankTransferReason = `${this.registration.subject.name} - N${payment.invoiceNumber} - ${this.event.name} - ${invoice.name}`;
       const sanitizedBankReason = sanitizeBankReason(bankTransferReason);
 
-      const invoiceFilename = `${this.event.name} - Invoice ${this.registration.invoiceNumber}.pdf`;
+      const invoiceFilename = `${this.event.name} - ${invoice.name} - Invoice ${payment.invoiceNumber}.pdf`;
       const sanitizedInvoiceFilename = sanitizeFilename(invoiceFilename);
 
       const docDefinition: any = {
         content: [
           { text: 'Event invoice', style: 'header', margin: [0, 0, 0, 5] },
-          { text: this.event?.name, style: 'subtitle', margin: [0, 0, 0, 20] },
+          { text: `${this.event?.name} — ${invoice.name}`, style: 'subtitle', margin: [0, 0, 0, 20] },
           {
             columns: [
               {
@@ -435,7 +477,7 @@ export class RegistrationDetailPage implements OnInit {
                 width: 'auto',
                 alignment: 'right',
                 text: [
-                  { text: `Invoice number: ${this.registration.invoiceNumber}\n` },
+                  { text: `Invoice number: ${payment.invoiceNumber}\n` },
                   { text: `Date: ${new Date(this.registration.approvedAt || new Date()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n` }
                 ]
               }
@@ -449,20 +491,20 @@ export class RegistrationDetailPage implements OnInit {
               widths: ['*', 'auto'],
               body: [
                 [{ text: 'Description', bold: true }, { text: 'Price', bold: true }],
-                ...this.getInvoiceTableBody()
+                ...this.getInvoiceTableBody(invoice)
               ]
             },
             layout: 'lightHorizontalLines'
           },
-          { text: `Total: ${this.getTotalPrice().toFixed(2)} €`, style: 'totals' },
+          { text: `Total: ${this.getInvoiceAmount(invoice).toFixed(2)} €`, style: 'totals' },
           { text: '\n' },
-          ...(this.event.invoiceDueDate ? [
+          ...((invoice.dueDate || this.event.invoiceDueDate) ? [
             this.createSectionHeader('Due Date', '#ec008c'),
-            { text: `${new Date(this.event.invoiceDueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n`, bold: true, color: 'black', alignment: 'center' },
+            { text: `${new Date(invoice.dueDate || this.event.invoiceDueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n`, bold: true, color: 'black', alignment: 'center' },
             { text: '\n' }
           ] : []),
           this.createSectionHeader('Payment Information', '#f47b20'),
-          htmlToPdfmakeModule(this.event?.paymentInfo || ''),
+          htmlToPdfmakeModule(invoice.paymentInfo || ''),
           { text: '\n' },
           this.createSectionHeader('Bank Transfer Reason', '#7ac143'),
           { text: sanitizedBankReason, bold: true, fontSize: 14 }
@@ -499,25 +541,32 @@ export class RegistrationDetailPage implements OnInit {
     };
   }
 
-  private getInvoiceTableBody(): any[] {
+  private getInvoiceTableBody(invoice: EventInvoice): any[] {
     const tableBody = [];
-    const spot = this.event?.spots?.find(s => s.id === this.registration.spotId);
-    if (spot) {
-      tableBody.push(
-        [
-          `Spot: ${spot.name} - ${this.registration.selectedSectionName}`,
-          `${spot.price.toFixed(2)} €`
-        ]
-      );
+    const primary = this.event.getPrimaryInvoice();
+
+    // The spot fee is billed only on the primary invoice.
+    if (primary && invoice.id === primary.id) {
+      const spot = this.event?.spots?.find(s => s.id === this.registration.spotId);
+      if (spot) {
+        tableBody.push([`Spot: ${spot.name} - ${this.registration.selectedSectionName}`, `${(spot.price || 0).toFixed(2)} €`]);
+      }
     }
 
+    // This invoice's standard products (mandatory for everyone).
+    for (const product of invoice.products || []) {
+      tableBody.push([product.name, `${(product.price || 0).toFixed(2)} €`]);
+    }
+
+    // Optional tickets assigned to this invoice (unassigned tickets fall on the primary).
     if (this.registration.selectedOptionalTickets?.length) {
       for (const ticketId of this.registration.selectedOptionalTickets) {
         const ticket = this.event?.optionalTickets?.find(t => t.id === ticketId);
-        if (ticket) {
-          const desc = ticket.description ? ` (${ticket.description})` : '';
-          tableBody.push([`Ticket: ${ticket.name}${desc}`, `${ticket.price.toFixed(2)} €`]);
-        }
+        if (!ticket) continue;
+        const targetInvoiceId = ticket.invoiceId || primary?.id;
+        if (targetInvoiceId !== invoice.id) continue;
+        const desc = ticket.description ? ` (${ticket.description})` : '';
+        tableBody.push([`Ticket: ${ticket.name}${desc}`, `${(ticket.price || 0).toFixed(2)} €`]);
       }
     }
     return tableBody;

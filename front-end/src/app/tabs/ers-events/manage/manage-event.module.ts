@@ -12,6 +12,8 @@ import { HTMLEditorModule } from '@common/htmlEditor.module';
 import { DatetimeWithTimezoneStandaloneComponent } from '@common/datetimeWithTimezone';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
 import { BulkDeleteComponent } from './bulk-delete/bulk-delete.component';
+import { InvoiceEditorComponent } from './invoice-editor/invoice-editor.component';
+import { OptionalTicketEditorComponent } from './optional-ticket-editor/optional-ticket-editor.component';
 
 @NgModule({
   imports: [
@@ -24,7 +26,9 @@ import { BulkDeleteComponent } from './bulk-delete/bulk-delete.component';
     HTMLEditorModule,
     DatetimeWithTimezoneStandaloneComponent,
     QuestionEditorComponent,
-    BulkDeleteComponent
+    BulkDeleteComponent,
+    InvoiceEditorComponent,
+    OptionalTicketEditorComponent
   ],
   declarations: [ManageEventPage]
 })
