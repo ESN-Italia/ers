@@ -631,10 +631,34 @@ paths:
               properties:
                 action:
                   type: string
-                  enum: [APPROVE, REJECT, CONFIRM_PAYMENT, GET_PROOF_OF_PAYMENT_UPLOAD_URL, SUBMIT_PROOF_OF_PAYMENT]
+                  enum:
+                    - SET_STATUS
+                    - SET_SPOT
+                    - GET_PROOF_OF_PAYMENT_UPLOAD_URL
+                    - GET_PROOF_OF_PAYMENT_DOWNLOAD_URL
+                    - SUBMIT_PROOF_OF_PAYMENT
+                    - DELETE_PROOF_OF_PAYMENT
+                    - CONFIRM_INVOICE_PAYMENT
+                    - UNCONFIRM_INVOICE_PAYMENT
+                status:
+                  type: string
+                  description: (SET_STATUS) the new overall registration status
+                  enum: [PENDING, APPROVED, CONFIRMED, REJECTED]
+                spotId:
+                  type: string
+                  description: (SET_SPOT) the id of the new spot
+                invoiceId:
+                  type: string
+                  description: >-
+                    (GET_PROOF_OF_PAYMENT_UPLOAD_URL, GET_PROOF_OF_PAYMENT_DOWNLOAD_URL,
+                    SUBMIT_PROOF_OF_PAYMENT, DELETE_PROOF_OF_PAYMENT, CONFIRM_INVOICE_PAYMENT,
+                    UNCONFIRM_INVOICE_PAYMENT) the target invoice
+                extension:
+                  type: string
+                  description: (GET_PROOF_OF_PAYMENT_UPLOAD_URL) the uploaded file extension
                 proofOfPaymentKey:
                   type: string
-                  description: (SUBMIT_PROOF_OF_PAYMENT)
+                  description: (SUBMIT_PROOF_OF_PAYMENT) the S3 key returned by the upload URL action
       responses:
         200:
           $ref: '#/components/responses/OperationCompleted'

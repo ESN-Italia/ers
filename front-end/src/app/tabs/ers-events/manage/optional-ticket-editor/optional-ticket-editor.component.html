@@ -1,0 +1,42 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="ideaToolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      {{ (isEdit ? 'COMMON.EDIT' : 'COMMON.ADD') | translate }} {{ 'ERS_EVENTS.OPTIONAL_TICKETS' | translate }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="save()" [disabled]="!isValid()">
+        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list lines="full">
+    <ion-item>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.NAME' | translate }}</ion-label>
+      <ion-input [(ngModel)]="localTicket.name" type="text"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.DESCRIPTION' | translate }}</ion-label>
+      <ion-input [(ngModel)]="localTicket.description" type="text"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.PRICE' | translate }}</ion-label>
+      <ion-input [(ngModel)]="localTicket.price" type="number"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">{{ 'ERS_EVENTS.ASSIGN_INVOICE' | translate }}</ion-label>
+      <ion-select [(ngModel)]="localTicket.invoiceId" [placeholder]="'ERS_EVENTS.SELECT_INVOICE' | translate">
+        <ion-select-option *ngFor="let invoice of event.invoices" [value]="invoice.id">
+          {{ invoice.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+</ion-content>
