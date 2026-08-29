@@ -39,11 +39,15 @@ class Media extends ResourceController {
 
   protected async postResources(): Promise<SignedURL> {
     const fileURI = await ddb.IUNID(PROJECT.concat('-media'));
-    const ext = this.body?.extension ? `.${String(this.body.extension).replace(/^\./, '')}` : '.png';
+    const sanitizedExtension = String(this.body?.extension || '')
+      .replace(/^\./, '')
+      .replace(/[^0-9a-z]/gi, '');
+    const hasExtension = Boolean(sanitizedExtension);
+    const ext = hasExtension ? `.${sanitizedExtension}` : '.png';
 
     const key = `${S3_IMAGES_FOLDER}/${fileURI}${ext}`;
     const signedURL = await s3.signedURLPut(S3_BUCKET_MEDIA, key);
-    signedURL.id = `${fileURI}${ext}`;
+    signedURL.id = hasExtension ? `${fileURI}${ext}` : fileURI;
 
     return signedURL;
   }
