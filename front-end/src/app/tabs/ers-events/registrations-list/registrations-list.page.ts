@@ -439,6 +439,13 @@ export class RegistrationsListPage implements OnInit {
   private formatAnswer(reg: ERSRegistration, questionId: string): string {
     const answer = reg.answers?.[questionId];
     if (Array.isArray(answer)) return answer.join('; ');
+    if (typeof answer === 'string' && answer.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(answer);
+        if (parsed.url) return parsed.url;
+        if (parsed.name) return parsed.name;
+      } catch (e) { }
+    }
     return String(answer || '');
   }
 

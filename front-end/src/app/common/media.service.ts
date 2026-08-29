@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IDEAApiService } from '@idea-ionic/common';
+import { environment as env } from '@env';
 
 @Injectable({ providedIn: 'root' })
 export class MediaService {
@@ -13,6 +14,19 @@ export class MediaService {
     await fetch(url, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
     await sleepForNumSeconds(5);
     return id;
+  }
+
+  /**
+   * Upload a file and get its details (id, name, and S3 url).
+   */
+  async uploadFile(file: File): Promise<{ id: string; name: string; url: string }> {
+    const extension = file.name.split('.').pop() || 'bin';
+    const { url, id } = await this.api.postResource('media', { body: { extension } });
+    const res = await fetch(url, { method: 'PUT', body: file, headers: { 'Content-Type': file.type || 'application/octet-stream' } });
+    if (!res.ok) throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
+    await sleepForNumSeconds(2);
+    const mediaUrl = `${env.idea.app.mediaUrl}/images/${env.idea.api.stage}/${id}`;
+    return { id, name: file.name, url: mediaUrl };
   }
 }
 
