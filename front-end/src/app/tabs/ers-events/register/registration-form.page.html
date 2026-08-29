@@ -271,6 +271,34 @@
           [obligatory]="question.required" [timezone]="event.timezone" presentation="time"
           [class.fieldHasError]="hasFieldAnError('answers[' + question.id + '] required')"
           [(date)]="$any(registration.answers)[question.id]" />
+        <!-- File / Document Upload -->
+        <ion-item *ngIf="question.type === QuestionType.FILE"
+          [class.fieldHasError]="hasFieldAnError('answers[' + question.id + '] required')">
+          <ion-label position="stacked">
+            {{ question.text }}
+            <span *ngIf="question.required" class="obligatoryDot">*</span>
+            <span style="font-size: 0.85em; font-weight: normal; opacity: 0.8;">
+              (Max {{ question.maxFileSizeMB || 5 }} MB)
+            </span>
+          </ion-label>
+          <div style="display: flex; flex-direction: column; width: 100%; margin-top: 8px; margin-bottom: 8px;">
+            <input type="file" #docFileInput style="display: none" (change)="onFileSelected($event, question)" />
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <ion-button fill="outline" size="small" (click)="docFileInput.click()" [disabled]="uploadingQuestionId === question.id">
+                <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+                {{ (registration.answers[question.id] ? 'ERS_EVENTS.CHANGE_FILE' : 'ERS_EVENTS.UPLOAD_FILE') | translate }}
+              </ion-button>
+              <ion-spinner *ngIf="uploadingQuestionId === question.id" name="crescent"></ion-spinner>
+            </div>
+            <div *ngIf="registration.answers[question.id]" style="display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 0.9em; color: var(--ion-color-primary, #3880ff);">
+              <ion-icon name="document-outline"></ion-icon>
+              <span>{{ getUploadedFileName(registration.answers[question.id]) }}</span>
+              <ion-button fill="clear" color="danger" size="small" (click)="removeUploadedFile(question.id)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </ion-item>
       </ng-container>
     </ng-container>
 

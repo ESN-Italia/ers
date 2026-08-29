@@ -354,7 +354,8 @@ export enum QuestionType {
   RADIOBOX = 'radiobox',
   CHECKBOX = 'checkbox',
   DATE = 'date',
-  TIME = 'time'
+  TIME = 'time',
+  FILE = 'file'
 }
 
 export class EventQuestion extends Resource {
@@ -363,6 +364,7 @@ export class EventQuestion extends Resource {
   type: QuestionType;
   options: string[]; // For radiobox and checkbox
   required: boolean;
+  maxFileSizeMB?: number; // Maximum allowed file size in MB for QuestionType.FILE
   spotIdCondition?: string; // If set, this question is shown only if this spot is selected
   dependsOnQuestionId?: string; // If set, this question depends on another question
   dependsOnAnswer?: string; // The specific answer required for the dependency
@@ -375,6 +377,7 @@ export class EventQuestion extends Resource {
     this.type = this.clean(x.type, String, QuestionType.TEXT) as QuestionType;
     this.options = this.cleanArray(x.options, String);
     this.required = this.clean(x.required, Boolean, false);
+    if (x.maxFileSizeMB !== undefined) this.maxFileSizeMB = this.clean(x.maxFileSizeMB, Number);
     this.spotIdCondition = this.clean(x.spotIdCondition, String);
     this.dependsOnQuestionId = this.clean(x.dependsOnQuestionId, String);
     this.dependsOnAnswer = this.clean(x.dependsOnAnswer, String);
@@ -385,7 +388,8 @@ export class EventQuestion extends Resource {
     const e = [];
     if (this.iE(this.id)) e.push('id');
     if (this.iE(this.text)) e.push('text');
-    if (this.type !== QuestionType.TEXT && this.type !== QuestionType.DATE && this.type !== QuestionType.TIME && (!this.options || this.options.length === 0)) e.push('options');
+    if (this.type !== QuestionType.TEXT && this.type !== QuestionType.DATE && this.type !== QuestionType.TIME && this.type !== QuestionType.FILE && (!this.options || this.options.length === 0)) e.push('options');
+    if (this.type === QuestionType.FILE && this.maxFileSizeMB !== undefined && this.maxFileSizeMB <= 0) e.push('maxFileSizeMB');
     return e;
   }
 }

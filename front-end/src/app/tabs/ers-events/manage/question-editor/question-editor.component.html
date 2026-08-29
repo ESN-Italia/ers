@@ -32,7 +32,13 @@
         <ion-select-option [value]="QuestionType.CHECKBOX">{{ 'ERS_EVENTS.CHECKBOX' | translate }}</ion-select-option>
         <ion-select-option [value]="QuestionType.DATE">{{ 'ERS_EVENTS.DATE' | translate }}</ion-select-option>
         <ion-select-option [value]="QuestionType.TIME">{{ 'ERS_EVENTS.TIME' | translate }}</ion-select-option>
+        <ion-select-option [value]="QuestionType.FILE">{{ 'ERS_EVENTS.FILE' | translate }}</ion-select-option>
       </ion-select>
+    </ion-item>
+
+    <ion-item *ngIf="localQuestion.type === QuestionType.FILE">
+      <ion-label position="stacked">{{ 'ERS_EVENTS.MAX_FILE_SIZE' | translate }} (MB)</ion-label>
+      <ion-input type="number" [(ngModel)]="localQuestion.maxFileSizeMB" min="1" max="50" placeholder="5"></ion-input>
     </ion-item>
 
     <ng-container *ngIf="showOptions">

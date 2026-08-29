@@ -108,6 +108,7 @@ export class QuestionEditorComponent implements OnInit {
   isValid(): boolean {
     if (!this.localQuestion.text || !this.localQuestion.type) return false;
     if (this.showOptions && (!this.localQuestion.options || this.localQuestion.options.length === 0)) return false;
+    if (this.localQuestion.type === QuestionType.FILE && this.localQuestion.maxFileSizeMB !== undefined && this.localQuestion.maxFileSizeMB <= 0) return false;
     
     if (this.conditionType === 'spot' && !this.localQuestion.spotIdCondition) return false;
     if (this.conditionType === 'question' && (!this.localQuestion.dependsOnQuestionId || !this.localQuestion.dependsOnAnswer)) return false;
