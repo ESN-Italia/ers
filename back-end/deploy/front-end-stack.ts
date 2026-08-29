@@ -52,7 +52,13 @@ export class FrontEndStack extends cdk.Stack {
         {
           s3OriginSource: { s3BucketSource: frontEndBucket, originAccessIdentity: frontEndDistributionOAI },
           behaviors: [
-            { isDefaultBehavior: true, defaultTtl: cdk.Duration.days(1), maxTtl: cdk.Duration.days(1), compress: true }
+            {
+              isDefaultBehavior: true,
+              minTtl: cdk.Duration.seconds(0),
+              defaultTtl: cdk.Duration.hours(12),
+              maxTtl: cdk.Duration.hours(12),
+              compress: true
+            }
           ]
         }
       ],

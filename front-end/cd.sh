@@ -38,14 +38,15 @@ DISTRIBUTION=`aws cloudfront list-distributions --query "DistributionList.Items[
 BUCKET=`aws cloudfront get-distribution --id ${DISTRIBUTION} --output text \
  --query "Distribution.DistributionConfig.Origins.Items[0].DomainName" | cut -d "." -f 1`
 
-# upload the project's files to the S3 bucket
+# upload the project's files to the S3 bucket (with no-cache header for index.html)
 echo -e "${C}Uploading...${NC}"
-aws s3 sync ./www s3://${BUCKET} --delete --exclude ".well-known/*" 1>/dev/null
+aws s3 sync ./www s3://${BUCKET} --delete --exclude "index.html" --exclude ".well-known/*" 1>/dev/null
+aws s3 cp ./www/index.html s3://${BUCKET}/index.html --cache-control "max-age=43200, must-revalidate" 1>/dev/null
 
-# invalidate old common files from the CloudFront distribution
+# invalidate all files from the CloudFront distribution
 echo -e "${C}Cleaning...${NC}"
 aws cloudfront create-invalidation --distribution-id ${DISTRIBUTION} \
-  --paths "/index.html" "/assets/i18n*" \
+  --paths "/*" \
   1>/dev/null
 
 echo -e "${C}Done!${NC}"
