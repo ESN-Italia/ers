@@ -33,16 +33,21 @@ class Media extends ResourceController {
   }
 
   protected async checkAuthBeforeRequest(): Promise<void> {
-    if (!(this.galaxyUser.isAdministrator || this.galaxyUser.canManageDashboard || this.galaxyUser.canManageERSEvents))
+    if (!this.galaxyUser?.userId)
       throw new HandledError('Unauthorized');
   }
 
   protected async postResources(): Promise<SignedURL> {
-    const imageURI = await ddb.IUNID(PROJECT.concat('-media'));
+    const fileURI = await ddb.IUNID(PROJECT.concat('-media'));
+    const sanitizedExtension = String(this.body?.extension || '')
+      .replace(/^\./, '')
+      .replace(/[^0-9a-z]/gi, '');
+    const hasExtension = Boolean(sanitizedExtension);
+    const ext = hasExtension ? `.${sanitizedExtension}` : '.png';
 
-    const key = `${S3_IMAGES_FOLDER}/${imageURI}.png`;
+    const key = `${S3_IMAGES_FOLDER}/${fileURI}${ext}`;
     const signedURL = await s3.signedURLPut(S3_BUCKET_MEDIA, key);
-    signedURL.id = imageURI;
+    signedURL.id = hasExtension ? `${fileURI}${ext}` : fileURI;
 
     return signedURL;
   }

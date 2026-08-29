@@ -338,7 +338,17 @@
                 <ion-item *ngIf="shouldShowQuestion(question)">
                   <ion-label class="ion-text-wrap">
                     <h3>{{ question.text }}</h3>
-                    <p>{{ formatAnswer(question.id) }}</p>
+                    <ng-container *ngIf="question.type === QuestionType.FILE && parseFileAnswer(question.id) as fileInfo; else defaultAnswer">
+                      <p>
+                        <a [href]="fileInfo.url" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 500; text-decoration: underline;">
+                          <ion-icon name="document-outline"></ion-icon>
+                          {{ fileInfo.name }}
+                        </a>
+                      </p>
+                    </ng-container>
+                    <ng-template #defaultAnswer>
+                      <p>{{ formatAnswer(question.id) }}</p>
+                    </ng-template>
                   </ion-label>
                 </ion-item>
               </ng-container>

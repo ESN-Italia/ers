@@ -12,7 +12,7 @@ import { ERSRegistration, InvoicePayment, InvoicePaymentStatus, RegistrationStat
 import { formatInTimeZone } from 'date-fns-tz';
 
 import { addIcons } from 'ionicons';
-import { arrowBack, attach, calendarSharp, checkmarkDoneOutline, closeCircleOutline, cloudUpload, createOutline, downloadOutline, informationCircle, locationSharp, optionsOutline, trashOutline } from 'ionicons/icons';
+import { arrowBack, attach, calendarSharp, checkmarkDoneOutline, closeCircleOutline, cloudUpload, createOutline, documentOutline, downloadOutline, informationCircle, locationSharp, optionsOutline, trashOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-registration-detail',
@@ -27,6 +27,7 @@ export class RegistrationDetailPage implements OnInit {
   registration: ERSRegistration;
   RegistrationStatus = RegistrationStatus;
   InvoicePaymentStatus = InvoicePaymentStatus;
+  QuestionType = QuestionType;
 
   constructor(
     private route: ActivatedRoute,
@@ -39,7 +40,7 @@ export class RegistrationDetailPage implements OnInit {
     private service: ERSEventsService,
     public app: AppService
   ) {
-    addIcons({ arrowBack, attach, calendarSharp, checkmarkDoneOutline, closeCircleOutline, cloudUpload, createOutline, downloadOutline, informationCircle, locationSharp, optionsOutline, trashOutline });
+    addIcons({ arrowBack, attach, calendarSharp, checkmarkDoneOutline, closeCircleOutline, cloudUpload, createOutline, documentOutline, downloadOutline, informationCircle, locationSharp, optionsOutline, trashOutline });
   }
 
   async ngOnInit(): Promise<void> {
@@ -367,16 +368,38 @@ export class RegistrationDetailPage implements OnInit {
     return formatInTimeZone(this.registration.createdAt, this.event.timezone, 'yyyy-MM-dd HH:mm:ss');
   }
 
+  parseFileAnswer(questionId: string): { name: string; url: string } | null {
+    const answer = this.registration?.answers?.[questionId];
+    if (!answer) return null;
+    try {
+      if (typeof answer === 'string' && answer.startsWith('{')) {
+        const parsed = JSON.parse(answer);
+        if (parsed.url || parsed.name) {
+          return { name: parsed.name || parsed.id || 'Uploaded Document', url: parsed.url };
+        }
+      }
+    } catch (e) { }
+    if (typeof answer === 'string' && (answer.startsWith('http://') || answer.startsWith('https://'))) {
+      return { name: 'Uploaded Document', url: answer };
+    }
+    return null;
+  }
+
   formatAnswer(questionId: string): string {
     const answer = this.registration?.answers?.[questionId];
     if (Array.isArray(answer)) return answer.join(', ');
-    if (answer && this.event?.questions?.find(q => q.id === questionId)?.type === QuestionType.DATE) {
+    const question = this.event?.questions?.find(q => q.id === questionId);
+    if (answer && question?.type === QuestionType.DATE) {
       const d = new Date(answer as string);
       if (!isNaN(d.getTime())) return d.toISOString().substring(0, 10);
     }
-    if (answer && this.event?.questions?.find(q => q.id === questionId)?.type === QuestionType.TIME) {
+    if (answer && question?.type === QuestionType.TIME) {
       const d = new Date(answer as string);
       if (!isNaN(d.getTime())) return formatInTimeZone(answer as string, this.event.timezone, 'HH:mm');
+    }
+    if (answer && question?.type === QuestionType.FILE) {
+      const file = this.parseFileAnswer(questionId);
+      return file ? file.name : (answer as string);
     }
     return (answer as string) || '-';
   }

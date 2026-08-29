@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { IDEALoadingService, IDEAMessageService } from '@idea-ionic/common';
+import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
@@ -10,8 +10,9 @@ import { ERSRegistration } from '@models/ersRegistration.model';
 import { Subject } from '@models/subject.model';
 import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
 import { addIcons } from 'ionicons';
-import { arrowBack } from 'ionicons/icons';
+import { arrowBack, cloudUploadOutline, documentOutline, trashOutline } from 'ionicons/icons';
 import { PrivacyPolicyComponent } from '@app/common/privacy-policy/privacy-policy.component';
+import { MediaService } from '@common/media.service';
 
 
 @Component({
@@ -32,16 +33,19 @@ export class RegistrationFormPage implements OnInit {
   codeOfConductAccepted = false;
   errors = new Set<string>();
   now = new Date().toISOString();
+  uploadingQuestionId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private modalCtrl: ModalController,
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
+    private t: IDEATranslationsService,
     private service: ERSEventsService,
+    private mediaService: MediaService,
     public app: AppService
   ) {
-    addIcons({ arrowBack });
+    addIcons({ arrowBack, cloudUploadOutline, documentOutline, trashOutline });
   }
 
   async ngOnInit(): Promise<void> {
@@ -205,6 +209,49 @@ export class RegistrationFormPage implements OnInit {
 
   get hasVisibleQuestions(): boolean {
     return this.event?.questions?.some(q => this.shouldShowQuestion(q)) || false;
+  }
+
+  async onFileSelected(event: any, question: EventQuestion): Promise<void> {
+    const file: File = event.target.files?.[0];
+    if (!file) return;
+
+    const maxMB = Math.min(question.maxFileSizeMB || 5, 50);
+    const maxBytes = maxMB * 1024 * 1024;
+    if (file.size > maxBytes) {
+      this.message.error(this.t._('ERS_EVENTS.FILE_SIZE_EXCEEDED', { max: maxMB }));
+      event.target.value = '';
+      return;
+    }
+
+    try {
+      this.uploadingQuestionId = question.id;
+      const uploaded = await this.mediaService.uploadFile(file);
+      this.registration.answers[question.id] = JSON.stringify({
+        name: uploaded.name,
+        url: uploaded.url,
+        id: uploaded.id
+      });
+    } catch (err) {
+      this.message.error(this.t._('COMMON.OPERATION_FAILED'));
+    } finally {
+      this.uploadingQuestionId = null;
+      event.target.value = '';
+    }
+  }
+
+  removeUploadedFile(questionId: string): void {
+    delete this.registration.answers[questionId];
+  }
+
+  getUploadedFileName(answerValue: any): string {
+    if (!answerValue) return '';
+    try {
+      if (typeof answerValue === 'string' && answerValue.startsWith('{')) {
+        const parsed = JSON.parse(answerValue);
+        return parsed.name || parsed.id || 'Uploaded Document';
+      }
+    } catch (e) { }
+    return String(answerValue);
   }
 }
 
