@@ -217,6 +217,15 @@ const createCloudFrontDistributionForMediaBucket = (
       compress: true,
       viewerProtocolPolicy: CloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
     },
+    additionalBehaviors: {
+      'images/*': {
+        origin: new CloudFrontOrigins.S3Origin(mediaBucket, {
+          originAccessIdentity: mediaDistributionOAI
+        }),
+        compress: true,
+        viewerProtocolPolicy: CloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
+      }
+    },
     domainNames: [mediaDomain],
     priceClass: CloudFront.PriceClass.PRICE_CLASS_100,
     certificate: ACM.Certificate.fromCertificateArn(scope, 'CloudFrontMediaCertificate', certificate.certificateArn)
