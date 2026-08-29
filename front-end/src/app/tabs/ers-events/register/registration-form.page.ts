@@ -215,7 +215,7 @@ export class RegistrationFormPage implements OnInit {
     const file: File = event.target.files?.[0];
     if (!file) return;
 
-    const maxMB = question.maxFileSizeMB || 5;
+    const maxMB = Math.min(question.maxFileSizeMB || 5, 50);
     const maxBytes = maxMB * 1024 * 1024;
     if (file.size > maxBytes) {
       this.message.error(this.t._('ERS_EVENTS.FILE_SIZE_EXCEEDED', { max: maxMB }));
