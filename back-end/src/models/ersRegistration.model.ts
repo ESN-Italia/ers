@@ -13,17 +13,32 @@ export enum RegistrationStatus {
 }
 
 /**
- * The ESN Italia photo/video authorization asked on every registration. Kept verbatim from legal counsel (same text as
- * Jupiter's event subscriptions): do not reword it here.
+ * The ESN Italia privacy policy the data consent links to (as given in issue #38).
+ */
+export const DATA_CONSENT_PRIVACY_POLICY_URL =
+  'https://docs.google.com/document/d/1TEt4ks86SamK7_mmxJyqTsegw8rzn6DJ/edit?usp=drive_link&ouid=110153794008465365517&rtpof=true&sd=true';
+
+/**
+ * The ESN Italia consent to the processing of personal data, required to register. Kept verbatim from legal counsel
+ * (issue #38): do not reword it here. It ends where the link to `DATA_CONSENT_PRIVACY_POLICY_URL` is rendered.
+ */
+export const DATA_CONSENT_TEXT =
+  'I consent to the processing of my personal data provided through this questionnaire, pursuant to Regulation ' +
+  '(EU) 2016/679 – General Data Protection Regulation (GDPR). I have read the privacy policy on the processing of ' +
+  'personal data available at the following';
+
+/**
+ * The ESN Italia photo/video authorization asked on every registration. Kept verbatim from legal counsel (issue #38):
+ * do not reword it here.
  */
 export const PHOTO_VIDEO_CONSENT_TEXT =
   'I authorize, free of charge and without time limits, pursuant to Articles 10 and 320 of the Civil Code, ' +
   'Articles 96 and 97 of Law no. 633 of 22 April 1941 (Copyright Law), and Article 6(1)(a) of EU Regulation ' +
-  '2016/679, the use, publication and/or distribution in any form of my own images on the Controller’s ' +
+  "2016/679, the use, publication and/or distribution in any form of my own images on the Controller's " +
   'website, in print, or in documents, brochures and pamphlets intended for distribution outside the Controller ' +
   'for informational purposes and/or any type of medium, digital and/or paper, as well as in the digital ' +
   'archives of Erasmus Student Network Italia – ESN Italia - ETS, and I acknowledge that the purpose of such ' +
-  'publications is merely informational and possibly promotional in nature.\n\n' +
+  'publications is merely informational and possibly promotional in nature.\n' +
   'This release/authorization may be revoked at any time by written communication to be sent by ordinary mail ' +
   'or e-mail to the address: info@esn.it; amministrazione@esn.it';
 
