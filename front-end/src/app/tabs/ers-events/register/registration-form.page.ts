@@ -6,7 +6,7 @@ import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent, EventInvoice, EventQuestion, QuestionType } from '@models/ersEvent.model';
-import { ERSRegistration } from '@models/ersRegistration.model';
+import { ERSRegistration, PHOTO_VIDEO_CONSENT_TEXT } from '@models/ersRegistration.model';
 import { Subject } from '@models/subject.model';
 import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
 import { addIcons } from 'ionicons';
@@ -28,6 +28,7 @@ export class RegistrationFormPage implements OnInit {
   Genders = Genders;
   Pronouns = Pronouns;
   DocumentTypes = DocumentTypes;
+  PHOTO_VIDEO_CONSENT_TEXT = PHOTO_VIDEO_CONSENT_TEXT;
 
   privacyPolicyAccepted = false;
   codeOfConductAccepted = false;
