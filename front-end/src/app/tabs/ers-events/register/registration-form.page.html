@@ -310,9 +310,9 @@
     <ion-item [class.fieldHasError]="hasFieldAnError('privacyPolicyAccepted')">
       <ion-checkbox slot="start" labelPlacement="end" [(ngModel)]="privacyPolicyAccepted">
         <ion-label class="ion-text-wrap">
-          {{ 'ERS_EVENTS.PRIVACY_POLICY_ACCEPT' | translate }}
-          <a (click)="$event.stopPropagation(); openPrivacyPolicy()">{{ 'ERS_EVENTS.PRIVACY_POLICY_LINK' | translate }}</a> <span
-            class="obligatoryDot"> *</span>
+          {{ DATA_CONSENT_TEXT }}
+          <a (click)="$event.stopPropagation(); app.openURL(DATA_CONSENT_PRIVACY_POLICY_URL)">link</a>.
+          <span class="obligatoryDot"> *</span>
         </ion-label>
       </ion-checkbox>
     </ion-item>
