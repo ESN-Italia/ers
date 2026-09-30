@@ -164,8 +164,8 @@ export class ERSRegistration extends Resource {
     this.spotId = this.clean(x.spotId, String);
     this.selectedOptionalTickets = this.cleanArray(x.selectedOptionalTickets, String);
     this.answers = this.clean(x.answers, Object, {});
-    this.photoVideoConsent =
-      x.photoVideoConsent === undefined || x.photoVideoConsent === null ? null : Boolean(x.photoVideoConsent);
+    // Anything but a real boolean (e.g. the string "false") must not be read as a consent: it stays unanswered.
+    this.photoVideoConsent = x.photoVideoConsent === true || x.photoVideoConsent === false ? x.photoVideoConsent : null;
     this.status = this.clean(x.status, String, RegistrationStatus.PENDING) as RegistrationStatus;
     this.proofOfPayment = this.clean(x.proofOfPayment || x.receipt, r => new ProofOfPayment(r));
     if (x.invoiceNumber !== undefined) this.invoiceNumber = this.clean(x.invoiceNumber, Number);
