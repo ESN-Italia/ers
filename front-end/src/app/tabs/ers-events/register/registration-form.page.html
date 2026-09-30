@@ -317,6 +317,30 @@
       </ion-checkbox>
     </ion-item>
 
+    <!-- Either answer is accepted, but one must be given: refusing the use of one's image doesn't prevent registering -->
+    <ion-radio-group [(ngModel)]="registration.photoVideoConsent">
+      <ion-list-header [class.fieldHasError]="hasFieldAnError('photoVideoConsent')">
+        <ion-label>
+          <h2>{{ 'ERS_EVENTS.PHOTO_VIDEO_CONSENT' | translate }} <span class="obligatoryDot">*</span></h2>
+        </ion-label>
+      </ion-list-header>
+      <ion-item lines="none">
+        <ion-label class="ion-text-wrap">
+          <p class="photoVideoConsentText">{{ PHOTO_VIDEO_CONSENT_TEXT }}</p>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-radio slot="start" labelPlacement="end" [value]="true">
+          {{ 'ERS_EVENTS.PHOTO_VIDEO_CONSENT_YES' | translate }}
+        </ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-radio slot="start" labelPlacement="end" [value]="false">
+          {{ 'ERS_EVENTS.PHOTO_VIDEO_CONSENT_NO' | translate }}
+        </ion-radio>
+      </ion-item>
+    </ion-radio-group>
+
     <ion-list-header>
       <ion-label>
         <h2>{{ 'ERS_EVENTS.CODE_OF_CONDUCT_LINK' | translate }}</h2>

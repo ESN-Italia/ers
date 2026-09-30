@@ -12,6 +12,21 @@ export enum RegistrationStatus {
   REJECTED = "REJECTED"
 }
 
+/**
+ * The ESN Italia photo/video authorization asked on every registration. Kept verbatim from legal counsel (same text as
+ * Jupiter's event subscriptions): do not reword it here.
+ */
+export const PHOTO_VIDEO_CONSENT_TEXT =
+  'I authorize, free of charge and without time limits, pursuant to Articles 10 and 320 of the Civil Code, ' +
+  'Articles 96 and 97 of Law no. 633 of 22 April 1941 (Copyright Law), and Article 6(1)(a) of EU Regulation ' +
+  '2016/679, the use, publication and/or distribution in any form of my own images on the Controller’s ' +
+  'website, in print, or in documents, brochures and pamphlets intended for distribution outside the Controller ' +
+  'for informational purposes and/or any type of medium, digital and/or paper, as well as in the digital ' +
+  'archives of Erasmus Student Network Italia – ESN Italia - ETS, and I acknowledge that the purpose of such ' +
+  'publications is merely informational and possibly promotional in nature.\n\n' +
+  'This release/authorization may be revoked at any time by written communication to be sent by ordinary mail ' +
+  'or e-mail to the address: info@esn.it; amministrazione@esn.it';
+
 export class ProofOfPayment extends Resource {
   key: string;
   uploadedAt: epochISOString;
@@ -81,6 +96,12 @@ export class ERSRegistration extends Resource {
   selectedSectionName: string;
   selectedOptionalTickets: string[];
   answers: { [questionId: string]: string | string[] };
+  /**
+   * Authorization to use the participant's photos and videos (see `PHOTO_VIDEO_CONSENT_TEXT`). It must be answered to
+   * register, but either answer is accepted: refusing it doesn't stand in the way of taking part. `null` means it was
+   * never answered (e.g. registrations created before it was asked), which is distinct from a refusal (`false`).
+   */
+  photoVideoConsent: boolean | null;
   status: RegistrationStatus;
   /**
    * @deprecated Superseded by the per-invoice `payments` map; kept for backward compatibility and to
@@ -128,6 +149,8 @@ export class ERSRegistration extends Resource {
     this.spotId = this.clean(x.spotId, String);
     this.selectedOptionalTickets = this.cleanArray(x.selectedOptionalTickets, String);
     this.answers = this.clean(x.answers, Object, {});
+    this.photoVideoConsent =
+      x.photoVideoConsent === undefined || x.photoVideoConsent === null ? null : Boolean(x.photoVideoConsent);
     this.status = this.clean(x.status, String, RegistrationStatus.PENDING) as RegistrationStatus;
     this.proofOfPayment = this.clean(x.proofOfPayment || x.receipt, r => new ProofOfPayment(r));
     if (x.invoiceNumber !== undefined) this.invoiceNumber = this.clean(x.invoiceNumber, Number);
@@ -200,6 +223,7 @@ export class ERSRegistration extends Resource {
     if (this.iE(this.emergencyContact?.spokenLanguages)) e.push('emergencyContact.spokenLanguages');
     if (this.iE(this.spotId)) e.push('spotId');
     if (this.iE(this.selectedSectionName)) e.push('selectedSectionName');
+    if (this.photoVideoConsent !== true && this.photoVideoConsent !== false) e.push('photoVideoConsent');
 
     if (event) {
       // Validate Spot

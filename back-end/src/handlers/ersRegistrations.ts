@@ -163,7 +163,12 @@ class ERSRegistrationsRC extends ResourceController {
     this.registration.safeLoad(this.body, oldRegistration);
     this.registration.updatedAt = new Date().toISOString();
 
-    const errors = this.registration.validate(this.managedEvent);
+    // Only the participants can give or withdraw their own photo/video consent, never a manager on their behalf.
+    const isOwner = this.registration.userId === this.galaxyUser.userId;
+    if (!isOwner) this.registration.photoVideoConsent = oldRegistration.photoVideoConsent;
+
+    let errors = this.registration.validate(this.managedEvent);
+    if (!isOwner) errors = errors.filter(e => e !== 'photoVideoConsent');
     if (errors.length) throw new HandledError(`Invalid fields: ${errors.join(', ')}`);
 
     // Reassigning the spot of an already-active registration via PUT must respect the spot capacity.

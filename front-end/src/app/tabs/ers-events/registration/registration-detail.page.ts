@@ -417,6 +417,13 @@ export class RegistrationDetailPage implements OnInit {
       .join(', ');
   }
 
+  photoVideoConsentLabel(): string {
+    const consent = this.registration?.photoVideoConsent;
+    if (consent === true) return 'COMMON.YES';
+    if (consent === false) return 'COMMON.NO';
+    return 'ERS_EVENTS.PHOTO_VIDEO_CONSENT_NOT_ANSWERED';
+  }
+
   async downloadInvoice(invoice: EventInvoice): Promise<void> {
     const payment = this.getPayment(invoice.id);
     if (!this.registration || !payment?.invoiceNumber) return;
