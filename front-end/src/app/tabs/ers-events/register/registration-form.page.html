@@ -310,12 +310,36 @@
     <ion-item [class.fieldHasError]="hasFieldAnError('privacyPolicyAccepted')">
       <ion-checkbox slot="start" labelPlacement="end" [(ngModel)]="privacyPolicyAccepted">
         <ion-label class="ion-text-wrap">
-          {{ 'ERS_EVENTS.PRIVACY_POLICY_ACCEPT' | translate }}
-          <a (click)="$event.stopPropagation(); openPrivacyPolicy()">{{ 'ERS_EVENTS.PRIVACY_POLICY_LINK' | translate }}</a> <span
-            class="obligatoryDot"> *</span>
+          {{ DATA_CONSENT_TEXT }}
+          <a (click)="$event.stopPropagation(); app.openURL(DATA_CONSENT_PRIVACY_POLICY_URL)">link</a>.
+          <span class="obligatoryDot"> *</span>
         </ion-label>
       </ion-checkbox>
     </ion-item>
+
+    <!-- Either answer is accepted, but one must be given: refusing the use of one's image doesn't prevent registering -->
+    <ion-radio-group [(ngModel)]="registration.photoVideoConsent">
+      <ion-list-header [class.fieldHasError]="hasFieldAnError('photoVideoConsent')">
+        <ion-label>
+          <h2>{{ 'ERS_EVENTS.PHOTO_VIDEO_CONSENT' | translate }} <span class="obligatoryDot">*</span></h2>
+        </ion-label>
+      </ion-list-header>
+      <ion-item lines="none">
+        <ion-label class="ion-text-wrap">
+          <p class="photoVideoConsentText">{{ PHOTO_VIDEO_CONSENT_TEXT }}</p>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-radio slot="start" labelPlacement="end" [value]="true">
+          {{ 'ERS_EVENTS.PHOTO_VIDEO_CONSENT_YES' | translate }}
+        </ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-radio slot="start" labelPlacement="end" [value]="false">
+          {{ 'ERS_EVENTS.PHOTO_VIDEO_CONSENT_NO' | translate }}
+        </ion-radio>
+      </ion-item>
+    </ion-radio-group>
 
     <ion-list-header>
       <ion-label>

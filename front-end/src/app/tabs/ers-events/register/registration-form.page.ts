@@ -1,17 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
 import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from '@idea-ionic/common';
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
 import { ERSEvent, EventInvoice, EventQuestion, QuestionType } from '@models/ersEvent.model';
-import { ERSRegistration } from '@models/ersRegistration.model';
+import {
+  DATA_CONSENT_PRIVACY_POLICY_URL,
+  DATA_CONSENT_TEXT,
+  ERSRegistration,
+  PHOTO_VIDEO_CONSENT_TEXT
+} from '@models/ersRegistration.model';
 import { Subject } from '@models/subject.model';
 import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
 import { addIcons } from 'ionicons';
 import { arrowBack, cloudUploadOutline, documentOutline, trashOutline } from 'ionicons/icons';
-import { PrivacyPolicyComponent } from '@app/common/privacy-policy/privacy-policy.component';
 import { MediaService } from '@common/media.service';
 
 
@@ -28,6 +31,9 @@ export class RegistrationFormPage implements OnInit {
   Genders = Genders;
   Pronouns = Pronouns;
   DocumentTypes = DocumentTypes;
+  DATA_CONSENT_TEXT = DATA_CONSENT_TEXT;
+  DATA_CONSENT_PRIVACY_POLICY_URL = DATA_CONSENT_PRIVACY_POLICY_URL;
+  PHOTO_VIDEO_CONSENT_TEXT = PHOTO_VIDEO_CONSENT_TEXT;
 
   privacyPolicyAccepted = false;
   codeOfConductAccepted = false;
@@ -37,7 +43,6 @@ export class RegistrationFormPage implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private modalCtrl: ModalController,
     private loading: IDEALoadingService,
     private message: IDEAMessageService,
     private t: IDEATranslationsService,
@@ -186,13 +191,6 @@ export class RegistrationFormPage implements OnInit {
     return this.event
       .getInvoices()
       .reduce((sum, inv) => sum + this.event.getInvoiceAmountForRegistration(inv, this.registration), 0);
-  }
-
-  async openPrivacyPolicy(): Promise<void> {
-    const modal = await this.modalCtrl.create({
-      component: PrivacyPolicyComponent
-    });
-    await modal.present();
   }
 
   goBack(): void {

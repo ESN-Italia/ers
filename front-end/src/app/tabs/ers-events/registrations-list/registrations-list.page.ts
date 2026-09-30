@@ -333,7 +333,8 @@ export class RegistrationsListPage implements OnInit {
       'Emergency contact name',
       'Emergency contact relationship',
       'Emergency contact phone number',
-      'Emergency contact spoken languages'
+      'Emergency contact spoken languages',
+      'Photo/video consent'
     ];
 
     // Add dynamic optional tickets to headers (escaped: names may contain commas/quotes/newlines)
@@ -388,7 +389,14 @@ export class RegistrationsListPage implements OnInit {
         this.escapeCSV(reg.emergencyContact?.name),
         this.escapeCSV(reg.emergencyContact?.relationship),
         this.escapeCSV(reg.emergencyContact?.phone),
-        this.escapeCSV(reg.emergencyContact?.spokenLanguages)
+        this.escapeCSV(reg.emergencyContact?.spokenLanguages),
+        this.escapeCSV(
+          reg.photoVideoConsent === true
+            ? this.t._('COMMON.YES')
+            : reg.photoVideoConsent === false
+              ? this.t._('COMMON.NO')
+              : ''
+        )
       ];
 
       // Add dynamic optional tickets answers
