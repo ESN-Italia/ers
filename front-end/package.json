@@ -1,6 +1,6 @@
 {
   "name": "ers-esn-italia-front-end",
-  "version": "4.0.1",
+  "version": "4.0.4",
   "author": "Commissione Informatica",
   "scripts": {
     "ng": "ng",
