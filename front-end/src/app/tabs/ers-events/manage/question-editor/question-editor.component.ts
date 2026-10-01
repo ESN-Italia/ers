@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { IDEATranslationsModule } from '@idea-ionic/common';
 
-import { ERSEvent, EventQuestion, QuestionType } from '@models/ersEvent.model';
+import { ERSEvent, EventQuestion, EventQuestionOption, QuestionType } from '@models/ersEvent.model';
 import { addIcons } from 'ionicons';
 import { addCircleOutline, checkmark, close, trashOutline } from 'ionicons/icons';
 
@@ -23,7 +23,8 @@ export class QuestionEditorComponent implements OnInit {
   localQuestion: EventQuestion;
   isEdit = false;
   newOption = '';
-  conditionType: 'none' | 'spot' | 'question' | 'ticket' = 'none';
+  newOptionPrice: number = null;
+  conditionType: 'none' | 'spot' | 'question' = 'none';
 
   QuestionType = QuestionType;
 
@@ -33,8 +34,8 @@ export class QuestionEditorComponent implements OnInit {
   ngOnInit(): void {
     if (this.question) {
       this.isEdit = true;
-      // Copy to avoid live editing the original object before clicking "Save"
-      this.localQuestion = new EventQuestion({ ...this.question });
+      // Deep copy to avoid live editing the original object (and its options) before clicking "Save"
+      this.localQuestion = new EventQuestion(JSON.parse(JSON.stringify(this.question)));
       if (!this.localQuestion.options) {
         this.localQuestion.options = [];
       }
@@ -43,8 +44,6 @@ export class QuestionEditorComponent implements OnInit {
         this.conditionType = 'spot';
       } else if (this.localQuestion.dependsOnQuestionId) {
         this.conditionType = 'question';
-      } else if (this.localQuestion.optionalTicketIdCondition) {
-        this.conditionType = 'ticket';
       }
     } else {
       this.localQuestion = new EventQuestion({
@@ -55,20 +54,36 @@ export class QuestionEditorComponent implements OnInit {
         required: false
       });
     }
+    if (!this.localQuestion.invoiceId) this.localQuestion.invoiceId = this.event.getPrimaryInvoice()?.id;
   }
 
   get showOptions(): boolean {
-    return this.localQuestion.type === QuestionType.RADIOBOX || this.localQuestion.type === QuestionType.CHECKBOX;
+    return this.localQuestion.hasOptions();
+  }
+
+  /**
+   * Answers store the option's text, so two options can't share it.
+   */
+  get canAddOption(): boolean {
+    const text = this.newOption?.trim();
+    return !!text && !this.localQuestion.options?.some(o => o.text === text) && !(Number(this.newOptionPrice) < 0);
   }
 
   addOption(): void {
-    if (this.newOption && this.newOption.trim()) {
-      if (!this.localQuestion.options) {
-        this.localQuestion.options = [];
-      }
-      this.localQuestion.options.push(this.newOption.trim());
-      this.newOption = '';
-    }
+    if (!this.canAddOption) return;
+    if (!this.localQuestion.options) this.localQuestion.options = [];
+    this.localQuestion.options.push(
+      new EventQuestionOption({ text: this.newOption.trim(), price: Number(this.newOptionPrice) || 0 })
+    );
+    this.newOption = '';
+    this.newOptionPrice = null;
+  }
+
+  /**
+   * The invoice the option prices go to; shown only when some option has a price.
+   */
+  get showInvoice(): boolean {
+    return this.localQuestion.hasPrices() && this.event.getInvoices().length > 1;
   }
 
   removeOption(index: number): void {
@@ -81,7 +96,6 @@ export class QuestionEditorComponent implements OnInit {
       this.localQuestion.dependsOnQuestionId = undefined;
       this.localQuestion.dependsOnAnswer = undefined;
     }
-    if (this.conditionType !== 'ticket') this.localQuestion.optionalTicketIdCondition = undefined;
   }
 
   get availableParentQuestions(): EventQuestion[] {
@@ -93,12 +107,12 @@ export class QuestionEditorComponent implements OnInit {
 
   get parentHasOptions(): boolean {
     const parent = this.event.questions.find(q => q.id === this.localQuestion.dependsOnQuestionId);
-    return parent && (parent.type === QuestionType.RADIOBOX || parent.type === QuestionType.CHECKBOX);
+    return parent?.hasOptions() ?? false;
   }
 
   get parentOptions(): string[] {
     const parent = this.event.questions.find(q => q.id === this.localQuestion.dependsOnQuestionId);
-    return parent ? parent.options || [] : [];
+    return (parent?.options ?? []).map(o => o.text);
   }
 
   onParentQuestionChange(): void {
@@ -108,19 +122,30 @@ export class QuestionEditorComponent implements OnInit {
   isValid(): boolean {
     if (!this.localQuestion.text || !this.localQuestion.type) return false;
     if (this.showOptions && (!this.localQuestion.options || this.localQuestion.options.length === 0)) return false;
+    if (this.showOptions && this.localQuestion.options.some(o => !(Number(o.price) >= 0))) return false;
+    const max = this.localQuestion.maxSelections;
+    if (this.localQuestion.type === QuestionType.CHECKBOX && max !== undefined && max !== null && (!Number.isInteger(Number(max)) || Number(max) < 1)) return false;
     if (this.localQuestion.type === QuestionType.FILE && this.localQuestion.maxFileSizeMB !== undefined && this.localQuestion.maxFileSizeMB <= 0) return false;
     
     if (this.conditionType === 'spot' && !this.localQuestion.spotIdCondition) return false;
     if (this.conditionType === 'question' && (!this.localQuestion.dependsOnQuestionId || !this.localQuestion.dependsOnAnswer)) return false;
-    if (this.conditionType === 'ticket' && !this.localQuestion.optionalTicketIdCondition) return false;
 
     return true;
   }
 
   save(): void {
-    if (this.isValid()) {
-      this.modalCtrl.dismiss(this.localQuestion);
+    if (!this.isValid()) return;
+    const q = this.localQuestion;
+    if (!q.hasOptions()) {
+      q.options = [];
+      delete q.description;
     }
+    q.options.forEach(o => (o.price = Number(o.price) || 0));
+    if (q.type !== QuestionType.CHECKBOX || !q.maxSelections) delete q.maxSelections;
+    else q.maxSelections = Number(q.maxSelections);
+    // With no priced option the invoice is meaningless; a single invoice is the primary anyway.
+    if (!q.hasPrices() || !this.showInvoice) delete q.invoiceId;
+    this.modalCtrl.dismiss(new EventQuestion(q));
   }
 
   close(): void {

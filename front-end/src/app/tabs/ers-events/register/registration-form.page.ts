@@ -74,7 +74,6 @@ export class RegistrationFormPage implements OnInit {
 
       if (existing) {
         this.registration = existing;
-        if (!this.registration.selectedOptionalTickets) this.registration.selectedOptionalTickets = [];
         if (!this.registration.selectedSectionName && this.registration.subject?.section) {
           this.registration.selectedSectionName = this.registration.subject.section;
         }
@@ -86,8 +85,7 @@ export class RegistrationFormPage implements OnInit {
           document: { type: '', number: '', issuedDate: '', issuedBy: '', validUntil: '' },
           specialAssistance: '',
           emergencyContact: { name: '', relationship: '', phone: '', spokenLanguages: '' },
-          answers: {},
-          selectedOptionalTickets: []
+          answers: {}
         });
 
         if (this.registration && this.registration.subject) {
@@ -105,10 +103,16 @@ export class RegistrationFormPage implements OnInit {
         }
       }
 
-      // Initialize missing answers as arrays for checkboxes
+      // Initialize missing answers as arrays for checkboxes, and drop choices of options that no longer exist
       this.event.questions?.forEach(q => {
         if (q.type === QuestionType.CHECKBOX && !Array.isArray(this.registration.answers[q.id])) {
           this.registration.answers[q.id] = this.registration.answers[q.id] ? (this.registration.answers[q.id] as string).split(',') : [];
+        }
+        if (q.hasOptions()) {
+          const texts = q.options.map(o => o.text);
+          const answer = this.registration.answers[q.id];
+          if (Array.isArray(answer)) this.registration.answers[q.id] = answer.filter(a => texts.includes(a));
+          else if (answer !== undefined && !texts.includes(answer)) delete this.registration.answers[q.id];
         }
       });
 
@@ -154,27 +158,28 @@ export class RegistrationFormPage implements OnInit {
     return Array.isArray(answers) && answers.includes(option);
   }
 
-  toggleCheckbox(questionId: string, option: string): void {
-    if (!Array.isArray(this.registration.answers[questionId])) {
-      this.registration.answers[questionId] = [];
+  toggleCheckbox(question: EventQuestion, option: string): void {
+    if (!Array.isArray(this.registration.answers[question.id])) {
+      this.registration.answers[question.id] = [];
     }
-    const answers = this.registration.answers[questionId] as string[];
+    const answers = this.registration.answers[question.id] as string[];
     const index = answers.indexOf(option);
-    if (index === -1) answers.push(option);
-    else answers.splice(index, 1);
+    if (index !== -1) answers.splice(index, 1);
+    else if (!question.maxSelections || answers.length < question.maxSelections) answers.push(option);
   }
 
-  isOptionalTicketSelected(ticketId: string): boolean {
-    return this.registration.selectedOptionalTickets?.includes(ticketId) || false;
+  /**
+   * Once a question's maximum of choices is reached, the options not chosen can't be ticked.
+   */
+  isCheckboxDisabled(question: EventQuestion, option: string): boolean {
+    if (!question.maxSelections) return false;
+    const answers = this.registration.answers[question.id];
+    const chosen = Array.isArray(answers) ? answers : [];
+    return !chosen.includes(option) && chosen.length >= question.maxSelections;
   }
 
-  toggleOptionalTicket(ticketId: string): void {
-    if (!this.registration.selectedOptionalTickets) {
-      this.registration.selectedOptionalTickets = [];
-    }
-    const index = this.registration.selectedOptionalTickets.indexOf(ticketId);
-    if (index === -1) this.registration.selectedOptionalTickets.push(ticketId);
-    else this.registration.selectedOptionalTickets.splice(index, 1);
+  hasQuestionError(question: EventQuestion): boolean {
+    return this.hasFieldAnError(`answers[${question.id}] required`) || this.hasFieldAnError(`answers[${question.id}] invalid`);
   }
 
   getApplicableInvoices(): EventInvoice[] {

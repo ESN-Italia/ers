@@ -229,13 +229,6 @@ export class RegistrationDetailPage implements OnInit {
     return this.event?.spots?.find(s => s.id === this.registration?.spotId)?.name || 'Unknown Spot';
   }
 
-  getOptionalTicketsNames(): string {
-    if (!this.registration?.selectedOptionalTickets?.length) return '-';
-    return this.registration.selectedOptionalTickets
-      .map(id => this.event?.optionalTickets?.find(t => t.id === id)?.name || 'Unknown Ticket')
-      .join(', ');
-  }
-
   getTotalPrice(): number {
     if (!this.event || !this.registration) return 0;
     return this.event
@@ -588,16 +581,10 @@ export class RegistrationDetailPage implements OnInit {
       tableBody.push([product.name, `${(product.price || 0).toFixed(2)} €`]);
     }
 
-    // Optional tickets assigned to this invoice (unassigned tickets fall on the primary).
-    if (this.registration.selectedOptionalTickets?.length) {
-      for (const ticketId of this.registration.selectedOptionalTickets) {
-        const ticket = this.event?.optionalTickets?.find(t => t.id === ticketId);
-        if (!ticket) continue;
-        const targetInvoiceId = ticket.invoiceId || primary?.id;
-        if (targetInvoiceId !== invoice.id) continue;
-        const desc = ticket.description ? ` (${ticket.description})` : '';
-        tableBody.push([`Ticket: ${ticket.name}${desc}`, `${(ticket.price || 0).toFixed(2)} €`]);
-      }
+    // The priced options chosen in the questions billed to this invoice.
+    for (const { question, option } of this.event.getChosenPricedOptions(invoice, this.registration)) {
+      const label = option.text === question.text ? question.text : `${question.text}: ${option.text}`;
+      tableBody.push([label, `${option.price.toFixed(2)} €`]);
     }
     return tableBody;
   }

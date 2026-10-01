@@ -10,6 +10,19 @@ import { User } from './user.model';
 export const DEFAULT_INVOICE_ID = 'default';
 export const DEFAULT_INVOICE_NAME = 'Payment';
 
+/**
+ * What a registration answered, as far as the event needs to know to compute visibility and fees.
+ */
+export interface RegistrationChoices {
+  spotId?: string;
+  answers?: { [questionId: string]: string | string[] };
+  /**
+   * @deprecated Optional tickets are now questions; kept to read registrations created before (see
+   * `ERSEvent.migrateLegacyTicketSelections`).
+   */
+  selectedOptionalTickets?: string[];
+}
+
 export enum EventType {
   NationalPlatform = 'NationalPlatform',
   NationalSchool = 'NationalSchool',
@@ -28,11 +41,14 @@ export class ERSEvent extends Resource {
   invoiceDueDate: epochISOString;
   timezone: string;
   spots: EventSpot[];
-  optionalTickets: EventOptionalTicket[];
+  /**
+   * The questions asked on registration. The options of choice questions can carry a price, billed to the
+   * question's invoice: this is also how optional tickets are modelled (see `loadLegacyOptionalTickets`).
+   */
   questions: EventQuestion[];
   /**
    * The invoices to bill for this event. There is always exactly one primary invoice (it carries the
-   * spot fee); additional invoices collect their own standard products and associated optional tickets.
+   * spot fee); additional invoices collect their own standard products and the priced options billed to them.
    */
   invoices: EventInvoice[];
   /**
@@ -66,8 +82,8 @@ export class ERSEvent extends Resource {
     this.invoiceDueDate = this.clean(x.invoiceDueDate, d => new Date(d).toISOString());
     this.timezone = this.clean(x.timezone, String);
     this.spots = this.cleanArray(x.spots, s => new EventSpot(s));
-    this.optionalTickets = this.cleanArray(x.optionalTickets, t => new EventOptionalTicket(t));
     this.questions = this.cleanArray(x.questions, q => new EventQuestion(q));
+    this.loadLegacyOptionalTickets(x.optionalTickets, x.questions);
     this.additionalManagersIds = this.cleanArray(x.additionalManagersIds, String).map(x => x.toLowerCase());
     this.paymentInfo = this.clean(x.paymentInfo, String);
     this.createdAt = this.clean(x.createdAt, d => new Date(d).toISOString(), new Date().toISOString());
@@ -134,10 +150,6 @@ export class ERSEvent extends Resource {
       const errors = s.validate();
       if (errors.length) e.push(`spots[${i}]`);
     });
-    this.optionalTickets?.forEach((t, i) => {
-      const errors = t.validate();
-      if (errors.length) e.push(`optionalTickets[${i}]`);
-    });
     this.questions?.forEach((q, i) => {
       const errors = q.validate();
       if (errors.length) e.push(`questions[${i}]`);
@@ -148,12 +160,48 @@ export class ERSEvent extends Resource {
     this.invoices?.forEach((inv, i) => {
       if (inv.validate().length) e.push(`invoices[${i}]`);
     });
-    // Every optional-ticket invoice reference must resolve to an existing invoice.
-    this.optionalTickets?.forEach((t, i) => {
-      if (t.invoiceId && !this.invoices?.find(inv => inv.id === t.invoiceId)) e.push(`optionalTickets[${i}].invoiceId`);
+    // Every question's invoice reference must resolve to an existing invoice.
+    this.questions?.forEach((q, i) => {
+      if (q.invoiceId && !this.invoices?.find(inv => inv.id === q.invoiceId)) e.push(`questions[${i}].invoiceId`);
     });
 
     return e;
+  }
+
+  /**
+   * Optional tickets used to be a list of their own; they are now questions whose options carry a price. Each legacy
+   * ticket becomes a checkbox question with the ticket's id and a single option named after it, placed before the
+   * other questions (so that questions can depend on it); a question shown "only if ticket X is selected" becomes a
+   * question that depends on that option. Saving the event persists the conversion.
+   */
+  private loadLegacyOptionalTickets(rawTickets: any[], rawQuestions: any[]): void {
+    const tickets = (Array.isArray(rawTickets) ? rawTickets : []).filter(t => t?.id);
+    if (!tickets.length) return;
+
+    for (const rawQuestion of Array.isArray(rawQuestions) ? rawQuestions : []) {
+      if (!rawQuestion?.optionalTicketIdCondition) continue;
+      const question = this.questions.find(q => q.id === String(rawQuestion.id));
+      if (!question || question.dependsOnQuestionId) continue;
+      const ticket = tickets.find(t => String(t.id) === String(rawQuestion.optionalTicketIdCondition));
+      question.dependsOnQuestionId = String(rawQuestion.optionalTicketIdCondition);
+      question.dependsOnAnswer = ticket ? String(ticket.name ?? '') : '';
+    }
+
+    const ticketQuestions = tickets
+      .filter(t => !this.questions.some(q => q.id === String(t.id)))
+      .map(
+        t =>
+          new EventQuestion({
+            id: t.id,
+            text: t.name,
+            description: t.description,
+            type: QuestionType.CHECKBOX,
+            options: [{ text: t.name, price: t.price }],
+            invoiceId: t.invoiceId,
+            required: false
+          })
+      );
+    this.questions = [...ticketQuestions, ...this.questions];
   }
 
   canUserManage(user: User): boolean {
@@ -192,15 +240,69 @@ export class ERSEvent extends Resource {
     return this.invoices?.find(i => i.isPrimary) ?? this.invoices?.[0];
   }
   /**
+   * The invoice a question's option prices are billed to: its own, if it still exists, otherwise the primary.
+   */
+  getQuestionInvoiceId(question: EventQuestion): string {
+    const own = question.invoiceId && this.invoices?.find(inv => inv.id === question.invoiceId);
+    return own ? own.id : this.getPrimaryInvoice()?.id;
+  }
+  /**
+   * The answer a registration gave to a question. A legacy optional-ticket selection reads as the answer to the
+   * question that ticket became.
+   */
+  getAnswer(question: EventQuestion, reg: RegistrationChoices): string | string[] | undefined {
+    const answer = reg.answers?.[question.id];
+    if (answer !== undefined) return answer;
+    if (reg.selectedOptionalTickets?.includes(question.id) && question.options?.length) return [question.options[0].text];
+    return undefined;
+  }
+  /**
+   * Whether a question applies to a registration, given its spot and the answers it depends on.
+   */
+  isQuestionVisible(question: EventQuestion, reg: RegistrationChoices): boolean {
+    if (question.spotIdCondition && reg.spotId !== question.spotIdCondition) return false;
+    if (question.dependsOnQuestionId) {
+      const parent = this.questions?.find(q => q.id === question.dependsOnQuestionId);
+      const parentAnswer = parent ? this.getAnswer(parent, reg) : reg.answers?.[question.dependsOnQuestionId];
+      if (Array.isArray(parentAnswer)) {
+        if (!parentAnswer.includes(question.dependsOnAnswer)) return false;
+      } else if (parentAnswer !== question.dependsOnAnswer) {
+        return false;
+      }
+    }
+    return true;
+  }
+  /**
+   * The options a registration chose for a choice question (none for other question types).
+   */
+  getSelectedOptions(question: EventQuestion, reg: RegistrationChoices): EventQuestionOption[] {
+    if (!question.hasOptions()) return [];
+    const answer = this.getAnswer(question, reg);
+    const texts = Array.isArray(answer) ? answer : answer ? [answer] : [];
+    return (question.options ?? []).filter(o => texts.includes(o.text));
+  }
+  /**
+   * The priced options a registration chose that are billed to a given invoice. Questions that don't apply to the
+   * registration are never billed, even if they carry a stale answer.
+   */
+  getChosenPricedOptions(
+    invoice: EventInvoice,
+    reg: RegistrationChoices
+  ): { question: EventQuestion; option: EventQuestionOption }[] {
+    const chosen: { question: EventQuestion; option: EventQuestionOption }[] = [];
+    for (const question of this.questions ?? []) {
+      if (this.getQuestionInvoiceId(question) !== invoice.id || !this.isQuestionVisible(question, reg)) continue;
+      for (const option of this.getSelectedOptions(question, reg)) if (option.price > 0) chosen.push({ question, option });
+    }
+    return chosen;
+  }
+  /**
    * Compute what a given registration owes on a specific invoice:
    *  - the spot fee, only on the primary invoice;
    *  - all of the invoice's standard products (mandatory for everyone);
-   *  - the selected optional tickets assigned to this invoice (unassigned tickets fall on the primary).
+   *  - the price of every chosen option of the questions billed to this invoice.
    */
-  getInvoiceAmountForRegistration(
-    invoice: EventInvoice,
-    reg: { spotId?: string; selectedOptionalTickets?: string[] }
-  ): number {
+  getInvoiceAmountForRegistration(invoice: EventInvoice, reg: RegistrationChoices): number {
     let total = 0;
     const primary = this.getPrimaryInvoice();
 
@@ -211,12 +313,7 @@ export class ERSEvent extends Resource {
 
     for (const p of invoice.products ?? []) total += p.price || 0;
 
-    for (const ticketId of reg.selectedOptionalTickets ?? []) {
-      const ticket = this.optionalTickets?.find(t => t.id === ticketId);
-      if (!ticket) continue;
-      const targetInvoiceId = ticket.invoiceId || primary?.id;
-      if (targetInvoiceId === invoice.id) total += ticket.price || 0;
-    }
+    for (const { option } of this.getChosenPricedOptions(invoice, reg)) total += option.price;
 
     return total;
   }
@@ -224,36 +321,20 @@ export class ERSEvent extends Resource {
    * The invoices a registration actually has to pay (amount > 0). Used to know which proofs are required
    * and, once all are confirmed, to mark the registration CONFIRMED.
    */
-  getApplicableInvoices(reg: { spotId?: string; selectedOptionalTickets?: string[] }): EventInvoice[] {
+  getApplicableInvoices(reg: RegistrationChoices): EventInvoice[] {
     return this.getInvoices().filter(inv => this.getInvoiceAmountForRegistration(inv, reg) > 0);
   }
-}
-
-export class EventOptionalTicket extends Resource {
-  id: string;
-  name: string;
-  description?: string;
-  price: number;
   /**
-   * The invoice this ticket's price is billed to. If unset, it falls on the primary invoice.
+   * Rewrite a registration's legacy optional-ticket selections as answers to the questions those tickets became.
    */
-  invoiceId?: string;
-
-  load(x: any): void {
-    super.load(x);
-    this.id = this.clean(x.id, String);
-    this.name = this.clean(x.name, String);
-    this.description = this.clean(x.description, String);
-    this.price = this.clean(x.price, Number);
-    this.invoiceId = this.clean(x.invoiceId, String);
-  }
-
-  validate(): string[] {
-    const e = [];
-    if (this.iE(this.id)) e.push('id');
-    if (this.iE(this.name)) e.push('name');
-    if (this.price < 0) e.push('price');
-    return e;
+  migrateLegacyTicketSelections(reg: RegistrationChoices): void {
+    if (!reg.selectedOptionalTickets) return;
+    if (!reg.answers) reg.answers = {};
+    for (const ticketId of reg.selectedOptionalTickets) {
+      const question = this.questions?.find(q => q.id === ticketId);
+      if (question?.options?.length && reg.answers[ticketId] === undefined) reg.answers[ticketId] = [question.options[0].text];
+    }
+    delete reg.selectedOptionalTickets;
   }
 }
 
@@ -285,7 +366,7 @@ export class EventInvoiceProduct extends Resource {
 /**
  * An invoice to bill for the event. Each invoice has its own recipient/bank details (`paymentInfo`),
  * its own numbering series (see `ERSEvent.invoiceCounters`), its own standard products, and can have
- * optional tickets assigned to it. Exactly one invoice per event is `isPrimary` (it carries the spot fee).
+ * the priced options of questions billed to it. Exactly one invoice per event is `isPrimary` (it carries the spot fee).
  */
 export class EventInvoice extends Resource {
   id: string;
@@ -358,38 +439,96 @@ export enum QuestionType {
   FILE = 'file'
 }
 
+/**
+ * An option of a choice question. Answers store the option's text, so texts are unique within a question.
+ */
+export class EventQuestionOption extends Resource {
+  text: string;
+  /**
+   * What choosing this option adds to the fee, on the question's invoice. 0 for a free option.
+   */
+  price: number;
+
+  load(x: any): void {
+    super.load(x);
+    this.text = this.clean(x.text, String);
+    this.price = this.clean(x.price, Number, 0);
+  }
+
+  validate(): string[] {
+    const e = [];
+    if (this.iE(this.text)) e.push('text');
+    if (!(this.price >= 0)) e.push('price');
+    return e;
+  }
+}
+
 export class EventQuestion extends Resource {
   id: string;
   text: string;
+  description?: string;
   type: QuestionType;
-  options: string[]; // For radiobox and checkbox
+  options: EventQuestionOption[]; // For radiobox and checkbox
   required: boolean;
   maxFileSizeMB?: number; // Maximum allowed file size in MB for QuestionType.FILE
+  /**
+   * For QuestionType.CHECKBOX: the most options a participant can choose. Unset for no limit.
+   */
+  maxSelections?: number;
+  /**
+   * The invoice the options' prices are billed to. If unset (or no longer existing), they fall on the primary.
+   */
+  invoiceId?: string;
   spotIdCondition?: string; // If set, this question is shown only if this spot is selected
   dependsOnQuestionId?: string; // If set, this question depends on another question
   dependsOnAnswer?: string; // The specific answer required for the dependency
-  optionalTicketIdCondition?: string; // If set, this question is shown only if this optional ticket is selected
 
   load(x: any): void {
     super.load(x);
     this.id = this.clean(x.id, String);
     this.text = this.clean(x.text, String);
+    this.description = this.clean(x.description, String);
     this.type = this.clean(x.type, String, QuestionType.TEXT) as QuestionType;
-    this.options = this.cleanArray(x.options, String);
+    // Options used to be plain texts: read those as free options.
+    this.options = this.cleanArray(x.options, o => new EventQuestionOption(typeof o === 'string' ? { text: o } : o));
     this.required = this.clean(x.required, Boolean, false);
     if (x.maxFileSizeMB !== undefined) this.maxFileSizeMB = this.clean(x.maxFileSizeMB, Number);
+    if (x.maxSelections !== undefined && x.maxSelections !== null && x.maxSelections !== '')
+      this.maxSelections = this.clean(x.maxSelections, Number);
+    this.invoiceId = this.clean(x.invoiceId, String);
     this.spotIdCondition = this.clean(x.spotIdCondition, String);
     this.dependsOnQuestionId = this.clean(x.dependsOnQuestionId, String);
     this.dependsOnAnswer = this.clean(x.dependsOnAnswer, String);
-    this.optionalTicketIdCondition = this.clean(x.optionalTicketIdCondition, String);
   }
 
   validate(): string[] {
     const e = [];
     if (this.iE(this.id)) e.push('id');
     if (this.iE(this.text)) e.push('text');
-    if (this.type !== QuestionType.TEXT && this.type !== QuestionType.DATE && this.type !== QuestionType.TIME && this.type !== QuestionType.FILE && (!this.options || this.options.length === 0)) e.push('options');
+    if (this.hasOptions()) {
+      if (!this.options?.length) e.push('options');
+      if (this.options?.some(o => o.validate().length)) e.push('options');
+      const texts = (this.options ?? []).map(o => o.text);
+      if (new Set(texts).size !== texts.length) e.push('options');
+    }
+    if (this.type === QuestionType.CHECKBOX && this.maxSelections !== undefined) {
+      if (!Number.isInteger(this.maxSelections) || this.maxSelections < 1) e.push('maxSelections');
+    }
     if (this.type === QuestionType.FILE && this.maxFileSizeMB !== undefined && this.maxFileSizeMB <= 0) e.push('maxFileSizeMB');
     return e;
+  }
+
+  /**
+   * Whether the question is answered by choosing among its options.
+   */
+  hasOptions(): boolean {
+    return this.type === QuestionType.RADIOBOX || this.type === QuestionType.CHECKBOX;
+  }
+
+  /**
+   * Whether any of the question's options adds to the fee.
+   */
+  hasPrices(): boolean {
+    return this.hasOptions() && (this.options ?? []).some(o => o.price > 0);
   }
 }

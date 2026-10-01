@@ -5,7 +5,7 @@ import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from 
 
 import { AppService } from '@app/app.service';
 import { ERSEventsService } from '../ers-events.service';
-import { ERSEvent } from '@models/ersEvent.model';
+import { ERSEvent, EventQuestion } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { addIcons } from 'ionicons';
 import { arrowBack, calendarSharp, create, listOutline, locationSharp } from 'ionicons/icons';
@@ -70,6 +70,13 @@ export class EventDetailPage implements OnInit {
 
   async manage(): Promise<void> {
     this.app.goToInTabs(['ers-events', this.eventId, 'manage']);
+  }
+
+  /**
+   * The questions with options that add to the fee, shown so that prices are known before registering.
+   */
+  get pricedQuestions(): EventQuestion[] {
+    return this.event?.questions?.filter(q => q.hasPrices()) ?? [];
   }
 
   goBack(): void {

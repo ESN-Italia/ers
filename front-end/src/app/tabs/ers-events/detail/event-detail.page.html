@@ -52,16 +52,19 @@
       </ion-item>
     </ion-list>
 
-    <ion-list class="aList">
+    <ion-list class="aList" *ngIf="pricedQuestions.length">
       <ion-list-header>
         <ion-label>
-          <h2>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' | translate }}</h2>
+          <h2>{{ 'ERS_EVENTS.OPTIONAL_EXTRAS' | translate }}</h2>
         </ion-label>
       </ion-list-header>
-      <ion-item *ngFor="let ticket of event.optionalTickets">
-        <ion-label>
-          <h3>{{ ticket.name }}</h3>
-          <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price | currency:'EUR' }} | {{ ticket.description }}</p>
+      <ion-item *ngFor="let question of pricedQuestions">
+        <ion-label class="ion-text-wrap">
+          <h3>{{ question.text }}</h3>
+          <p *ngIf="question.description">{{ question.description }}</p>
+          <ng-container *ngFor="let opt of question.options">
+            <p *ngIf="opt.price > 0">{{ opt.text }}: {{ opt.price | currency:'EUR' }}</p>
+          </ng-container>
         </ion-label>
       </ion-item>
     </ion-list>

@@ -13,7 +13,6 @@ import { DatetimeWithTimezoneStandaloneComponent } from '@common/datetimeWithTim
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
 import { BulkDeleteComponent } from './bulk-delete/bulk-delete.component';
 import { InvoiceEditorComponent } from './invoice-editor/invoice-editor.component';
-import { OptionalTicketEditorComponent } from './optional-ticket-editor/optional-ticket-editor.component';
 
 @NgModule({
   imports: [
@@ -27,8 +26,7 @@ import { OptionalTicketEditorComponent } from './optional-ticket-editor/optional
     DatetimeWithTimezoneStandaloneComponent,
     QuestionEditorComponent,
     BulkDeleteComponent,
-    InvoiceEditorComponent,
-    OptionalTicketEditorComponent
+    InvoiceEditorComponent
   ],
   declarations: [ManageEventPage]
 })
