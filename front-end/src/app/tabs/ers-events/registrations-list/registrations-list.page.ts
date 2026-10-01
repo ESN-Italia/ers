@@ -107,26 +107,9 @@ export class RegistrationsListPage implements OnInit {
     return this.event?.spots?.find(s => s.id === spotId)?.name || 'Unknown';
   }
 
-  getOptionalTicketsNames(reg: ERSRegistration): string {
-    if (!reg?.selectedOptionalTickets?.length) return '';
-    return reg.selectedOptionalTickets
-      .map(id => this.event?.optionalTickets?.find(t => t.id === id)?.name || 'Unknown')
-      .join(', ');
-  }
-
   getTotalPrice(reg: ERSRegistration): number {
-    let total = 0;
-    if (reg?.spotId) {
-      const spot = this.event?.spots?.find(s => s.id === reg.spotId);
-      if (spot && spot.price) total += spot.price;
-    }
-    if (reg?.selectedOptionalTickets?.length) {
-      for (const ticketId of reg.selectedOptionalTickets) {
-        const ticket = this.event?.optionalTickets?.find(t => t.id === ticketId);
-        if (ticket && ticket.price) total += ticket.price;
-      }
-    }
-    return total;
+    if (!this.event || !reg) return 0;
+    return this.event.getInvoices().reduce((sum, inv) => sum + this.event.getInvoiceAmountForRegistration(inv, reg), 0);
   }
 
   getUserName(reg: ERSRegistration): string {
@@ -337,10 +320,6 @@ export class RegistrationsListPage implements OnInit {
       'Photo/video consent'
     ];
 
-    // Add dynamic optional tickets to headers (escaped: names may contain commas/quotes/newlines)
-    const dynamicOptionalTickets = this.event?.optionalTickets || [];
-    dynamicOptionalTickets.forEach(t => headers.push(this.escapeCSV(t.name)));
-
     // Add dynamic questions to headers (escaped)
     const dynamicQuestions = this.event?.questions || [];
     dynamicQuestions.forEach(q => headers.push(this.escapeCSV(q.text)));
@@ -398,12 +377,6 @@ export class RegistrationsListPage implements OnInit {
               : ''
         )
       ];
-
-      // Add dynamic optional tickets answers
-      dynamicOptionalTickets.forEach(t => {
-        const hasTicket = reg.selectedOptionalTickets?.includes(t.id);
-        row.push(hasTicket ? this.t._('COMMON.YES') : this.t._('COMMON.NO'));
-      });
 
       // Add dynamic answers
       dynamicQuestions.forEach(q => {

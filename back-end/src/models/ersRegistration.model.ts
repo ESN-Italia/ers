@@ -1,6 +1,6 @@
 import { epochISOString, Resource } from 'idea-toolbox';
 
-import { ERSEvent, DEFAULT_INVOICE_ID } from './ersEvent.model';
+import { ERSEvent, DEFAULT_INVOICE_ID, EventQuestion, QuestionType } from './ersEvent.model';
 import { Subject } from './subject.model';
 import { isValidPhone } from './utils';
 
@@ -109,7 +109,11 @@ export class ERSRegistration extends Resource {
   };
   spotId: string;
   selectedSectionName: string;
-  selectedOptionalTickets: string[];
+  /**
+   * @deprecated Optional tickets are now questions with priced options: their selections are answers. Only read from
+   * registrations created before, and rewritten as answers by `ERSEvent.migrateLegacyTicketSelections`.
+   */
+  selectedOptionalTickets?: string[];
   answers: { [questionId: string]: string | string[] };
   /**
    * Authorization to use the participant's photos and videos (see `PHOTO_VIDEO_CONSENT_TEXT`). It must be answered to
@@ -162,7 +166,7 @@ export class ERSRegistration extends Resource {
     });
 
     this.spotId = this.clean(x.spotId, String);
-    this.selectedOptionalTickets = this.cleanArray(x.selectedOptionalTickets, String);
+    if (x.selectedOptionalTickets?.length) this.selectedOptionalTickets = this.cleanArray(x.selectedOptionalTickets, String);
     this.answers = this.clean(x.answers, Object, {});
     // Anything but a real boolean (e.g. the string "false") must not be read as a consent: it stays unanswered.
     this.photoVideoConsent = x.photoVideoConsent === true || x.photoVideoConsent === false ? x.photoVideoConsent : null;
@@ -192,7 +196,6 @@ export class ERSRegistration extends Resource {
     }
     this.createdAt = this.clean(x.createdAt, d => new Date(d).toISOString(), new Date().toISOString());
     if (x.updatedAt) this.updatedAt = this.clean(x.updatedAt, d => new Date(d).toISOString());
-    if (!this.selectedOptionalTickets) this.selectedOptionalTickets = [];
   }
 
   safeLoad(newData: any, safeData: any): void {
@@ -245,37 +248,33 @@ export class ERSRegistration extends Resource {
       const spot = event.spots?.find(s => s.id === this.spotId);
       if (!spot) e.push('invalid spotId');
 
-      // Validate Optional Tickets
-      if (this.selectedOptionalTickets && this.selectedOptionalTickets.length) {
-        for (const ticketId of this.selectedOptionalTickets) {
-          if (!event.optionalTickets?.find(t => t.id === ticketId)) {
-            e.push(`invalid optional ticket: ${ticketId}`);
-          }
-        }
-      }
-
       // Validate Answers
       event.questions?.forEach(q => {
-        if (this.shouldShowQuestion(q, event) && q.required && this.iE(this.answers[q.id])) {
-          e.push(`answers[${q.id}] required`);
-        }
+        if (!this.shouldShowQuestion(q, event)) return;
+        if (q.required && this.iE(this.answers[q.id])) e.push(`answers[${q.id}] required`);
+        else if (q.hasOptions() && !this.isValidChoice(q)) e.push(`answers[${q.id}] invalid`);
       });
     }
 
     return e;
   }
 
-  shouldShowQuestion(q: any, event: ERSEvent): boolean {
-    if (q.spotIdCondition && this.spotId !== q.spotIdCondition) return false;
-    if (q.optionalTicketIdCondition && !this.selectedOptionalTickets?.includes(q.optionalTicketIdCondition)) return false;
-    if (q.dependsOnQuestionId) {
-      const parentAnswer = this.answers[q.dependsOnQuestionId];
-      if (Array.isArray(parentAnswer)) {
-        if (!parentAnswer.includes(q.dependsOnAnswer)) return false;
-      } else if (parentAnswer !== q.dependsOnAnswer) {
-        return false;
-      }
-    }
+  shouldShowQuestion(q: EventQuestion, event: ERSEvent): boolean {
+    return event.isQuestionVisible(q, this);
+  }
+
+  /**
+   * An answer to a choice question can only pick the question's own options (the fee is computed from them), a single
+   * one for a radiobox and at most `maxSelections` for a checkbox. An unanswered question is valid here.
+   */
+  private isValidChoice(q: EventQuestion): boolean {
+    const answer = this.answers[q.id];
+    if (answer === undefined || answer === null || answer === '') return true;
+    if (q.type === QuestionType.RADIOBOX && typeof answer !== 'string') return false;
+    const texts = Array.isArray(answer) ? answer : [answer];
+    if (new Set(texts).size !== texts.length) return false;
+    if (texts.some(t => !q.options.some(o => o.text === t))) return false;
+    if (q.type === QuestionType.CHECKBOX && q.maxSelections && texts.length > q.maxSelections) return false;
     return true;
   }
 }
