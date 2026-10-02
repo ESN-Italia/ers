@@ -6,11 +6,10 @@ import { IDEALoadingService, IDEAMessageService, IDEATranslationsService } from 
 import { AppService } from '@app/app.service';
 import { MediaService } from '@app/common/media.service';
 import { ERSEventsService } from '../ers-events.service';
-import { ERSEvent, EventSpot, EventQuestion, EventOptionalTicket, EventInvoice, QuestionType, EventType } from '@models/ersEvent.model';
+import { ERSEvent, EventSpot, EventQuestion, EventInvoice, QuestionType, EventType } from '@models/ersEvent.model';
 import { QuestionEditorComponent } from './question-editor/question-editor.component';
 import { BulkDeleteComponent } from './bulk-delete/bulk-delete.component';
 import { InvoiceEditorComponent } from './invoice-editor/invoice-editor.component';
-import { OptionalTicketEditorComponent } from './optional-ticket-editor/optional-ticket-editor.component';
 import { addIcons } from 'ionicons';
 import { archive, cloudUploadOutline, copy, createOutline, linkOutline, openOutline, refresh, trash } from 'ionicons/icons';
 
@@ -25,6 +24,7 @@ export class ManageEventPage implements OnInit {
   event: ERSEvent;
 
   editMode = UXMode.VIEW;
+  QuestionType = QuestionType;
   UXMode = UXMode;
   errors = new Set<string>();
   entityBeforeChange: ERSEvent;
@@ -66,7 +66,6 @@ export class ManageEventPage implements OnInit {
         if (!this.app.user.isAdministrator && !this.app.user.canManageERSEvents) return this.app.closePage('COMMON.UNAUTHORIZED');
         this.event = new ERSEvent({});
         this.event.spots = [];
-        this.event.optionalTickets = [];
         this.event.questions = [];
         this.event.additionalManagersIds = [];
         this.event.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -151,7 +150,6 @@ export class ManageEventPage implements OnInit {
 
   trackByQuestionId(_: number, q: EventQuestion): string { return q.id; }
   trackBySpotId(_: number, s: EventSpot): string { return s.id; }
-  trackByTicketId(_: number, t: EventOptionalTicket): string { return t.id; }
   trackByInvoiceId(_: number, i: EventInvoice): string { return i.id; }
 
   async addInvoice(): Promise<void> {
@@ -214,9 +212,9 @@ export class ManageEventPage implements OnInit {
     const { data } = await modal.onDidDismiss();
     if (data?.length) {
       this.event.invoices = this.event.invoices.filter(invoice => !data.includes(invoice.id));
-      // Unassign optional tickets that pointed to a removed invoice (they fall back to the primary).
-      this.event.optionalTickets?.forEach(t => {
-        if (t.invoiceId && !this.event.invoices.find(i => i.id === t.invoiceId)) t.invoiceId = null;
+      // Unassign questions billed to a removed invoice (their prices fall back to the primary).
+      this.event.questions?.forEach(q => {
+        if (q.invoiceId && !this.event.invoices.find(i => i.id === q.invoiceId)) delete q.invoiceId;
       });
       this.normalizeInvoices();
     }
@@ -285,50 +283,9 @@ export class ManageEventPage implements OnInit {
     }
   }
 
-  async addOptionalTicket(): Promise<void> {
-    const modal = await this.modalCtrl.create({
-      component: OptionalTicketEditorComponent,
-      componentProps: { event: this.event }
-    });
-    modal.onDidDismiss().then(({ data }) => {
-      if (data) {
-        if (!this.event.optionalTickets) this.event.optionalTickets = [];
-        this.event.optionalTickets.push(data);
-      }
-    });
-    await modal.present();
-  }
-
-  async editOptionalTicket(ticket: EventOptionalTicket): Promise<void> {
-    const modal = await this.modalCtrl.create({
-      component: OptionalTicketEditorComponent,
-      componentProps: { ticket, event: this.event }
-    });
-    modal.onDidDismiss().then(({ data }) => {
-      if (data) {
-        const index = this.event.optionalTickets.findIndex(t => t.id === data.id);
-        if (index !== -1) this.event.optionalTickets[index] = data;
-      }
-    });
-    await modal.present();
-  }
-
   getInvoiceName(invoiceId?: string): string {
     const id = invoiceId || this.event.getPrimaryInvoice()?.id;
     return this.event.invoices?.find(i => i.id === id)?.name || '';
-  }
-
-  async bulkRemoveOptionalTickets(): Promise<void> {
-    const items = this.event.optionalTickets.map(ticket => ({ id: ticket.id, label: ticket.name }));
-    const modal = await this.modalCtrl.create({
-      component: BulkDeleteComponent,
-      componentProps: { items }
-    });
-    await modal.present();
-    const { data } = await modal.onDidDismiss();
-    if (data?.length) {
-      this.event.optionalTickets = this.event.optionalTickets.filter(ticket => !data.includes(ticket.id));
-    }
   }
 
   async addQuestion(): Promise<void> {
@@ -403,10 +360,6 @@ export class ManageEventPage implements OnInit {
     if (q.spotIdCondition) {
       const spot = this.event.spots.find(s => s.id === q.spotIdCondition);
       return `${this.t._('ERS_EVENTS.CONDITION_DISPLAY_SPOT')}: ${spot?.name || '?'}`;
-    }
-    if (q.optionalTicketIdCondition) {
-      const ticket = this.event.optionalTickets.find(t => t.id === q.optionalTicketIdCondition);
-      return `${this.t._('ERS_EVENTS.CONDITION_DISPLAY_TICKET')}: ${ticket?.name || '?'}`;
     }
     if (q.dependsOnQuestionId) {
       const parent = this.event.questions.find(pq => pq.id === q.dependsOnQuestionId);

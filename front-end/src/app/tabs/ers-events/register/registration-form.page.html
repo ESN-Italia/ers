@@ -40,24 +40,6 @@
       </ion-item>
     </div>
 
-    <ng-container *ngIf="event.optionalTickets?.length">
-      <ion-list-header>
-        <ion-label>
-          <h2>{{ 'ERS_EVENTS.OPTIONAL_TICKETS' | translate }}</h2>
-        </ion-label>
-      </ion-list-header>
-      <ion-item *ngFor="let ticket of event.optionalTickets">
-        <ion-checkbox slot="start" labelPlacement="end" [checked]="isOptionalTicketSelected(ticket.id)"
-          (ionChange)="toggleOptionalTicket(ticket.id)">
-          <ion-label class="ion-text-wrap">
-            <h3>{{ ticket.name }}</h3>
-            <p *ngIf="ticket.description">{{ ticket.description }}</p>
-            <p>{{ 'ERS_EVENTS.PRICE' | translate }}: {{ ticket.price | currency:'EUR' }}</p>
-          </ion-label>
-        </ion-checkbox>
-      </ion-item>
-    </ng-container>
-
     <!-- Cost breakdown: what the participant will pay, split by invoice -->
     <ng-container *ngIf="getApplicableInvoices().length">
       <ion-list-header>
@@ -243,22 +225,36 @@
         <!-- Radiobox -->
         <ion-radio-group *ngIf="question.type === QuestionType.RADIOBOX"
           [(ngModel)]="registration.answers[question.id]">
-          <ion-list-header [class.fieldHasError]="hasFieldAnError('answers[' + question.id + '] required')">
-            <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
+          <ion-list-header [class.fieldHasError]="hasQuestionError(question)">
+            <ion-label class="ion-text-wrap">
+              {{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span>
+              <p *ngIf="question.description" class="questionDescription">{{ question.description }}</p>
+            </ion-label>
           </ion-list-header>
           <ion-item *ngFor="let option of question.options">
-            <ion-radio slot="start" labelPlacement="end" [value]="option">{{ option }}</ion-radio>
+            <ion-radio slot="start" labelPlacement="end" [value]="option.text">
+              {{ option.text }}<span *ngIf="option.price > 0" class="optionPrice"> (+{{ option.price | currency:'EUR' }})</span>
+            </ion-radio>
           </ion-item>
         </ion-radio-group>
 
         <!-- Checkbox -->
         <ng-container *ngIf="question.type === QuestionType.CHECKBOX">
-          <ion-list-header [class.fieldHasError]="hasFieldAnError('answers[' + question.id + '] required')">
-            <ion-label>{{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span></ion-label>
+          <ion-list-header [class.fieldHasError]="hasQuestionError(question)">
+            <ion-label class="ion-text-wrap">
+              {{ question.text }} <span *ngIf="question.required" class="obligatoryDot">*</span>
+              <p *ngIf="question.description" class="questionDescription">{{ question.description }}</p>
+              <p *ngIf="question.maxSelections" class="questionDescription">
+                {{ 'ERS_EVENTS.CHOOSE_UP_TO' | translate: { max: question.maxSelections } }}
+              </p>
+            </ion-label>
           </ion-list-header>
           <ion-item *ngFor="let option of question.options">
-            <ion-checkbox slot="start" labelPlacement="end" [checked]="isCheckboxChecked(question.id, option)"
-              (ionChange)="toggleCheckbox(question.id, option)">{{ option }}</ion-checkbox>
+            <ion-checkbox slot="start" labelPlacement="end" [checked]="isCheckboxChecked(question.id, option.text)"
+              [disabled]="isCheckboxDisabled(question, option.text)"
+              (ionChange)="toggleCheckbox(question, option.text)">
+              {{ option.text }}<span *ngIf="option.price > 0" class="optionPrice"> (+{{ option.price | currency:'EUR' }})</span>
+            </ion-checkbox>
           </ion-item>
         </ng-container>
         <!-- Date -->

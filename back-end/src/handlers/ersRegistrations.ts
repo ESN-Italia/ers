@@ -66,13 +66,23 @@ class ERSRegistrationsRC extends ResourceController {
 
     if (this.resourceId) {
       try {
-        this.registration = new ERSRegistration(
+        this.registration = this.loadRegistration(
           await ddb.get({ TableName: DDB_TABLES.registrations, Key: { eventId, registrationId: this.resourceId } })
         );
       } catch (err) {
         throw new HandledError('Registration not found');
       }
     }
+  }
+
+  /**
+   * Registrations created before optional tickets became priced questions are read (and saved back) with their ticket
+   * selections as answers.
+   */
+  private loadRegistration(x: any): ERSRegistration {
+    const registration = new ERSRegistration(x);
+    this.managedEvent.migrateLegacyTicketSelections(registration);
+    return registration;
   }
 
   protected async getResources(): Promise<ERSRegistration[]> {
@@ -86,7 +96,7 @@ class ERSRegistrationsRC extends ResourceController {
         TableName: DDB_TABLES.registrations,
         KeyConditionExpression: 'eventId = :eventId',
         ExpressionAttributeValues: { ':eventId': this.managedEvent.eventId }
-      })).map(x => new ERSRegistration(x));
+      })).map(x => this.loadRegistration(x));
     } else {
       result = (await ddb.query({
         TableName: DDB_TABLES.registrations,
@@ -94,7 +104,7 @@ class ERSRegistrationsRC extends ResourceController {
         KeyConditionExpression: 'userId = :userId',
         FilterExpression: 'eventId = :eventId',
         ExpressionAttributeValues: { ':userId': this.galaxyUser.userId, ':eventId': this.managedEvent.eventId }
-      })).map(x => new ERSRegistration(x));
+      })).map(x => this.loadRegistration(x));
     }
 
     return result;
@@ -112,7 +122,7 @@ class ERSRegistrationsRC extends ResourceController {
     });
     if (existing.length) throw new HandledError('User already registered');
 
-    this.registration = new ERSRegistration(this.body);
+    this.registration = this.loadRegistration(this.body);
     this.registration.eventId = this.managedEvent.eventId;
     this.registration.userId = this.galaxyUser.userId;
 
@@ -161,6 +171,7 @@ class ERSRegistrationsRC extends ResourceController {
 
     const oldRegistration = new ERSRegistration(this.registration);
     this.registration.safeLoad(this.body, oldRegistration);
+    this.managedEvent.migrateLegacyTicketSelections(this.registration);
     this.registration.updatedAt = new Date().toISOString();
 
     // Only the participants can give or withdraw their own photo/video consent, never a manager on their behalf.
