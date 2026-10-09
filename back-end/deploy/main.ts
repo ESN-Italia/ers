@@ -132,10 +132,10 @@ const createApp = async (): Promise<void> => {
     lambdaLogLevel: STAGE_VARIABLES.logLevel ?? 'INFO',
     appDomain: STAGE === 'prod' && PROD_CUSTOM_DOMAIN ? PROD_CUSTOM_DOMAIN : STAGE_VARIABLES.domain
   });
-  apiStack.addDependency(mediaStack);
-  apiStack.addDependency(apiDomainStack);
-  apiStack.addDependency(webSocketApiDomainStack);
-  apiStack.addDependency(sesStack);
+  apiStack.addStackDependency(mediaStack);
+  apiStack.addStackDependency(apiDomainStack);
+  apiStack.addStackDependency(webSocketApiDomainStack);
+  apiStack.addStackDependency(sesStack);
 
   new FrontEndStack(app, `${parameters.project}-${STAGE}-front-end`, {
     env,

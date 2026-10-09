@@ -49,12 +49,12 @@ const defaultLambdaFnProps: NodejsFunctionProps = {
   bundling: { minify: true, sourceMap: true },
   environment: { NODE_OPTIONS: '--enable-source-maps' },
   logRetention: RetentionDays.TWO_WEEKS,
-  logFormat: Lambda.LogFormat.JSON
+  loggingFormat: Lambda.LoggingFormat.JSON
 };
 
 const defaultDDBTableProps: DDB.TableProps | any = {
   billingMode: DDB.BillingMode.PAY_PER_REQUEST,
-  pointInTimeRecovery: true
+  pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true }
 };
 
 export class ApiStack extends cdk.Stack {
@@ -192,7 +192,7 @@ export class ApiStack extends cdk.Stack {
         ...params.defaultLambdaFnProps,
         functionName: lambdaFnName,
         entry: `./src/handlers/${resource.name}.ts`,
-        applicationLogLevel: params.lambdaLogLevel
+        applicationLogLevelV2: Lambda.ApplicationLogLevel[params.lambdaLogLevel]
       });
 
       // link the Lambda function to the Resource Controller's paths (if any)
