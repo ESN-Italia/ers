@@ -14,3 +14,10 @@
 .optionPrice {
   color: var(--ion-color-medium);
 }
+
+ion-radio,
+ion-checkbox {
+  &::part(label) {
+    white-space: normal;
+  }
+}
