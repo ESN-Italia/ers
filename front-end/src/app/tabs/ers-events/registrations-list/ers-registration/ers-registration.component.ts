@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AppService } from '@app/app.service';
-import { ERSEvent } from '@models/ersEvent.model';
+import { ERSEvent, EventInvoice } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { addIcons } from 'ionicons';
 import { checkmarkOutline, chevronForward, closeOutline, walletOutline } from 'ionicons/icons';
