@@ -38,4 +38,13 @@ export class ERSRegistrationComponent {
   getSpotName(): string {
     return this.event?.spots?.find(s => s.id === this.registration?.spotId)?.name || 'Unknown';
   }
+
+  getApplicableInvoices(): EventInvoice[] {
+  if (!this.event || !this.registration) return [];
+  return this.event.getApplicableInvoices(this.registration);
+}
+
+hasProofOfPayment(invoiceId: string): boolean {
+  return !!this.registration?.payments?.[invoiceId]?.proofOfPayment?.key;
+}
 }
