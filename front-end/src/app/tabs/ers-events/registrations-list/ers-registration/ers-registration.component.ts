@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AppService } from '@app/app.service';
-import { ERSEvent } from '@models/ersEvent.model';
+import { ERSEvent, EventInvoice } from '@models/ersEvent.model';
 import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
 import { addIcons } from 'ionicons';
 import { checkmarkOutline, chevronForward, closeOutline, walletOutline } from 'ionicons/icons';
@@ -38,4 +38,13 @@ export class ERSRegistrationComponent {
   getSpotName(): string {
     return this.event?.spots?.find(s => s.id === this.registration?.spotId)?.name || 'Unknown';
   }
+
+  getApplicableInvoices(): EventInvoice[] {
+  if (!this.event || !this.registration) return [];
+  return this.event.getApplicableInvoices(this.registration);
+}
+
+hasProofOfPayment(invoiceId: string): boolean {
+  return !!this.registration?.payments?.[invoiceId]?.proofOfPayment?.key;
+}
 }

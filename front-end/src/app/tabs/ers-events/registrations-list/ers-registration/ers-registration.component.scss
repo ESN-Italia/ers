@@ -26,3 +26,22 @@ ion-row.headerRow {
 .tappable {
   cursor: pointer;
 }
+
+.payment-proofs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+
+  ion-badge {
+    font-size: 0.7em;
+    font-weight: 500;
+  }
+}
+
+.payment-proof-label {
+  margin-right: 4px;
+  font-size: 0.8em;
+  color: var(--ion-color-medium);
+}
