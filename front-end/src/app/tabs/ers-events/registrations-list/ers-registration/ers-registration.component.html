@@ -15,6 +15,25 @@
              'danger'">
           {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
         </ion-badge>
+        <div class="payment-proofs" *ngIf="getApplicableInvoices().length">
+  <span class="payment-proof-label">
+    {{ 'ERS_EVENTS.PAYMENT_PROOFS' | translate }}:
+  </span>
+
+  <ion-badge
+    *ngFor="let invoice of getApplicableInvoices()"
+    [color]="hasProofOfPayment(invoice.id) ? 'success' : 'warning'">
+
+    {{ invoice.name }}:
+    {{ (hasProofOfPayment(invoice.id)
+      ? 'ERS_EVENTS.PROOF_UPLOADED'
+      : 'ERS_EVENTS.PROOF_MISSING') | translate }}
+  </ion-badge>
+</div>
+
+<ion-note *ngIf="!getApplicableInvoices().length" class="payment-proofs">
+  {{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}
+</ion-note>
       </ion-label>
       <ion-button slot="end" fill="clear" (click)="select.emit()">
         <ion-icon name="chevron-forward" slot="icon-only"></ion-icon>
@@ -57,6 +76,7 @@
     <ion-col size="1.5">{{ 'ERS_EVENTS.SECTION' | translate }}</ion-col>
     <ion-col size="1.5">{{ 'ERS_EVENTS.SPOT' | translate }}</ion-col>
     <ion-col size="1.5">{{ 'ERS_EVENTS.STATUS' | translate }}</ion-col>
+    <ion-col size="1.5">{{ 'ERS_EVENTS.PAYMENT_PROOFS' | translate }}</ion-col>
   </ion-row>
 
   <ion-row class="ion-align-items-center row tappable" *ngIf="!header && registration" (click)="select.emit()">
@@ -78,17 +98,42 @@
     <ion-col size="1.5">
       {{ getSpotName() }}
     </ion-col>
-    <ion-col size="1.5">
-      <ion-badge [color]="
-        registration.status === RegistrationStatus.PENDING ? 'warning' :
-        registration.status === RegistrationStatus.APPROVED ? 'primary' :
-        registration.status === RegistrationStatus.PAID ? 'success' :
-        registration.status === RegistrationStatus.CONFIRMED ? 'success' :
-        'danger'">
-        {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
-      </ion-badge>
-    </ion-col>
-    <ion-col size="1" class="ion-text-right" (click)="$event.stopPropagation()">
+    <!-- Status -->
+<ion-col size="1.5">
+  <ion-badge [color]="
+    registration.status === RegistrationStatus.PENDING ? 'warning' :
+    registration.status === RegistrationStatus.APPROVED ? 'primary' :
+    registration.status === RegistrationStatus.PAID ? 'success' :
+    registration.status === RegistrationStatus.CONFIRMED ? 'success' :
+    'danger'">
+    {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
+  </ion-badge>
+</ion-col>
+
+<!-- Payment proofs -->
+<ion-col size="1.5" class="payment-proofs">
+  <ng-container
+    *ngIf="getApplicableInvoices().length; else noPaymentRequired">
+
+    <ion-badge
+      *ngFor="let invoice of getApplicableInvoices()"
+      [color]="hasProofOfPayment(invoice.id) ? 'success' : 'warning'">
+
+      {{ invoice.name }}:
+      {{ (hasProofOfPayment(invoice.id)
+        ? 'ERS_EVENTS.PROOF_UPLOADED'
+        : 'ERS_EVENTS.PROOF_MISSING') | translate }}
+    </ion-badge>
+
+  </ng-container>
+
+  <ng-template #noPaymentRequired>
+    {{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}
+  </ng-template>
+</ion-col>
+
+<!-- Actions -->
+<ion-col size="1" class="ion-text-right" (click)="$event.stopPropagation()">
       <ion-button fill="clear" size="small" color="success" *ngIf="registration.status === RegistrationStatus.PENDING"
         (click)="approve.emit()">
         <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
