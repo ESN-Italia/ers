@@ -359,13 +359,10 @@ class ERSRegistrationsRC extends ResourceController {
    * is CONFIRMED the registration is CONFIRMED, otherwise it stays APPROVED. Never touches PENDING/REJECTED.
    */
   private recomputeOverallStatus(): void {
-    if (this.registration.status === RegistrationStatus.PENDING || this.registration.status === RegistrationStatus.REJECTED) {
-      return;
-    }
-    const applicable = this.managedEvent.getApplicableInvoices(this.registration);
-    const allConfirmed = applicable.every(
-      inv => this.registration.payments[inv.id]?.status === InvoicePaymentStatus.CONFIRMED
-    );
+    if (!this.registration.isAtPaymentStage()) return;
+    const allConfirmed = this.registration
+      .getInvoicePayments(this.managedEvent)
+      .every(p => p.status === InvoicePaymentStatus.CONFIRMED);
     this.registration.status = allConfirmed ? RegistrationStatus.CONFIRMED : RegistrationStatus.APPROVED;
   }
 
