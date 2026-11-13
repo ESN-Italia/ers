@@ -362,8 +362,6 @@
     "REGISTRATIONS": "Registrations",
     "STATUS": "Status",
     "PAYMENT_PROOFS": "Payment proofs",
-    "PROOF_UPLOADED": "Uploaded",
-    "PROOF_MISSING": "Missing",
     "NO_PAYMENT_REQUIRED": "Not required",
     "STATUS_PENDING": "Pending",
     "STATUS_APPROVED": "Approved",

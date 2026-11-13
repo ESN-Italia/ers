@@ -15,13 +15,13 @@
              'danger'">
           {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
         </ion-badge>
-        <div class="payment-proofs" *ngIf="applicableInvoices.length; else cardNoPaymentRequired">
+        <div class="payment-proofs" *ngIf="invoicePayments.length">
           <span class="payment-proof-label">{{ 'ERS_EVENTS.PAYMENT_PROOFS' | translate }}:</span>
           <ng-container *ngTemplateOutlet="proofBadges"></ng-container>
         </div>
-        <ng-template #cardNoPaymentRequired>
-          <ion-note class="payment-proofs">{{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}</ion-note>
-        </ng-template>
+        <ion-note *ngIf="!paymentRequired" class="payment-proofs">
+          {{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}
+        </ion-note>
       </ion-label>
       <ion-button slot="end" fill="clear" (click)="select.emit()">
         <ion-icon name="chevron-forward" slot="icon-only"></ion-icon>
@@ -101,10 +101,8 @@
 
 <!-- Payment proofs -->
 <ion-col size="1.5" class="payment-proofs">
-  <ng-container *ngIf="applicableInvoices.length; else rowNoPaymentRequired">
-    <ng-container *ngTemplateOutlet="proofBadges"></ng-container>
-  </ng-container>
-  <ng-template #rowNoPaymentRequired>{{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}</ng-template>
+  <ng-container *ngTemplateOutlet="proofBadges"></ng-container>
+  <ng-container *ngIf="!paymentRequired">{{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}</ng-container>
 </ion-col>
 
 <!-- Actions -->
@@ -138,11 +136,9 @@
 </ion-row>
 </ng-container>
 
-<!-- Payment-proof badges, shared by the card and row layouts -->
+<!-- Per-invoice payment badges, shared by the card and row layouts (same status/colour as the detail page) -->
 <ng-template #proofBadges>
-  <ion-badge *ngFor="let invoice of applicableInvoices"
-    [color]="hasProofOfPayment(invoice.id) ? 'success' : 'warning'">
-    {{ invoice.name }}:
-    {{ (hasProofOfPayment(invoice.id) ? 'ERS_EVENTS.PROOF_UPLOADED' : 'ERS_EVENTS.PROOF_MISSING') | translate }}
+  <ion-badge *ngFor="let p of invoicePayments" [color]="invoicePaymentStatusColor(p.status)">
+    {{ p.invoice.name }}: {{ ('ERS_EVENTS.STATUS_' + p.status) | translate }}
   </ion-badge>
 </ng-template>

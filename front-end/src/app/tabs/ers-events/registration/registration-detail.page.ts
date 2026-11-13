@@ -10,6 +10,7 @@ import { EditSpotComponent } from './edit-spot.component';
 import { ERSEvent, EventInvoice, QuestionType } from '@models/ersEvent.model';
 import { ERSRegistration, InvoicePayment, InvoicePaymentStatus, RegistrationStatus } from '@models/ersRegistration.model';
 import { formatInTimeZone } from 'date-fns-tz';
+import { invoicePaymentStatusColor } from '../invoicePayment.utils';
 
 import { addIcons } from 'ionicons';
 import { arrowBack, attach, calendarSharp, checkmarkDoneOutline, closeCircleOutline, cloudUpload, createOutline, documentOutline, downloadOutline, informationCircle, locationSharp, optionsOutline, trashOutline } from 'ionicons/icons';
@@ -162,28 +163,16 @@ export class RegistrationDetailPage implements OnInit {
     return this.event.getApplicableInvoices(this.registration);
   }
   hasPayments(): boolean {
-    // APPROVED/CONFIRMED are the states where per-invoice payments exist. PAID is included so that
-    // registrations migrated from the legacy single-invoice model (whose overall status is still PAID)
-    // keep rendering their invoice/proof section instead of hiding it.
-    return (
-      (this.registration?.status === RegistrationStatus.APPROVED ||
-        this.registration?.status === RegistrationStatus.PAID ||
-        this.registration?.status === RegistrationStatus.CONFIRMED) &&
-      this.getApplicableInvoices().length > 0
-    );
+    return !!this.event && !!this.registration && this.registration.getInvoicePayments(this.event).length > 0;
   }
   getPayment(invoiceId: string): InvoicePayment | undefined {
     return this.registration?.payments?.[invoiceId];
   }
   getPaymentStatus(invoice: EventInvoice): InvoicePaymentStatus {
-    return this.getPayment(invoice.id)?.status ?? InvoicePaymentStatus.PENDING;
+    return this.registration?.getInvoicePaymentStatus(invoice.id) ?? InvoicePaymentStatus.PENDING;
   }
   paymentStatusColor(invoice: EventInvoice): string {
-    switch (this.getPaymentStatus(invoice)) {
-      case InvoicePaymentStatus.CONFIRMED: return 'success';
-      case InvoicePaymentStatus.PAID: return 'warning';
-      default: return 'medium';
-    }
+    return invoicePaymentStatusColor(this.getPaymentStatus(invoice));
   }
   getInvoiceAmount(invoice: EventInvoice): number {
     return this.event.getInvoiceAmountForRegistration(invoice, this.registration);

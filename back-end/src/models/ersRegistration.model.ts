@@ -1,6 +1,6 @@
 import { epochISOString, Resource } from 'idea-toolbox';
 
-import { ERSEvent, DEFAULT_INVOICE_ID, EventQuestion, QuestionType } from './ersEvent.model';
+import { ERSEvent, DEFAULT_INVOICE_ID, EventInvoice, EventQuestion, QuestionType } from './ersEvent.model';
 import { Subject } from './subject.model';
 import { isValidPhone } from './utils';
 
@@ -82,6 +82,15 @@ export class InvoicePayment extends Resource {
     this.proofOfPayment = this.clean(x.proofOfPayment, r => new ProofOfPayment(r));
     if (x.confirmedAt) this.confirmedAt = this.clean(x.confirmedAt, d => new Date(d).toISOString());
   }
+}
+
+/**
+ * An applicable invoice together with the registration's payment state for it.
+ */
+export interface InvoicePaymentState {
+  invoice: EventInvoice;
+  status: InvoicePaymentStatus;
+  payment?: InvoicePayment;
 }
 
 export class ERSRegistration extends Resource {
@@ -257,6 +266,38 @@ export class ERSRegistration extends Resource {
     }
 
     return e;
+  }
+
+  /**
+   * Whether the registration is at a stage where its per-invoice payments exist and matter. PAID is included so that
+   * registrations migrated from the legacy single-invoice model (whose overall status is still PAID) keep showing them.
+   */
+  isAtPaymentStage(): boolean {
+    return (
+      this.status === RegistrationStatus.APPROVED ||
+      this.status === RegistrationStatus.PAID ||
+      this.status === RegistrationStatus.CONFIRMED
+    );
+  }
+
+  /**
+   * The payment status of one invoice; an invoice with no payment entry yet counts as PENDING.
+   */
+  getInvoicePaymentStatus(invoiceId: string): InvoicePaymentStatus {
+    return this.payments?.[invoiceId]?.status ?? InvoicePaymentStatus.PENDING;
+  }
+
+  /**
+   * The invoices this registration has to pay, each with its payment state. Empty when nothing is owed yet: either no
+   * invoice applies, or the registration isn't at a payment stage (see `isAtPaymentStage`).
+   */
+  getInvoicePayments(event: ERSEvent): InvoicePaymentState[] {
+    if (!this.isAtPaymentStage()) return [];
+    return event.getApplicableInvoices(this).map(invoice => ({
+      invoice,
+      status: this.getInvoicePaymentStatus(invoice.id),
+      payment: this.payments?.[invoice.id]
+    }));
   }
 
   shouldShowQuestion(q: EventQuestion, event: ERSEvent): boolean {

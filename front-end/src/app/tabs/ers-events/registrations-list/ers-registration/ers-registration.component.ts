@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 import { AppService } from '@app/app.service';
-import { ERSEvent, EventInvoice } from '@models/ersEvent.model';
-import { ERSRegistration, RegistrationStatus } from '@models/ersRegistration.model';
+import { ERSEvent } from '@models/ersEvent.model';
+import { ERSRegistration, InvoicePaymentState, RegistrationStatus } from '@models/ersRegistration.model';
+import { invoicePaymentStatusColor } from '../../invoicePayment.utils';
 import { addIcons } from 'ionicons';
 import { checkmarkOutline, chevronForward, closeOutline, walletOutline } from 'ionicons/icons';
 
@@ -26,7 +27,11 @@ export class ERSRegistrationComponent implements OnChanges {
   @Output() confirmPayment = new EventEmitter<void>();
 
   RegistrationStatus = RegistrationStatus;
-  applicableInvoices: EventInvoice[] = [];
+  invoicePaymentStatusColor = invoicePaymentStatusColor;
+  /** Per-invoice payment state; empty until the registration is at a payment stage (approved or later). */
+  invoicePayments: InvoicePaymentState[] = [];
+  /** Whether any invoice applies at all, i.e. whether "not required" should be shown when there's nothing to list. */
+  paymentRequired = false;
 
   constructor(public app: AppService) {
     addIcons({ checkmarkOutline, chevronForward, closeOutline, walletOutline }); }
@@ -42,12 +47,9 @@ export class ERSRegistrationComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['event'] || changes['registration']) {
-      this.applicableInvoices =
-        this.event && this.registration ? this.event.getApplicableInvoices(this.registration) : [];
+      const ready = !!this.event && !!this.registration;
+      this.invoicePayments = ready ? this.registration.getInvoicePayments(this.event) : [];
+      this.paymentRequired = ready && this.event.getApplicableInvoices(this.registration).length > 0;
     }
-  }
-
-  hasProofOfPayment(invoiceId: string): boolean {
-    return !!this.registration?.payments?.[invoiceId]?.proofOfPayment?.key;
   }
 }
