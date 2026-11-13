@@ -15,25 +15,13 @@
              'danger'">
           {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
         </ion-badge>
-        <div class="payment-proofs" *ngIf="getApplicableInvoices().length">
-  <span class="payment-proof-label">
-    {{ 'ERS_EVENTS.PAYMENT_PROOFS' | translate }}:
-  </span>
-
-  <ion-badge
-    *ngFor="let invoice of getApplicableInvoices()"
-    [color]="hasProofOfPayment(invoice.id) ? 'success' : 'warning'">
-
-    {{ invoice.name }}:
-    {{ (hasProofOfPayment(invoice.id)
-      ? 'ERS_EVENTS.PROOF_UPLOADED'
-      : 'ERS_EVENTS.PROOF_MISSING') | translate }}
-  </ion-badge>
-</div>
-
-<ion-note *ngIf="!getApplicableInvoices().length" class="payment-proofs">
-  {{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}
-</ion-note>
+        <div class="payment-proofs" *ngIf="applicableInvoices.length; else cardNoPaymentRequired">
+          <span class="payment-proof-label">{{ 'ERS_EVENTS.PAYMENT_PROOFS' | translate }}:</span>
+          <ng-container *ngTemplateOutlet="proofBadges"></ng-container>
+        </div>
+        <ng-template #cardNoPaymentRequired>
+          <ion-note class="payment-proofs">{{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}</ion-note>
+        </ng-template>
       </ion-label>
       <ion-button slot="end" fill="clear" (click)="select.emit()">
         <ion-icon name="chevron-forward" slot="icon-only"></ion-icon>
@@ -113,24 +101,10 @@
 
 <!-- Payment proofs -->
 <ion-col size="1.5" class="payment-proofs">
-  <ng-container
-    *ngIf="getApplicableInvoices().length; else noPaymentRequired">
-
-    <ion-badge
-      *ngFor="let invoice of getApplicableInvoices()"
-      [color]="hasProofOfPayment(invoice.id) ? 'success' : 'warning'">
-
-      {{ invoice.name }}:
-      {{ (hasProofOfPayment(invoice.id)
-        ? 'ERS_EVENTS.PROOF_UPLOADED'
-        : 'ERS_EVENTS.PROOF_MISSING') | translate }}
-    </ion-badge>
-
+  <ng-container *ngIf="applicableInvoices.length; else rowNoPaymentRequired">
+    <ng-container *ngTemplateOutlet="proofBadges"></ng-container>
   </ng-container>
-
-  <ng-template #noPaymentRequired>
-    {{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}
-  </ng-template>
+  <ng-template #rowNoPaymentRequired>{{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}</ng-template>
 </ion-col>
 
 <!-- Actions -->
@@ -163,3 +137,12 @@
   <ion-col size="1"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
 </ion-row>
 </ng-container>
+
+<!-- Payment-proof badges, shared by the card and row layouts -->
+<ng-template #proofBadges>
+  <ion-badge *ngFor="let invoice of applicableInvoices"
+    [color]="hasProofOfPayment(invoice.id) ? 'success' : 'warning'">
+    {{ invoice.name }}:
+    {{ (hasProofOfPayment(invoice.id) ? 'ERS_EVENTS.PROOF_UPLOADED' : 'ERS_EVENTS.PROOF_MISSING') | translate }}
+  </ion-badge>
+</ng-template>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 import { AppService } from '@app/app.service';
 import { ERSEvent, EventInvoice } from '@models/ersEvent.model';
@@ -12,7 +12,7 @@ import { checkmarkOutline, chevronForward, closeOutline, walletOutline } from 'i
   templateUrl: './ers-registration.component.html',
   styleUrls: ['./ers-registration.component.scss']
 })
-export class ERSRegistrationComponent {
+export class ERSRegistrationComponent implements OnChanges {
   @Input() registration: ERSRegistration | null;
   @Input() event: ERSEvent | null;
   @Input() row = false;
@@ -26,6 +26,7 @@ export class ERSRegistrationComponent {
   @Output() confirmPayment = new EventEmitter<void>();
 
   RegistrationStatus = RegistrationStatus;
+  applicableInvoices: EventInvoice[] = [];
 
   constructor(public app: AppService) {
     addIcons({ checkmarkOutline, chevronForward, closeOutline, walletOutline }); }
@@ -39,12 +40,14 @@ export class ERSRegistrationComponent {
     return this.event?.spots?.find(s => s.id === this.registration?.spotId)?.name || 'Unknown';
   }
 
-  getApplicableInvoices(): EventInvoice[] {
-  if (!this.event || !this.registration) return [];
-  return this.event.getApplicableInvoices(this.registration);
-}
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['event'] || changes['registration']) {
+      this.applicableInvoices =
+        this.event && this.registration ? this.event.getApplicableInvoices(this.registration) : [];
+    }
+  }
 
-hasProofOfPayment(invoiceId: string): boolean {
-  return !!this.registration?.payments?.[invoiceId]?.proofOfPayment?.key;
-}
+  hasProofOfPayment(invoiceId: string): boolean {
+    return !!this.registration?.payments?.[invoiceId]?.proofOfPayment?.key;
+  }
 }
