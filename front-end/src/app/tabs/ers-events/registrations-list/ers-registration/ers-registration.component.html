@@ -15,6 +15,13 @@
              'danger'">
           {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
         </ion-badge>
+        <div class="payment-proofs" *ngIf="invoicePayments.length">
+          <span class="payment-proof-label">{{ 'ERS_EVENTS.PAYMENT_PROOFS' | translate }}:</span>
+          <ng-container *ngTemplateOutlet="proofBadges"></ng-container>
+        </div>
+        <ion-note *ngIf="!paymentRequired" class="payment-proofs">
+          {{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}
+        </ion-note>
       </ion-label>
       <ion-button slot="end" fill="clear" (click)="select.emit()">
         <ion-icon name="chevron-forward" slot="icon-only"></ion-icon>
@@ -51,25 +58,27 @@
 <ng-container *ngIf="row">
   <ion-row class="ion-align-items-center headerRow" *ngIf="header">
     <ion-col size="0.5"></ion-col>
-    <ion-col size="2">{{ 'ERS_EVENTS.USER_NAME' | translate }}</ion-col>
-    <ion-col size="2.5">{{ 'ERS_EVENTS.EMAIL' | translate }}</ion-col>
-    <ion-col size="1.5">{{ 'ERS_EVENTS.PHONE' | translate }}</ion-col>
+    <ion-col size="1.5">{{ 'ERS_EVENTS.USER_NAME' | translate }}</ion-col>
+    <ion-col size="2">{{ 'ERS_EVENTS.EMAIL' | translate }}</ion-col>
+    <ion-col size="1">{{ 'ERS_EVENTS.PHONE' | translate }}</ion-col>
     <ion-col size="1.5">{{ 'ERS_EVENTS.SECTION' | translate }}</ion-col>
     <ion-col size="1.5">{{ 'ERS_EVENTS.SPOT' | translate }}</ion-col>
     <ion-col size="1.5">{{ 'ERS_EVENTS.STATUS' | translate }}</ion-col>
+    <ion-col size="1.5">{{ 'ERS_EVENTS.PAYMENT_PROOFS' | translate }}</ion-col>
+    <ion-col size="1"></ion-col>
   </ion-row>
 
   <ion-row class="ion-align-items-center row tappable" *ngIf="!header && registration" (click)="select.emit()">
     <ion-col size="0.5" (click)="$event.stopPropagation()">
       <ion-checkbox [checked]="selected" (ionChange)="toggleSelection.emit($event)"></ion-checkbox>
     </ion-col>
-    <ion-col size="2">
+    <ion-col size="1.5">
       <b>{{ getUserName() }}</b>
     </ion-col>
-    <ion-col size="2.5">
+    <ion-col size="2">
       {{ registration.subject.email }}
     </ion-col>
-    <ion-col size="1.5">
+    <ion-col size="1">
       {{ registration.subject.phone }}
     </ion-col>
     <ion-col size="1.5">
@@ -78,17 +87,26 @@
     <ion-col size="1.5">
       {{ getSpotName() }}
     </ion-col>
-    <ion-col size="1.5">
-      <ion-badge [color]="
-        registration.status === RegistrationStatus.PENDING ? 'warning' :
-        registration.status === RegistrationStatus.APPROVED ? 'primary' :
-        registration.status === RegistrationStatus.PAID ? 'success' :
-        registration.status === RegistrationStatus.CONFIRMED ? 'success' :
-        'danger'">
-        {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
-      </ion-badge>
-    </ion-col>
-    <ion-col size="1" class="ion-text-right" (click)="$event.stopPropagation()">
+    <!-- Status -->
+<ion-col size="1.5">
+  <ion-badge [color]="
+    registration.status === RegistrationStatus.PENDING ? 'warning' :
+    registration.status === RegistrationStatus.APPROVED ? 'primary' :
+    registration.status === RegistrationStatus.PAID ? 'success' :
+    registration.status === RegistrationStatus.CONFIRMED ? 'success' :
+    'danger'">
+    {{ ('ERS_EVENTS.STATUS_' + registration.status) | translate }}
+  </ion-badge>
+</ion-col>
+
+<!-- Payment proofs -->
+<ion-col size="1.5" class="payment-proofs">
+  <ng-container *ngTemplateOutlet="proofBadges"></ng-container>
+  <ng-container *ngIf="!paymentRequired">{{ 'ERS_EVENTS.NO_PAYMENT_REQUIRED' | translate }}</ng-container>
+</ion-col>
+
+<!-- Actions -->
+<ion-col size="1" class="ion-text-right" (click)="$event.stopPropagation()">
       <ion-button fill="clear" size="small" color="success" *ngIf="registration.status === RegistrationStatus.PENDING"
         (click)="approve.emit()">
         <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
@@ -105,14 +123,22 @@
   </ion-row>
 
   <!-- skeleton -->
-  <ion-row class="ion-align-items-center row" *ngIf="!header && !registration">
-    <ion-col size="0.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
-    <ion-col size="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
-    <ion-col size="2.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
-    <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
-    <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
-    <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
-    <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
-    <ion-col size="1"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
-  </ion-row>
+<ion-row class="ion-align-items-center row" *ngIf="!header && !registration">
+  <ion-col size="0.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  <ion-col size="2"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  <ion-col size="1"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  <ion-col size="1.5"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+  <ion-col size="1"><ion-skeleton-text animated></ion-skeleton-text></ion-col>
+</ion-row>
 </ng-container>
+
+<!-- Per-invoice payment badges, shared by the card and row layouts (same status/colour as the detail page) -->
+<ng-template #proofBadges>
+  <ion-badge *ngFor="let p of invoicePayments" [color]="invoicePaymentStatusColor(p.status)">
+    {{ p.invoice.name }}: {{ ('ERS_EVENTS.STATUS_' + p.status) | translate }}
+  </ion-badge>
+</ng-template>
